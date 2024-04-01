@@ -1,0 +1,147 @@
+https://github.com/yonggyo1125/project_based_curriculum
+
+ctrl+Shift+B ( 크롬 북마크 상단고정)
+
+https://meet.jit.si/502class
+
+4월초 평가예정
+
+
+MSA - Microsoft Service Architechure
+
+<깃 설치>
+
+git-scm.com
+=> windows default console 만 옵션 바꿔줌
+확인
+cmd -> ...>git
+
+저장소(리파지토리) 생성
+git init
+
+cd D:\hjchoi
+D:\hjchoi> git init
+
+계정연결
+ git config --global user.email "깃허브가입email"
+ git config --global user.name "깃허브가입 사용자명"
+
+ git config --global user.email hjchoir@naver.com
+ git config --global user.name hjchoirr
+ git add .
+ git commit -m "작업1"         #fatal: unknown write failure on standard output  <= 한글때문에 
+
+커밋로그확인
+ git log   => 만일 안나가면 q
+ git log --oneline : 한줄로 커밋로그 보여줘
+
+버전관리
+ git checkout 커밋ID 
+ -> 커밋ID 시점으로 되돌리기
+ git checkout -
+ -> 직전시점으로 돌아가기
+ 
+브랜치관리
+ git branch : 현재 브랜치의 목록
+ git branch 생성할브랜치명  => 현재 브랜치의 소스 -> 생성할 브랜치에 반영됨
+ git branch member
+
+브랜치변경
+ git checkout 브랜치명
+ git checkout member  <- member 브랜치로 이동
+ git branch <- 현재위치한 브랜치
+
+소스합치기
+ git merge 병합할 브랜치명
+  -> 현재 소스에 병합할 브랜치 소스 
+ git checkout member
+ git merge board
+
+원격 브랜치 연결
+  로컬 리파지토리 -> 원격 리파지토리 / 상태공유
+  git remote add origin 원격리파지토리 주소    
+                                 https://github.com/hjchoirr/class502_13.git
+  
+  git remote set-url origin 원격리파지토리 주소 ->변경
+
+  git push origin 브랜치명
+   로컬 저장된 브랜치 -> 원격저장소의 브랜치로 상태반영
+  git pull origin 원격브랜치명    ( origin은 원격이란 뜻 )
+   원격저장소의 브랜치를 
+ 
+
+스테이지 단계 
+git add 파일, 경로
+git add . : 변경된 모든 파일
+
+스냅샷단계/커밋단계
+git commit -m 작업내용
+
+
+
+
+VSCODE 설치
+file-preference-settings
+
+file-open folder - 형상관리 ( trust 옵션체크 )
+왼쪽 Explorer -형상관리 - new file - README.md 
+
+
+
+
+git init
+git remote add origin 주소
+git pull origin 브랜치명
+
+위 세줄 대신==> git clone 원격브랜치명
+
+
+마스터 Branch protection rules - 깃헙에서
+ Branch name pattern
+ Require a pull request before merging
+  Require approvals ( 일단 체크해제 )
+ Do not allow bypassing the above settings
+
+
+
+git tag 버전명칭 -> 생성시점의 소스를 다운
+git tag v1.0.0  (로컬)
+git push origin v1.0.0
+
+GUI - sourcetree
+- 버킷 건너뛰기, mercuriot 해제, SSH키 아니오
+
+
+.gitignore  : 원격반영 배제
+
+CONFIG.md  - 파일명으로 배제
+CONFIG.*     - 
+./uploads/    - 현재경로의 uploads 폴더의 모든파일
+uploads/  - 현재 경로 포함 모든 경로의 uploads 폴더의 모든파일
+
+
+
+
+
+HTML
+
+<!DOCTYPE html>  -> HTML5버전임을 알려주는 태그
+<html>~</html>
+<head></head> : 사이트에서 보이지 않는 부분
+                          - 정보, 자원(스타일파일, 자바스크립트파일)
+                          - meta
+<body></body> : 사이트에서 보이는 부분
+
+
+
+
+
+
+
+
+
+
+
+
+
+

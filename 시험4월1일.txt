@@ -1,0 +1,173 @@
+
+---시험---4/1----------------------------
+------------------------------------------
+
+<b><strong>
+<mark>
+<img src="" alt="" >
+form 태그중 꼭 입력필수 requred
+
+한줄로 배치하되 상하좌우 모두 .. 가능하게
+display: inline-block
+
+border-width : 2px;
+border-width : 2px 1px
+border-width : 2px 3px 1px
+border-width : 2px 3px 1px 5px 상 우 하 좌
+
+10부터 2씩 증가하면서 4번 더하기
+
+let num = 10;
+for( let i = 0 ; i < 5; i += 2) {
+    num += i;
+}
+
+
+javascript 가 false로 인식하는 값
+
+????
+window.add = function (num1, num2) {
+    retunr num1 + num2;
+}
+
+
+화살표 함수
+함수는 값
+ - 매개변수
+
+const nums = [1,2,3,4,5,6,7,8,9,10];
+undefined
+const nums2 = nums.map(function(num) {
+    return num * num;
+})
+undefined
+nums2;
+
+
+-------------------------------------------
+function add(num1, num2) {
+    return num1 + num2;
+}
+동일함
+const add2 = (num1, num2) => {
+    return num1 + num2;
+}
+동일함
+const add2 = (num1, num2) => num1 + num2;
+동일함
+const add4 = (a,b) => a + b;
+-------------------------------------------		
+
+
+const print = (x) => console.log(x);   //매개변수 1개일때
+const print2 = () => console.log('출력'); //매개변수 없을때
+
+
+
+const nums = [1,2,3,4,5,6,7,8,9,10];
+const nums2 = nums.map(x => x * x);
+
+nums2;
+(10) [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+
+
+
+
+new Array(-10) 이건 틀림
+
+배열 요소 추가, 제거, 앞, 뒤, 중간 하는 법
+
+전개연산자 ..
+1. 가변적인 매개변수 ...
+2. 전개연산자 -> 깊은복사
+3. 비구조화 할당 -> 나머지 연산자
+
+
+//비구조화 할당
+const person = {
+    name: "hjchoi",
+    age: 40
+}
+const { name: a, age: b} = person;
+a;
+'hjchoi'
+b;
+40
+
+
+const person = {
+    name: "hjchoi",
+    age: 40
+}
+const { name: name, age: age} = person;
+name;
+'hjchoi'
+age;
+40
+
+
+const person = {
+    name: "hjchoi",
+    age: 40
+}
+const { name, age } = person;
+name;
+'hjchoi'
+age;
+40
+
+//나머지 연산자
+const [a,b, ...rest] = [1,2,3,4,5,6,7,8];
+rest;
+(6) [3, 4, 5, 6, 7, 8]
+
+const nums = [1,2,3,4,5,6,7,8,9,10];
+undefined
+const [c, d, ...rest] = nums;
+undefined
+rest
+(8) [3, 4, 5, 6, 7, 8, 9, 10]
+
+랜더링엔진 , 웹킷, 블링크
+트라이던트
+파이어폭스 개코
+스파이더멍키
+등등 중 성격이 다른거 엔진
+
+
+... 깊은복사
+
+비구조화할당
+
+
+
+코어객체
+	- 내장생성자 객체
+		Array
+		String..
+		Object
+		
+	- 내장객체
+		Math,
+		JSON
+
+호스트객체 - 웹브라우저 객체
+window
+	location: URL과 관련된 객체
+	history: 방문기록과 관련된 객체
+	screen: 화면 정보, 
+	navigator:브라우저 환경정보
+	
+	
+웹 브라우저에서 자바스크립트가 하는 일
+
+(1) 웹 페이지의 Document 객체 제어(HTML 요소와 CSS 스타일 작업)
+	DOM 이라는 API를 활용합니다.
+(2) 웹 페이지의 Window 객체 제어 및 브라우저 제어
+	웹 브라우저에 내장된 다양한 객체를 활용하며, 대표적인 객체로 Location, Navigator 등이 있습니다.
+(3) 웹 페이지에서 발생하는 이벤트 처리
+(4) Http를 이용한 통신 제어
+	XMLHttpRequest 객체를 활용합니다.	
+	
+	: REPL은 못함
+	REPL(명령행): Read Evaluate Print Loop

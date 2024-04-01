@@ -1,0 +1,68 @@
+이미지
+1. 웹에서 사용하는 이미지 형식
+	1) GIF - 최대 256가지 색상, 이미지 파일 형식에 비해 파일 크기가 작음(아이콘 등으로 많이 사용). 움직이는 이미지 만들수 있음 
+	2) JPG - 사진을 위해 개발된 형식
+	3) PNG - 투명 배경도 가능, 네트워크용으로 개발	
+	
+2. <img> 태그 - 이미지 삽입하기
+	1) src 속성
+	2) 내 컴퓨터의 이미지 파일 경로 지정하기
+		- 절대 경로
+		- 상대 경로
+	3) 웹 상의 링크
+	4) alt 속성 - 이미지 없을때 대체문구, for 화면낭독기
+	5) width, height 속성 
+3. <figure>, <figcaption> 태그 
+   
+    <figure>
+      <figcaption>그림캡션</figcaption>
+      <img src="images/img-02.png">
+    </figure>
+	또는
+    <figure>
+      <img src="images/img-02.png">
+      <figcaption>그림캡션</figcaption>
+    </figure>
+	
+
+링크 만들기
+1. <a> 태그, href 속성 
+2. target 속성 
+	- _self : 현재창
+	- _blank : 새창
+	- _parent : 부모창(ifrmae...)
+	- _top : 가장 상위에 있는 창(ifrmae)
+	- iframe의 이름
+	
+	참고) iframe태그
+	     : 웹문서 안에 포함시킬 수 있는 웹브라우저
+		 : src - 웹페이지
+	
+3. 한 페이지 안에서 점프하는 앵커 만들기
+	해시코드 -> 검색 -> 유일무이 값이 검색에 유리
+	#키워드
+	
+	<a href="../#아이디명">..</a>
+	 id="아이디명" 위치로 이동
+	
+	
+	참고)선택을 위한 속성
+	    id속성 : 한개 선택시 
+		class속성 : 여러개 선택시
+		
+
+이미지 맵 : 모바일 웹에서의 문제로 요즘 많이 안씀
+
+1. <map> 태그, <area> 태그, usemap 속성 - 이미지 맵 지정하기
+
+<map name="맵이름">
+    <area>
+    <area>
+    ...
+</map>
+
+<img src="이미지 파일" usemap="#맵이름">
+
+2. https://www.image-map.net
+   -> 맵 영역 좌표 알려주는 사이트
+   

@@ -1,0 +1,279 @@
+CSS와 박스 모델
+
+테두리 관련 속성들
+1. border-style 
+
+	- solid :직선
+	- dashed : -----
+	- dotted : ....
+	- double : =====
+	
+2. border-width
+	- 경계선 두께
+	
+3. border-color
+	- 경계선 색상
+	
+4. border : 단축표기법
+	border: 두께 스타일 색상;
+	border: 3px solid blue;
+	
+	한쪽 경계선만..
+	border-top: 
+	border-right:
+	border-bottom:
+	border-left:
+	
+5. border-radius
+	- 경계선 모서리 둥글게
+	border-radius: 10px; <- 반지름이 10px인 원의 테두리
+	border-radius: 50%;  <- 원
+	
+	border-top-left-radius:10px;  <- 상단왼쪽 모서리 둥글게
+	border-bottom-right-radius:10px;  <- 하단오른쪽 모서리 둥글게
+	
+	
+6. 타원 형태로 둥글게 만들기
+	border-radius: 가로반지름 세로반지름;
+	border-radius: 150px 40px; 
+	
+7. box-shadow 속성
+	- 그림자 효과
+	- 입체감
+	box-shadow: 가로이동 세로이동 그림자두께  그림자색상
+	box-shadow: 2px 2px 5px #222;
+	
+여백을 조절하는 속성들
+1. margin - 외부여백
+	margin: 50px; - 상, 하, 위, 아래 여백 모두 50px로
+	margin: 50px 20px - 상하 50px, 좌우 20px
+	margin: 50px 30px 20px; - 상 50, 우좌 30, 하 20
+	margin: 50px 40px 30px 20px; -> 상 우 하 좌 순서
+	
+	margin-top:
+	margin-right:
+	margin-bottom:
+	margin-left:
+	
+	좌우여백 : auto - 좌우 균등 여백 : block tag일때만 적용됨
+2. padding - 내부여백
+	padding: 50px; - 상, 하, 위, 아래 여백 모두 50px로
+	padding: 50px 20px - 상하 50px, 좌우 20px
+	padding: 50px 30px 20px; - 상 50, 우좌 30, 하 20
+	padding: 50px 40px 30px 20px; -> 상 우 하 좌 순서
+
+	padding-top:
+	padding-right:
+	padding-bottom:
+	padding-left:
+	
+	
+
+CSS 포지셔닝과 주요 속성들
+
+1. CSS 포지셔닝 
+	- 브라우저 화면 안에 각 콘텐츠 영역을 어떻게 배치할지를 결정하는 것
+	
+2. box-sizing
+	- content-box :기본값, 내용물 기준, 내부여백과 경계선 있으면 전체크기가 증가
+	- border-box :경계선 기준, 내부여백과 경계선 있어도 크기 변하지 않고 내용물의 크기감소
+	
+3. float
+	- left: 왼쪽배치
+	- right: 오른쪽 배치
+	- none: 기본값
+	
+        <style>
+            ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            li {
+                float: left;
+            }
+        </style>
+        <ul >
+            <li>메뉴1</li>
+            <li>메뉴2</li>
+            <li>메뉴3</li>
+        </ul>
+
+	참고) flexbox
+	
+4. clear
+	- float가 적용된 앞의 요소와 함께 반영된 float 속성 제거
+	- left -  loat:left 적용 제거
+	- right - float:right 적용 제거
+	- both -  float:left, float:right 적용 둘다 제거
+	- 공간이 있는 요소에만 적용 가능함(block, inline-block)에서만 적용가능
+	- 가상 클래스 선택자 ::after
+	
+	방법1)
+		클리어하고 싶은 부분에 <span class="clear"></span> 추가하고
+		span.clear {
+			clear: left;
+			display: block;
+		}
+
+	방법2)
+		클리어하고 싶은 부분에 가상요소 ::after 추가하여 클리어
+		ul::after {
+			content: '';    <- 이거 꼭 (가상요소엔 내용이 있어야함)
+			clear: left;
+			display:block;  <- 이거 꼭 (블럭요소로 만들어야)
+		}
+	
+5. position (중요)
+	- static : 기본값 
+	
+	상대적인 배치
+	- relative : 현재 요소의 위치(왼쪽 상단) 기준
+	- absolute : 문서(윈도우) 왼쪽상단 기준 또는
+	           : 상위요소에 상대배치 속성(relative,absolute,fixed) 이 적용된 경우, 상위요소의 왼쪽 상단이 배치기준
+	- fixed : 뷰포트가 배치의 기준
+	        (뷰포트:viewport)화면에 보이는 영역
+			
+            .box4 { 
+                background: violet;
+                position: fixed;   <- 보이는 창의 오른쪽 아래 
+                bottom: 100px;     <- 아래 오른쪽 ( 창크기 조정해도 따라다님 )
+                right: 100px;
+            }			
+	
+	
+	left - 좌에서 우로 배치
+	right - 우에서 좌로 배치
+	top - 위에서 아래로 배치
+	bottom - 아래에서 위로
+	
+6. visibility
+	visible - 기본값
+	hidden - 감추기(영역을 유지)
+	
+	참고) display: none;  (영역도 없어짐)
+	
+7. z-index
+	- 상대 배치에서 적용 가능(position - relative, absoloute, fixed)
+	- 층위
+	- 숫자가 높을 수록 앞쪽에 배치, 숫자가 낮을수록 뒤에 배치
+
+다단으로 편집하기
+1. column-width
+	- 컬럼 너비
+2. column-count
+	- 나눠질 단수
+3. column-gap
+
+플렉스 박스 레이아웃 기본 속성들
+
+        </style>
+            .flex1 {
+                display: flex;
+            }
+            .flex2 {
+                display: flex;
+                flex-direction: row-reverse;  /* 우 -> 좌 */
+            }
+        </style>
+        <ul class="flex1">
+            <li>메뉴1</li>
+            <li>메뉴2</li>
+            <li>메뉴3</li>
+        </ul>
+        <ul class="flex2">
+            <li>메뉴1</li>
+            <li>메뉴2</li>
+            <li>메뉴3</li>
+
+1. display 속성
+	:flex
+	- 부모요소에 정의하면 자식요소의 배치에 적용됨
+2. flex-direction
+	:row - 기본값 좌 -> 우
+	:row-reverse - 우 -> 좌
+	:column - 상 -> 하
+	:column-reverse - 하 -> 상
+
+3. flex-wrap
+	- nowrap : 줄개행X, 기본값
+	- wrap : 줄개행O
+4. order
+	- 배치 순서 변경
+	- 자식요소에 정의
+	- 숫자 작을수록 먼저 배치
+5. flex-grow
+	- 남았는 여백을 비율별로 배분   -> 너비를 0으로 맞추면 균일한 배분 가능             
+			.flex1 li {
+                width: 0;
+            }
+	- 자식요소에 설정
+	
+        <style>
+            ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                border: 1px solid #000;
+                height: 100px;
+            }
+            ul li:nth-of-type(3n+1) {
+                background: orange;
+            }
+            ul li:nth-of-type(3n+2) {
+                background: green;
+            }
+            ul li:nth-of-type(3n) {
+                background: blue;
+            }
+            .flex1 {
+                display: flex;
+            }
+            .flex1 li:nth-of-type(1) {
+                flex-grow: 1;
+            }
+            .flex1 li:nth-of-type(2) {
+                flex-grow: 1;
+            }
+            .flex1 li:nth-of-type(3) {
+                flex-grow: 1;
+            }
+            
+        </style>
+        <ul class="flex1">
+            <li>메뉴1</li>
+            <li>메뉴2 메뉴2 메뉴2메뉴2 메뉴2 메뉴2메뉴2 메뉴2 메뉴2</li>
+            <li>메뉴3</li>
+        </ul>
+
+플렉스 박스 항목 배치를 위한 속성들
+
+1. justify-content : 가로정렬
+
+	flex-start :완쪽정령
+	flex-end : 우정렬
+	center :가운데 정렬
+	- 여백
+	  space-between
+	  space-around
+	  space-evenly
+	  
+2. align-items : 세로정렬 ( 부모태그에 정의(flex) )
+	stretch : 기본값, 부모요소의 높이에 맞게 자식요소 늘어남
+	flex-start : 상단배치
+	flex-end : 하단배치
+	center : 가운데 배치
+
+3. align-self : 자식요소 별 적용 
+	stretch : 기본값, 부모요소의 높이에 맞게 자식요소 늘어남
+	flex-start : 상단배치
+	flex-end : 하단배치
+	center : 가운데 배치
+
+
+4. align-content
+	- 플렉스 항목이 여러 줄에 걸쳐 표시될 때 align-content 속성을 사용하면 교차축 방향의 배치 방법을 지정할 수 있습니다.
+	- justify-content와 동일속성 - 하나의 행
+	- 여러행에 걸쳐있는 경우 적용
+	- flex-start(좌) flex-end(우) center space-between space-around space-evenly
+	- flex-wrap 
