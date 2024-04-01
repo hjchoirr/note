@@ -171,3 +171,16 @@ window
 	
 	: REPL은 못함
 	REPL(명령행): Read Evaluate Print Loop
+	
+	
+	
+	Document 객체 
+	선택을 위한 메서드
+	아이디로 선택: document.getElementById("아이디") - 단수개 선택
+	클래스명으로 선택: document.getElementsByClassName("클래스명") - 복수개 선택
+	태그명으로 선택: document.getElementsByTagName("태그명") - 복수개 선택
+	name속성으로 선택: document.getElementsByName(name속성)
+	
+	CSS 선택자 형식으로 선택
+	: document.querySelector("CSS 선택자 형식"); - 단수개 선택
+	: document.querySelectorAll("CSS 선택자 형식"); - 복수개 선택

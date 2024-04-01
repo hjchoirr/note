@@ -2182,7 +2182,73 @@ Document 객체
 	선택을 위한 메서드
 	아이디로 선택: document.getElementById("아이디") - 단수개 선택
 	클래스명으로 선택: document.getElementsByClassName("클래스명") - 복수개 선택
+	태그명으로 선택: document.getElementsByTagName("태그명") - 복수개 선택
+	name속성으로 선택: document.getElementsByName(name속성)
+	
+	CSS 선택자 형식으로 선택
+	: document.querySelector("CSS 선택자 형식"); - 단수개 선택
+	: document.querySelectorAll("CSS 선택자 형식"); - 복수개 선택
+	
+	children: 자식요소들
+	parentElement : 부모요소
+	firstElementChild : 첫번째 자식요소
+	lastElementChild : 마지막 자식요소
+
+	참고) jQuery : 요즘 잘 안씀
+	
+	previousElementSibling
+	nextElementSibling
+	
+	document.head
+	document.body
+	
+	양식의 이름값
 	
 	
+	naver PC 페이지에서 ----------------------------------------------
+	const wrap = document.getElementById("wrap");
+	const children = wrap.children;
+	children;
+	HTMLCollection(3) [div#header, div#container, div#footer, header: div#header, container: div#container, footer: div#footer]0: div#header1: div#container2: div#footercontainer: div#containerfooter: div#footerheader: div#headerlength: 3[[Prototype]]: HTMLCollection
+	const footer = children[2];
+	footer;
+	<div id=​"footer" role=​"contentinfo">​…​</div>​
+	const parent = footer.parentElement;
+	parent;
+	<div id=​"wrap">​…​</div>​
+
+	const header = wrap.firstElementChild;
+	header;
+	<div id=​"header" role=​"banner">​…​</div>​
+	const container = header.nextElementSibling;
+	container;
+	<div id=​"container" role=​"main">​…​</div>​	
 	
+	document.head;
+	<head>​…​</head>​
+	document.body;
+	<body>​…​</body>​
 	
+	naver PC 로그인  페이지 에서 ----------------------------------------------
+	양식이름.입력항목이름
+	frmNIDLogin.id;
+	<input type=​"text" id=​"id" name=​"id" placeholder=​"아이디" title=​"아이디" class=​"input_text" maxlength=​"41" value>​
+	frmNIDLogin.id.value="hjchoir"; 
+	
+	속성을 관리하는 메서트
+	- 추가
+	   setAttribute("이름", "값");
+	- 조회
+	   getAttribute("이름");
+	- 삭제
+	   removeAttribute("이름");
+	   
+	const textE1 = document.getElementById("text");
+	textE1.setAttribute("price", 10000);
+	const price = textE1.getAttribute("price");
+	price;
+	'10000'
+	textE1.removeAttribute("price");
+	textE1;
+	<input type=​"text" id=​"text">​	   
+	   
