@@ -36,11 +36,11 @@ window.add = function (num1, num2) {
  - 매개변수
 
 const nums = [1,2,3,4,5,6,7,8,9,10];
-undefined
+
 const nums2 = nums.map(function(num) {
     return num * num;
 })
-undefined
+
 nums2;
 
 
@@ -130,8 +130,8 @@ rest
 
 랜더링엔진 , 웹킷, 블링크
 트라이던트
-파이어폭스 개코
-스파이더멍키
+파이어폭스 객코
+스파이더 멍키
 등등 중 성격이 다른거 엔진
 
 

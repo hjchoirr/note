@@ -2235,7 +2235,7 @@ Document 객체
 	<input type=​"text" id=​"id" name=​"id" placeholder=​"아이디" title=​"아이디" class=​"input_text" maxlength=​"41" value>​
 	frmNIDLogin.id.value="hjchoir"; 
 	
-	속성을 관리하는 메서트
+	속성을 관리하는 메서드
 	- 추가
 	   setAttribute("이름", "값");
 	- 조회
