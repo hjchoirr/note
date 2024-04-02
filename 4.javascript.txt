@@ -2180,30 +2180,31 @@ Document 객체
 1. Document 객체의 주요 프로퍼티
 2. Document 객체 주요 메서드
 	선택을 위한 메서드
-	아이디로 선택: document.getElementById("아이디") - 단수개 선택
-	클래스명으로 선택: document.getElementsByClassName("클래스명") - 복수개 선택
-	태그명으로 선택: document.getElementsByTagName("태그명") - 복수개 선택
-	name속성으로 선택: document.getElementsByName(name속성)
+	1)아이디로 선택: document.getElementById("아이디") - 단수개 선택
+	2)클래스명으로 선택: document.getElementsByClassName("클래스명") - 복수개 선택
+	3)태그명으로 선택: document.getElementsByTagName("태그명") - 복수개 선택
+	4)n4ame속성으로 선택: document.getElementsByName(name속성) - 복수개 선택
 	
-	CSS 선택자 형식으로 선택
-	: document.querySelector("CSS 선택자 형식"); - 단수개 선택
-	: document.querySelectorAll("CSS 선택자 형식"); - 복수개 선택
+	5)CSS 선택자 형식으로 선택
+	: document.querySelector("CSS 선택자 형식"); - 단수개 선택 첫번째 것만 
+	: document.querySelectorAll("CSS 선택자 형식"); - 복수개 선택 
 	
-	children: 자식요소들
-	parentElement : 부모요소
-	firstElementChild : 첫번째 자식요소
-	lastElementChild : 마지막 자식요소
+	6)children: 자식요소들
+	7)parentElement : 부모요소
+	8)firstElementChild : 첫번째 자식요소
+	9)lastElementChild : 마지막 자식요소
 
 	참고) jQuery : 요즘 잘 안씀
 	
-	previousElementSibling
-	nextElementSibling
+	10)previousElementSibling  앞쪽 형제요소
+	11)nextElementSibling  : 뒤쪽 형제 요소
 	
-	document.head
-	document.body
+	12)html = document
+	23document.head
+	14)document.body
 	
-	양식의 이름값
-	
+	15)양식의 이름값
+	form의 name 속성
 	
 	naver PC 페이지에서 ----------------------------------------------
 	const wrap = document.getElementById("wrap");
@@ -2229,7 +2230,7 @@ Document 객체
 	document.body;
 	<body>​…​</body>​
 	
-	naver PC 로그인  페이지 에서 ----------------------------------------------
+	naver 로그인  페이지 에서 ----------------------------------------------
 	양식이름.입력항목이름
 	frmNIDLogin.id;
 	<input type=​"text" id=​"id" name=​"id" placeholder=​"아이디" title=​"아이디" class=​"input_text" maxlength=​"41" value>​
@@ -2242,6 +2243,11 @@ Document 객체
 	   getAttribute("이름");
 	- 삭제
 	   removeAttribute("이름");
+	
+	사용빈도가 높은 기능과 관련된 속성응 document 객체에서 하위속성으로 접근가능
+	id, type, name, value, target, action, href, src....
+	
+	className : class 속성
 	   
 	const textE1 = document.getElementById("text");
 	textE1.setAttribute("price", 10000);
@@ -2251,4 +2257,107 @@ Document 객체
 	textE1.removeAttribute("price");
 	textE1;
 	<input type=​"text" id=​"text">​	   
-	   
+	textE1.type;
+	textE1.type = "button";
+	
+	정보성 속성은 속성명 앞에 data- 추가한다 - 권장사항
+	<input type="text" id="text" data-price-type="order">
+	data-속성명: document 객체에 하위 속성 dataset 객체를 통해 접근 가능, 속성이름 data- 빠지고 카멜표기로 바뀜
+	
+	const textE1 = document.getElementById("text")
+	const dataset = textE1.dataset;
+	dataset.priceType;
+	'order'
+	
+	class를 추가, 제거하는 방식으로 동작 제어
+	
+	클래스만을 위한 속성 - classList 객체
+	  classList
+		add() : 클래스 추가
+		remove() : 클래스 제거
+		replace() : 클래스 변경
+		toggle() :클래스가 있으면 제거, 없으면 추가
+		contains() 클래스의 존재 유무
+
+		<input type="text" id="text" class="cls1 cls2 cls3">
+		
+		const inputEl = document.getElementById("text");
+		const classList = inputEl.classList;
+		classList;
+		classList.add("cls4");
+		classList.remove("cls2");
+		classList.toggle("cls2");
+		true
+		classList.toggle("cls2");
+		false	   
+
+	동적 요소 생성, 변경
+	document.createElement("태그명")
+	document.createtextNote("메뉴3")
+	부모요소.appendChild("자식요소")
+	부모요소.removeChild("자식요소")
+	부모요소.replaceChild("기존요소", "새로운요소")
+	부모요소.insertBefore("기준요소", "추가요소")
+	
+	const LiE1 = document.createElement("li");
+	LiE1;
+	<li>​</li>​
+	const textE1 = document.createTextNode("메뉴3");
+	LiE1.appendChild(textE1);
+	"메뉴3"
+	LiE1;
+	<li>​메뉴3​</li>​
+	const menusE1 = document.querySelector(".menus");
+	menusE1.appendChild(LiE1);
+	<li>메뉴3</li>​	
+
+이벤트 처리
+1. 이벤트 처리기를 등록하는 방법
+	- document 객체에 "on이벤트명" 속성에 이벤트 핸들러 함수를 직접 대입 
+	
+	- 이벤트 처리기의 문제점
+2. 이벤트 리스너를 등록하고 삭제하는 방법
+- addEventListener를 사용해서 얻을 수 있는 장점
+
+- addEventListener("이벤트 명", 이벤트 핸들러 함수, 캡쳐링 여부 - false (기본값))
+	캡쳐링 여부 - false (기본값) : 버블링 단계에서 이벤트 전파 
+				    - true : 캡쳐링 단계에서 이벤트 전파
+					
+- removeEventListener 메서드로 이벤트 리스너 삭제하기
+
+이벤트 객체
+1. 이벤트 객체의 공통 프로퍼티
+2. 마우스 이벤트 객체
+- 마우스 이벤트 객체에서 좌표를 담당하는 프로퍼티
+
+3. 키보드 이벤트 객체
+
+이벤트 전파
+1. 이벤트의 단계
+1) 캡펴링 단계
+2) 타깃 단계 
+3) 버블링 단계
+
+2. 이벤트 전파
+1) 이벤트 전파 취소하기
+stopPropagation() : 이벤트 전파 취소
+
+2) 이벤트 전파의 일시 정지
+stopImmediatePropagation()
+
+3) 기본 동작 취소하기
+preventDefault()
+
+
+3. 이벤트 리스너 안의 this
+- event 
+	.target 
+	.currentTarget
+1) 이벤트 리스너 안의 this는 이벤트가 발생한 요소 객체
+2) this가 원하는 객체를 가리키도록 설정하는 방법
+- bind 메서드를 사용하는 방법
+- 익명 함수 안에서 실행하는 방법
+- 화살표 함수를 사용하는 방법
+- addEventListener의 두 번째 인수로 객체를 넘기는 방법
+	- handleEvent 
+		

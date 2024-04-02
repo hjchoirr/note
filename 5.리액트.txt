@@ -1,0 +1,339 @@
+리액트의 이해
+
+- 리액트는 프레임워크가 아닌 V(View)만 신경쓰고 있는 라이브러리
+- 그러나 다양한 라이브러리를 조합해서 사용가능
+DOM
+DOMTree
+-> DOM의 조작 가하면 -> DOMTree -> CSS 관계설정 -> 배치 과정 다시 거치므로 느려지는 거 해결위해 페이스북이 만듬
+
+가상의 DOM 복사본을 메모리에 가지고 있다가 얕은 비교하여 컨텐츠 바뀌면 그 컴포넌트 부분 다 비우고 복사본으로 바꿔버림 
+DOM을 새로 구성하는데 너무 오래 걸림 (React 비슷한 Vue 도 있음, 훨씬 쉽지만 라이브러리는 React가 많음)
+
+트랜스파일러
+JSX -> JS 
+
+-> 개발서버 (node.js : javascript 런타임, 구글이 만듬 - V8) 설치
+  (1)node.js v20.12.01 다운, 설치 ( 필요한툴설치 옵션 체크 안함 )
+  
+  c:\> node -v
+  node : 자바스크립트 코드 실행 명령 
+  c:\> node js파일
+  
+	npm: node package manager 
+	- 의존성 관리(프로젝트에서 필요한 라이브러리..)
+	- 빌드 : 개발소스를 서비스(배포) 가능 상태로 변경해 줌(리액트문법 소스 -> js)
+	- 테스트
+
+	install : 설치
+	npm install 패키지명 ( npm i 패키지명 ) -> 설치, 현재 프로젝트의 node_modules 폴더에 설치된다
+	npm uninstall 패키지명 -> 삭제
+
+	npm --global install 패키지명 -> 모든 프로젝트가 공유할 수 있도록 설치 npmjs.org 사이트
+	npm --g install 패키지명
+	init : 프로젝트 생성 명령
+
+	ex) npmjs.org 사이트에서 npmjs-modal 검색하면... 
+
+	yarn - npm과 동일역할(메타 개발, 설치속도 빠른 장점, UI깔끔함)
+	create : 프로젝트 생성 명령
+	add 패키지명
+
+	(2)yarn설치
+	npm i -g yarn
+	yarn --version
+	
+	(3) 프로젝트 react-app 생성
+	D:\hjchoi\2.실무프로젝트-P1> yarn create react-app hello  
+	cd helllo
+	D:\hjchoi\2.실무프로젝트-P1\helllo> yarn start  -> 허용버튼
+	^C
+	
+	VSCODE open Folder -> hello
+	
+	npm i ->
+	.gitignore ..> /node_modules 는 배제됨..
+	버전체계 ex) ^5.14.1 -> 메이저버전.마이너버전.패치번호 
+	    (메이저버전: 하위버전과 호환되지 않는 큰변화 / 마이너: 기능추가,수정 / 패치: 오류수정, 보완)
+	
+	yarn start
+	yarn build
+	yarn test
+	yarn eject
+	
+	참고)
+	npm으로 스크립트명령어 실행은 
+	npm run start
+	npm run build
+	
+	VSCODE 확장 프로그램
+	1. ESLint : javascript 문법 자동체크
+	2. Reactjs Code Snippets : 리액트 코드(템플릿) 자동완성
+	3. prettier-Code formatter : 코드스타일을 자동으로 정리하는 도구
+	
+	.prettierrc 파일추가
+		{
+		"singleQuote": true,
+		"useTabs": false,
+		"tabWidth": 2,
+		"semi": true,
+		"trailingComma":"all"
+		}
+		
+	-> F1 키 -> format Document -> pretier... 
+	= file - preferenct -> settings -> 검색어 format -> Format On Save 체크 
+	
+	Terminal -> new terminal -> Command Prompt -> yarn start
+	
+	public\index.html
+	src\index.js
+	
+	<React.StrictMode></React.StrictMode>  .. 이런거 JSX 문법
+	
+	
+	
+	
+웹팩 라이브러리
+
+
+
+
+1. 초기 렌더링
+- render() 함수
+
+2. 조화과정
+1)  Virtual DOM
+- Virtual DOM을 이용하면 실제 DOM에 접근하여 조작하는 대신, 이를 추상화한 자바스크립트 객체를 구성하여 사용
+- 실제 DOM의 가벼운 사본과 비슷
+
+2) 리액트에서 데이터가 변하여 웹브라우저 실제 DOM을 업데이트 하는 절차 
+- 데이터를 업데이트하면 전체 UI를 Virtual DOM에 리렌더링 합니다.
+- 이전 Virtual DOM에 있던 내용과 전체 내용을 비교합니다.
+- 바뀐 부분만 실제 DOM에 적용합니다.
+
+작업 환경 설정 
+1. Node.js 설치 
+2. yarn 설치
+1) 맥 
+	- npm install --global yarn 
+	- npm i -g yarn 
+	
+2) 윈도우즈 
+	- yarn 공식 사이트에서 다운로드
+	
+3. 에디터 설치(vscode)
+	- 확장 프로그램 설치
+	1) ESLint : 자바스크립트 문법 및 코드 스타일을 검사해주는 도구 
+	2) Reactjs Code Snippets : 리액트 사용시 단축 단어를 사용하여 코드 자동완성할 수 있는 도구(제작자가 charalmpos karypidis 인 것 선택)
+	3) Prettier-Code formatter : 코드 스타일을 자동으로 정리해 주는 도구
+	
+	
+4. create-react-app으로 프로젝트 생성하기
+
+- yarn create react-app hello
+
+- yarn을 사용하지 않는 경우 
+(npm init react-app 프로젝트 이름)
+
+
+
+JSX
+1. 코드 이해하기 
+
+	src/App.js
+
+	참고)
+	- 직접 작성한 파일, 자원을 로드 
+	import ... from "./..." -> 동일 경로  
+	import ... from "../..." -> 상위 경로 
+	import { Fragment } from 'react' -> node_modules/react/index.js  (/index.js 생략된 표현)
+	import App from './App'; -> ./App.js 의 .js 생략됨
+
+	=> 웹팩(WebPack) 이 나중에 이런 import된 컴포넌트들을 index.html과 css와 js로 합쳐줌 
+	   src/index.js를 시작으로 필요한 파일을 다 불러와서 번들링
+
+	export: 모듈 내보내기
+	export default 변수명; -> import 변수명(변경가능) from 파일명 으로 가져옴  모듈1개 내보내기
+	export  변수명; -> 모듈 여러개 내보내기 import 변수명(변경불가) from 파일명  으로 가져옴
+                    -> as 로 변수명 변경 가능
+	document.createElement("div");
+	
+
+2. JSX란?
+- JSX는 자바스크립트의 확장 문법이며 XML과 매우 비슷하게 생김
+- 이런 형식으로 작성한 코드는 브라우저에서 실행되기 전에 코드가 번들링되는 과정에서 바벨을 사용하여 일반 자바스크립트 형태의 코드로 변환됩니다.
+
+JSX 문법 
+1. 감싸인 요소
+- 반드시 하나의 요소에 의하여 감싸여 있어야 합니다. => 컴포넌트 단위로 교체 가능하므로 
+- Virtual DOM에서 컴포넌트의 변화를 감지해 낼 때 효율적으로 비교할 수 있도록 컴포넌트 내부는 하나의 DOM 트리 구조로 이루어져야 한다는 규칙 
+- Fragment : 태그로 랜더링 안되는 JSX용 태그
+  import {Fragment} from 'react'; 
+  <Fragment></Fragment> 동일 <></>
+
+참고) 부분화면
+      함수형 컴포넌트( 화살표함수 권장 )
+	  클래스형 컴포넌트
+
+참고) 비구조화 할당 
+
+2. 자바스크립트 표현 
+
+	App.js
+	
+	const App = () => {
+		const name = "React";
+		return (
+			<>
+			</>
+		);
+	};
+	export default App;
+
+	
+- 자바스크립트 표현식을 작성하려면 JSX 내부에서 코드를 { }로 감싸면 됩니다.
+3. if문 대신 조건부 연산자(삼항조건식)
+ 
+4. AND 연산자(&&)를 사용한 조건부 렌더링
+	{name && name} 
+	
+5. undefined를 렌더링하지 않기
+- 리액트 컴포넌트에서는 함수에서 undefined만 반환하여 렌더링하는 상황을 만들면 안됩니다(오류 발생함)
+- 기본값 지정하여 오류 방지
+
+6. 인라인 스타일링 
+1) CSS는 객체 형태로 넣어 주어야 함 
+	<div style={{ color: 'blue' }}>신나는 공부</div>
+
+2) - 문자가 포함되는 이름이 있을땐 -을 제거하고 카멜 표기법으로 작성 
+	background-color 
+
+	  const style = {
+		backgroundColor: 'orange',
+		color: 'white',
+		height: '100px',
+	  };
+
+	
+7. class 대신 className 
+	<div className="subject" style={style}>
+8. 꼭 닫아야 하는 태그
+	
+
+9. 주석 - JSX 문법에서
+- {/* ... */} 형식으로 작성 
+- 시작태그를 여러 줄로 작성할 때는 그 내부에서 // ... 와 같은 형태로 작성할 수 있음 
+
+	{/* 주석 ... */}
+
+	<input
+		// 주석 ...
+		type="text"
+	/>
+
+VSCODE
+
+	ESLint와 Prettier 적용하기
+	1. ESLint 
+	- 보기 > 문제를 클릭하여 확인 
+
+	2. Prettier 
+	- VS Code에서 F1을 누르고 format이라고 입력한 후 Enter를 누르면 자동 정리
+	- 자동으로 코드 정리를 하려면 
+	- 파일 -> 기본 설정 -> 설정 -> Format On Save 옵션 체크 : 저장시 자동 정리
+	- 설정 파일 작성 
+	.prettierrc
+
+	{
+		"singleQuote": true,
+		"semi": true,
+		"useTabs": false,
+		"tabWidth": 2
+	}
+
+	hello> cd ..
+	> yarn create react-app exam01
+	.prettierrc 
+
+
+컴포넌트
+1. 클래스형 컴포넌트
+	Component  상속 
+	
+	render() {
+		reutrn (
+			JSX 문법 컴포넌트 ...
+		)	
+	}
+	
+2. 함수형 컴포넌트 
+
+첫 컴포넌트 생성
+1. 모듈 내보내기(export)
+2. 모듈 불러오기(import)
+
+3. props
+
+1) props는 properties를 줄인 표현으로 컴포넌트 속성을 설정할 때 사용하는 요소입니다.
+
+2) props 값은 해당 컴포넌트를 불러와 사용하는 부모 컴포넌트에서 설정할 수 있습니다.
+  - 객제동결상태, 삭제 불가, 속성추가 불가
+	-----------------------------------------------------------
+	const MyComponent = (props) => {
+		console.log(Object.getOwnPropertyDescriptors(props));
+		//props.name = "최혜진";  <- 에러
+	  return <div>안녕하세요, 제 이름은 {props.name} 입니다.</div>;
+	};
+	-----------------------------------------------------------
+	const MyComponent = (props) => {
+		const {name} = props;
+		return <div>안녕하세요, 제 이름은 {name} 입니다.</div>;
+	};
+	-----------------------------------------------------------
+	const MyComponent = ({name}) => {
+		return <div>안녕하세요, 제 이름은 {name} 입니다.</div>;
+	};
+	-----------------------------------------------------------
+	위 세개다 동일함
+	
+3) props 기본값 설정: defaultProps
+	MyComponent.defaultProps = {name: '기본이름'};
+	참고) || => 기본값 설정
+	let num = 0;
+	num = num || 10  // 10대체
+	-> num = 10
+
+	?? -> undefined, null만 대체  
+	let num = 0;
+	num = num ?? 10    //   0 도 의미있는 초기값으로 쓰여야 한다면 
+	-> num = 0
+	
+	
+	
+4) children
+5) propTypes를 통한 props 검증 => 경고만 뜬다.
+	- 자료형 한정 prop-types
+	MyComponent.propTypes = {
+		name: PropTypes.string,
+	}
+
+3. 클래스형 컴포넌트에서 props 사용하기
+- 클래스형 컴포넌트에서 props를 사용할 때는 render 함수에서 this.props를 조회하면 됩니다.
+- defaultProps와 propTypes는 똑같은 방식으로 설정할 수 있습니다.
+
+4. state
+1)  state는 컴포넌트 내부에서 바뀔 수 있는 값을 의미합니다.
+2)  props는 컴포넌트가 사용되는 과정에서 부모 컴포넌트가 설정하는 값이며, 컴포넌트 자신은 해당 props를 읽기 전용으로 사용
+3) this.setState를 사용하여 state에 새로운 값을 넣을 수 있습니다.
+4) state 객체 안에 여러 값이 있을 때
+5) state를 constructor에서 꺼내기
+6) this.setState에 객체 대신 함수 인자 전달하기
+
+this.setState((prevState, props) => {
+	return {
+		// 업데이트하고 싶은 내용
+	}
+});
+
+5. state를 사용할 때 주의사항
+1) 클래스 컴포넌트든 함수 컴포넌트든 state값을 바꾸어야 할 때는 setState 혹은 useState를 통해 전달받은 세터 함수를 사용해야 합니다.
+2) 배열이나 객체 사본을 만들고 그 사본에 값을 업데이트한 후, 그 사본의 상태를 setState 혹은 세터 함수를 통해 업데이트합니다.
