@@ -2314,10 +2314,79 @@ Document 객체
 이벤트 처리
 1. 이벤트 처리기를 등록하는 방법
 	- document 객체에 "on이벤트명" 속성에 이벤트 핸들러 함수를 직접 대입 
+		<script>
+            window.addEventListener("DOMContentLoaded", function() {
+                const buttonE1 = document.getElementById("button");
+                buttonE1.onclick = function() {
+                    alert("클릭!");
+                }
+            });
+        </script>
 	
-	- 이벤트 처리기의 문제점
+	- 이벤트 처리기의 문제점 : 여러개 정의하면 마지막것만 남고 오버라이트됨(buttonE1.onclick의 주소에 계속) 넣으므로 전역 환경에서 쓰는것은 위험) => 버튼에도 addEventListener 사용하여 동작 정의함으로 해결
+		<script>
+		window.addEventListener("DOMContentLoaded", function() {
+			const buttonE1 = document.getElementById("button");
+			buttonE1.onclick = function() {
+				alert("클릭!");
+			};
+			buttonE1.onclick = function() {
+				alert("클릭2!");
+			}
+		});
+		</script>
+		<script>
+            window.onload = function () {
+                const buttonE1 = document.getElementById("button");
+                buttonE1.onclick = function() {
+                    alert("클릭!");
+                };
+            }		
+		</script>
+		
+	
 2. 이벤트 리스너를 등록하고 삭제하는 방법
 - addEventListener를 사용해서 얻을 수 있는 장점
+	<script>
+		window.addEventListener("DOMContentLoaded", function() {
+			const buttonE1 = document.getElementById("button");
+			buttonE1.addEventListener("click", function() {
+			  alert("클릭1");
+			});
+			buttonE1.addEventListener("click", function() {
+			  alert("클릭2");
+			});
+		});
+		
+	</script>
+
+	참고) 
+	
+	이벤트 -> 비동기 방식(동기 -> 순서대로 실행)
+		setTimeout(function() {
+	}, 지연시간(1/1000초))
+	
+	5000 -> 5초지연
+	-> 반환값 -> 이벤트핸들러 등록ID
+	clearTimeout(이벤트핸들러 등록ID) : 이벤트 취소시
+	
+	지연반복 실행코드
+	setInterval(function() {
+	}, 지연시간(1/1000초));
+	clearInterval(지연반복실행 등록ID) :지연반복취소시
+	
+	const intervalId = setInterval(function() {
+		console.log("3초마다 실행");
+	}, 3000);
+	3초마다 실행
+	clearInterval(intervalId );
+
+메모리
+ - 데이터 영역(정적메모리): 한번 설정되면 변경되지 않는 부분 (작성한 코드, 상수, 메서드)
+ - 스택영역(동적영역): 
+ - 힙영역(동적영역):
+	
+	
 
 - addEventListener("이벤트 명", 이벤트 핸들러 함수, 캡쳐링 여부 - false (기본값))
 	캡쳐링 여부 - false (기본값) : 버블링 단계에서 이벤트 전파 
@@ -2325,39 +2394,223 @@ Document 객체
 					
 - removeEventListener 메서드로 이벤트 리스너 삭제하기
 
+  <script>
+	window.addEventListener("DOMContentLoaded", function() {
+	  const buttonEl = document.getElementById("button");
+	  
+	  buttonEl.addEventListener("click", handleClick);
+	  buttonEl.removeEventListener("click", handleClick);
+
+	  function handleClick() {
+		alert("클릭됨!");
+	  }
+	});
+  </script>
+
+
 이벤트 객체
 1. 이벤트 객체의 공통 프로퍼티
 2. 마우스 이벤트 객체
-- 마우스 이벤트 객체에서 좌표를 담당하는 프로퍼티
+  - 마우스 이벤트 객체에서 좌표를 담당하는 프로퍼티
+  - mounseenter, mouseleave
+  - mouseover, mouseout
+     <style>
+        .box {
+          width: 150px;
+          height: 150px;
+          background: orange;
+        }
+        .box.on { /* 붙여 쓰면 .. | 띄여 쓰면 상위, 하위 */
+          width: 300px;
+          height: 300px;
+        }
+
+      </style>
+      <script>
+        window.addEventListener("DOMContentLoaded", function() {
+          const boxEl = document.querySelector(".box");
+          boxEl.addEventListener("mouseenter", function() {
+            this.classList.add("on");
+          });
+          boxEl.addEventListener("mouseleave", function() {
+            this.classList.remove("on");
+          });
+        });
+      </script>
 
 3. 키보드 이벤트 객체
+  keyup : 키 눌렀다 뗄때 발생 (이거 많이 씀)
+  keypress : 누르면 계속 발생
+  keydown : 누르면 한번만 이벤트 발생
+
+  change: 키를 조작할때
+    : select, input[type='file'] - 파일을 선택, input[type='number|range']
+
+      <script>
+        window.addEventListener("DOMContentLoaded", function() {
+          const textEl = document.getElementById("text");
+          textEl.addEventListener("keyup", function(e) {
+            console.log(e);
+            console.log("keyup", this.value);
+          });
+
+        });
+
+      </script>
+      <input type="text" id="text" />
+  
 
 이벤트 전파
-1. 이벤트의 단계
-1) 캡펴링 단계
+
+      <script>
+        window.addEventListener("DOMContentLoaded", function() {
+          const box1 = document.querySelector(".box1");
+          const box2 = document.querySelector(".box2");
+          const box3 = document.querySelector(".box3");
+
+          box1.addEventListener("click", function () {
+            console.log("BOX1");
+          });
+          box2.addEventListener("click", function() {
+            console.log("BOX2");
+          });
+          box3.addEventListener("click", function() {
+            console.log("BOX3");
+          });
+        });
+      </script>
+      <div class="box box1">
+        BOX1
+        <div class="box box2">
+          BOX2
+          <div class="box box3">
+            BOX3
+          </div>
+        </div>
+      </div>
+
+1. 이벤트의 전파 단계
+1) 캡처링 단계
 2) 타깃 단계 
 3) 버블링 단계
+	addEventListener( 이벤트타입, 이벤트핸들러, 캡처링여부)
+		캡처링여부 : 기본값 false (이벤트전파가 버블링단계에서 발생)
+					(true 면 이벤트전파가 캡처링단계에서 발생)
 
+      <script>
+        window.addEventListener("DOMContentLoaded", function() {
+          const box1 = document.querySelector(".box1");
+          const box2 = document.querySelector(".box2");
+          const box3 = document.querySelector(".box3");
+
+          box1.addEventListener("click", function () {
+            console.log("BOX1");
+          });
+          box2.addEventListener("click", function() {
+            console.log("BOX2");
+          }, true);
+          box3.addEventListener("click", function() {
+            console.log("BOX3");
+          });
+        });
+      </script>
+      <div class="box box1">
+        BOX1
+        <div class="box box2">
+          BOX2
+          <div class="box box3">
+            BOX3
+          </div>
+        </div>
+      </div>
+		
+	
 2. 이벤트 전파
 1) 이벤트 전파 취소하기
-stopPropagation() : 이벤트 전파 취소
+	stopPropagation() : 이벤트 전파 취소
+	
+	box3.addEventListener("click", function() {
+	console.log("BOX3");
 
 2) 이벤트 전파의 일시 정지
-stopImmediatePropagation()
+	stopImmediatePropagation()
 
 3) 기본 동작 취소하기
-preventDefault()
+	preventDefault()
 
 
 3. 이벤트 리스너 안의 this
 - event 
-	.target 
-	.currentTarget
+	.target   //실제 클릭한 요소
+	.currentTarget //이벤트가 바인딩된 요소 === this, but 화살표함수로 바꾸면 this가 window가 된다.
+	
+	
 1) 이벤트 리스너 안의 this는 이벤트가 발생한 요소 객체
+
 2) this가 원하는 객체를 가리키도록 설정하는 방법
 - bind 메서드를 사용하는 방법
+
+      <script>
+        const person = {
+          name: "hjchoi",
+          age: 40
+        };
+        window.addEventListener("DOMContentLoaded", function() {
+
+          function handleClick() {
+            console.log(this);
+          }
+          handleClick = handleClick.bind(person);
+          const buttonE1 = document.getElementById("button");
+          buttonE1.addEventListener("click", handleClick) ;
+        });
+      </script>
+
+      <button type="button" id="button">클릭!</button>
+
 - 익명 함수 안에서 실행하는 방법
 - 화살표 함수를 사용하는 방법
 - addEventListener의 두 번째 인수로 객체를 넘기는 방법
 	- handleEvent 
 		
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="UTF-8">
+		</head>
+
+		<body>
+		  <script>
+			const person = {
+			  name: "hjchoi",
+			  age: 40,
+			  showInfo() {
+				console.log(this);
+			  },
+			  handleEvent() {
+				console.log("handleEvent", this);
+			  }
+			};
+			window.addEventListener("DOMContentLoaded", function() {
+
+			  function handleClick() {
+				console.log(this);
+			  }
+			  handleClick = handleClick.bind(person);
+			  const buttonE1 = document.getElementById("button");
+			  //buttonE1.addEventListener("click", handleClick) ;
+
+			  //다음 두개 같은 this
+			  //buttonE1.addEventListener("click", person.showInfo);
+			  /*
+			  buttonE1.addEventListener("click", function() {
+				person.showInfo();
+			  });
+			  */
+			  buttonE1.addEventListener("click", person); //person.handleEvent
+			});
+		  </script>
+
+		  <button type="button" id="button">클릭!</button>
+		</body>
+	</html>		

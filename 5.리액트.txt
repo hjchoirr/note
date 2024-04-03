@@ -7,7 +7,7 @@ DOMTree
 -> DOM의 조작 가하면 -> DOMTree -> CSS 관계설정 -> 배치 과정 다시 거치므로 느려지는 거 해결위해 페이스북이 만듬
 
 가상의 DOM 복사본을 메모리에 가지고 있다가 얕은 비교하여 컨텐츠 바뀌면 그 컴포넌트 부분 다 비우고 복사본으로 바꿔버림 
-DOM을 새로 구성하는데 너무 오래 걸림 (React 비슷한 Vue 도 있음, 훨씬 쉽지만 라이브러리는 React가 많음)
+DOM을 새로 구성하는데 너무 오래 걸림 (React.js 비슷한 Vue.js 도 있음, 훨씬 쉽지만 라이브러리는 React가 많음)
 
 트랜스파일러
 JSX -> JS 
@@ -79,7 +79,7 @@ JSX -> JS
 		"trailingComma":"all"
 		}
 		
-	-> F1 키 -> format Document -> pretier... 
+	-> F1 키 -> format Document -> prettier... 
 	= file - preferenct -> settings -> 검색어 format -> Format On Save 체크 
 	
 	Terminal -> new terminal -> Command Prompt -> yarn start
@@ -89,16 +89,16 @@ JSX -> JS
 	
 	<React.StrictMode></React.StrictMode>  .. 이런거 JSX 문법
 	
-	
-	
-	
 웹팩 라이브러리
 
-
-
-
 1. 초기 렌더링
-- render() 함수
+- render() 함수    <- src/index.js
+
+	root.render(
+	  <React.StrictMode>
+		<App />
+	  </React.StrictMode>
+	);
 
 2. 조화과정
 1)  Virtual DOM
@@ -166,17 +166,9 @@ JSX 문법
 1. 감싸인 요소
 - 반드시 하나의 요소에 의하여 감싸여 있어야 합니다. => 컴포넌트 단위로 교체 가능하므로 
 - Virtual DOM에서 컴포넌트의 변화를 감지해 낼 때 효율적으로 비교할 수 있도록 컴포넌트 내부는 하나의 DOM 트리 구조로 이루어져야 한다는 규칙 
-- Fragment : 태그로 랜더링 안되는 JSX용 태그
+- Fragment : 태그로 랜더링 안되는 JSX용 태그, 하나의 요소로 감싸기 위해 사용됨
   import {Fragment} from 'react'; 
-  <Fragment></Fragment> 동일 <></>
-
-참고) 부분화면
-      함수형 컴포넌트( 화살표함수 권장 )
-	  클래스형 컴포넌트
-
-참고) 비구조화 할당 
-
-2. 자바스크립트 표현 
+  <Fragment></Fragment> 길어서 줄이면  <></>
 
 	App.js
 	
@@ -189,14 +181,44 @@ JSX 문법
 	};
 	export default App;
 
-	
-- 자바스크립트 표현식을 작성하려면 JSX 내부에서 코드를 { }로 감싸면 됩니다.
+참고) 부분화면
+      함수형 컴포넌트( 화살표함수 권장 )
+	  클래스형 컴포넌트
+
+참고) 비구조화 할당 
+
+	const MyComponent = (props) => {
+	  const {name, num} = { props } ;   
+	  return (
+		<>
+		  <div>안녕하세요, 제 이름은 {name} 입니다.</div>;
+		  <div>좋아하는 숫자는 {num} 입니다.</div>;
+		</>
+	  );
+	};
+
+
+	const MyComponent = ({ name, num }) => {
+	  console.log(typeof name, typeof num);
+	  return (
+		<>
+		  <div>안녕하세요, 제 이름은 {name} 입니다.</div>;
+		  <div>좋아하는 숫자는 {num} 입니다.</div>;
+		</>
+	  );
+	};
+
+
+2. 자바스크립트 표현 
+  - 자바스크립트 표현식을 작성하려면 JSX 내부에서 코드를 { }로 감싸면 됩니다.
+
 3. if문 대신 조건부 연산자(삼항조건식)
  
 4. AND 연산자(&&)를 사용한 조건부 렌더링
 	{name && name} 
 	
 5. undefined를 렌더링하지 않기
+
 - 리액트 컴포넌트에서는 함수에서 undefined만 반환하여 렌더링하는 상황을 만들면 안됩니다(오류 발생함)
 - 기본값 지정하여 오류 방지
 
@@ -204,11 +226,11 @@ JSX 문법
 1) CSS는 객체 형태로 넣어 주어야 함 
 	<div style={{ color: 'blue' }}>신나는 공부</div>
 
-2) - 문자가 포함되는 이름이 있을땐 -을 제거하고 카멜 표기법으로 작성 
+2) "-" 문자가 포함되는 이름이 있을땐 "-" 을 제거하고 카멜 표기법으로 작성 
 	background-color 
 
 	  const style = {
-		backgroundColor: 'orange',
+		backgroundColor: 'orange',  // <- background-color
 		color: 'white',
 		height: '100px',
 	  };
@@ -277,6 +299,17 @@ VSCODE
 
 2) props 값은 해당 컴포넌트를 불러와 사용하는 부모 컴포넌트에서 설정할 수 있습니다.
   - 객제동결상태, 삭제 불가, 속성추가 불가
+  
+	App.js
+	
+	import MyComponent from './components/MyComponent';
+
+		const App = () => {
+			return <MyComponent name="hjchoi2"/>
+		};
+	export default App;
+  
+	MyComponents.js
 	-----------------------------------------------------------
 	const MyComponent = (props) => {
 		console.log(Object.getOwnPropertyDescriptors(props));
@@ -307,9 +340,62 @@ VSCODE
 	num = num ?? 10    //   0 도 의미있는 초기값으로 쓰여야 한다면 
 	-> num = 0
 	
-	
+
+	App.js
+	-----------------------------------------------------------
+	import MyComponent from './components/MyComponent';
+
+	const App = () => {
+	  //  return <MyComponent name="hjchoi2" num = {5}/>
+	  return <MyComponent name={500} num={5} />;
+	};
+	export default App;
+
+	MyComponents.js
+	-----------------------------------------------------------
+	import PropTypes from 'prop-types';
+
+	const MyComponent = ({ name, num }) => {
+	  console.log(typeof name, typeof num);
+	  return (
+		<>
+		  <div>안녕하세요, 제 이름은 {name} 입니다.</div>;
+		  <div>좋아하는 숫자는 {num} 입니다.</div>;
+		</>
+	  );
+	};
+	MyComponent.defaultProps = { name: '기본이름' };
+	MyComponent.propTypes = {
+	  name: PropTypes.string,  // 타입이 안맞으면 개발자도구의 콘솔에 경고 표시만..
+	  num: PropTypes.number.isRequired,
+	};
+	export default MyComponent;	
+	-----------------------------------------------------------
 	
 4) children
+
+	const App = () => {
+	  //  return <MyComponent name="hjchoi2" num = {5}/>
+	  return (
+		<MyComponent name="hjchoir" num={5}>
+		  <h1>반갑습니다!</h1>
+		</MyComponent>
+	  );
+	};
+
+	const MyComponent = ({ name, num, children }) => {
+	  console.log(typeof name, typeof num);
+	  return (
+		<>
+		  <div>안녕하세요, 제 이름은 {name} 입니다.</div>
+		  <div>좋아하는 숫자는 {num} 입니다.</div>
+		  {children}
+		</>
+	  );
+	};
+
+
+
 5) propTypes를 통한 props 검증 => 경고만 뜬다.
 	- 자료형 한정 prop-types
 	MyComponent.propTypes = {
@@ -317,23 +403,127 @@ VSCODE
 	}
 
 3. 클래스형 컴포넌트에서 props 사용하기
-- 클래스형 컴포넌트에서 props를 사용할 때는 render 함수에서 this.props를 조회하면 됩니다.
-- defaultProps와 propTypes는 똑같은 방식으로 설정할 수 있습니다.
+	- 클래스형 컴포넌트에서 props를 사용할 때는 render 함수에서 this.props를 조회하면 됩니다.
+	- defaultProps와 propTypes는 똑같은 방식으로 설정할 수 있습니다.
 
+		import { Component } from 'react';
+
+		class MyComponent extends Component {
+		  render() {
+			console.log(this.props);
+
+			const {name, num, children} = this.props;
+			return (
+			  <>
+				<div>안녕하세요 제이름은 {name} 입니다.</div>
+				<div>좋아하는 숫자는 {num} 입니다.</div>
+				{children}
+			  </>
+			);
+		  }
+		}
+
+		export default MyComponent;
+
+	리액트의 state 와 useState 이해하기
+	https://velog.io/@ryh0629/React-%EB%B3%80%EC%88%98-state-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0
+	https://funveloper.tistory.com/192
+		
+		
 4. state
-1)  state는 컴포넌트 내부에서 바뀔 수 있는 값을 의미합니다.
-2)  props는 컴포넌트가 사용되는 과정에서 부모 컴포넌트가 설정하는 값이며, 컴포넌트 자신은 해당 props를 읽기 전용으로 사용
-3) this.setState를 사용하여 state에 새로운 값을 넣을 수 있습니다.
-4) state 객체 안에 여러 값이 있을 때
-5) state를 constructor에서 꺼내기
-6) this.setState에 객체 대신 함수 인자 전달하기
 
-this.setState((prevState, props) => {
-	return {
-		// 업데이트하고 싶은 내용
-	}
-});
+변수 state는 컴포넌트에서 데이터를 담기 위해 사용되는 변수이다.
+state는 변경되면 자동으로 재렌더링 되기 때문에 state 사용.
 
-5. state를 사용할 때 주의사항
-1) 클래스 컴포넌트든 함수 컴포넌트든 state값을 바꾸어야 할 때는 setState 혹은 useState를 통해 전달받은 세터 함수를 사용해야 합니다.
-2) 배열이나 객체 사본을 만들고 그 사본에 값을 업데이트한 후, 그 사본의 상태를 setState 혹은 세터 함수를 통해 업데이트합니다.
+	참고)컴포넌트 재랜더링 기준(랜더링 :함수형 컴포넌트는 다시 호출, 클래스형 컴포넌트는 render 함수 다시 호출)
+		1) props값이 변경
+		2) state값이 변경
+		3) 부모 컴포넌트가 렌더링되면
+
+	1)  state는 컴포넌트 내부에서 바뀔 수 있는 값을 의미합니다.
+
+		--------App.js--------------------------------------------
+		import Profile from './components/Profile';
+		const App = () => {
+		  return <Profile />;
+		};
+		export default App;
+		--------Profile.js------------------------------------------
+		import { useState } from 'react';
+		const Profile = () => {
+		  const [data, setData] = useState({
+			name: 'hjchoi',
+			age: 40,
+		  });
+		  const changeProfile = () => {
+			//주소가 달라져야 바뀐것으로 인식함- 이건 바뀐지 탐지 안됨
+			//data.name = 'hjchoiA';
+			//data.age = 30;
+			//setData(data);
+
+			//주소가 달라져야 바뀐것으로 인식함, 새로운객체로
+			setData({ name: 'hjchoiA', age: 30 });
+			// 전개연산자로 써도 됨
+			setData({ ...data, name: 'hjchoiA' });
+		  };
+
+		  const { name, age } = data;
+		  return (
+			<>
+			  <h1>{name}</h1>
+			  <h1>{age}</h1>
+			  <button type="button" onClick={changeProfile}>
+				변경
+			  </button>
+			</>
+		  );		
+		----------------------------------------------------
+
+		setData((state) => {
+		  console.log('이전상태값: ', state);
+		  //return { ...data, name: 'hjchoiA' }; //아래와 동일
+		  return { ...state, name: 'hjchoiA' };  
+		});
+		----------------------------------------------------
+
+	2)  props는 컴포넌트가 사용되는 과정에서 부모 컴포넌트가 설정하는 값이며, 컴포넌트 자신은 해당 props를 읽기 전용으로 사용 (동결상태이므로)
+		함수형 컴포넌트에서 useState()
+		배열값 -> 0 : 상태값, 1 : 상태값 변경 함수 -> 다시 랜더링
+		
+		
+	3) this.setState를 사용하여 state에 새로운 값을 넣을 수 있습니다.
+	4) state 객체 안에 여러 값이 있을 때
+	5) state를 constructor에서 꺼내기
+	6) this.setState에 객체 대신 함수 인자 전달하기
+
+	this.setState((prevState, props) => {
+		return {
+			// 업데이트하고 싶은 내용
+		}
+	});
+
+	5. state를 사용할 때 주의사항
+	1) 클래스 컴포넌트든 함수 컴포넌트든 state값을 바꾸어야 할 때는 setState 혹은 useState를 통해 전달받은 세터 함수를 사용해야 합니다.
+	2) 배열이나 객체 사본을 만들고 그 사본에 값을 업데이트한 후, 그 사본의 상태를 setState 혹은 세터 함수를 통해 업데이트합니다.
+
+
+이벤트처리
+
+
+이벤트 핸들링
+1. 리액트의 이벤트 시스템
+- 웹 브라우저의 HTML 이벤트와 인터페이스가 동일하기 때문에 사용법이 비슷
+
+2. 이벤트를 사용할 때 주의사항
+1) 이벤트 이름은 카멜표기법으로 작성
+2) 이벤트에 실행할 자바스크립트 코드를 전달하는 것이 아니라, 함수 형태의 값을 전달
+3) DOM 요소에만 이벤트를 설정할 수 있음
+
+3. 이벤트 핸들링 익히기
+- onChange 이벤트 핸들링하기
+1) state에 input 값 담기
+2) 버튼을 누를 때 comment 값을 공백으로 설정
+3)  이벤트에 실행할 자바스크립트 코드를 전달하는 것이 아니라, 함수 형태의 값을 전달합니다.
+4) 화살표 함수 형태로 메서드를 정의
+5) input 여러 개 다루기
+	- event 객체를 활용하는 것, e.target.name 값을 사용
