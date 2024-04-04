@@ -2343,7 +2343,8 @@ Document 객체
                 };
             }		
 		</script>
-		
+
+
 	
 2. 이벤트 리스너를 등록하고 삭제하는 방법
 - addEventListener를 사용해서 얻을 수 있는 장점
@@ -2425,18 +2426,18 @@ Document 객체
           height: 300px;
         }
 
-      </style>
-      <script>
-        window.addEventListener("DOMContentLoaded", function() {
-          const boxEl = document.querySelector(".box");
-          boxEl.addEventListener("mouseenter", function() {
-            this.classList.add("on");
-          });
-          boxEl.addEventListener("mouseleave", function() {
-            this.classList.remove("on");
-          });
-        });
-      </script>
+	</style>
+	<script>
+		window.addEventListener("DOMContentLoaded", function() {
+			const boxEl = document.querySelector(".box");
+			boxEl.addEventListener("mouseenter", function() {
+				this.classList.add("on");
+			});
+			boxEl.addEventListener("mouseleave", function() {
+				this.classList.remove("on");
+			});
+		});
+	</script>
 
 3. 키보드 이벤트 객체
   keyup : 키 눌렀다 뗄때 발생 (이거 많이 씀)
@@ -2614,3 +2615,90 @@ Document 객체
 		  <button type="button" id="button">클릭!</button>
 		</body>
 	</html>		
+	
+
+	--------------------------------------------
+	const key = "name";
+	const person = {
+		[key] : 'hjchoi',
+		age: 40
+	};
+
+	person;
+	{name: 'hjchoi', age: 40}
+
+	const person2 = {...person, name: 'hjchoir'};
+	person2
+	{name: 'hjchoir', age: 40}
+	--------------------------------------------
+
+
+Document 객체 	
+	동적 요소 생성, 변경 
+	document.createElement("태그명") 
+	document.createTextNode("텍스트명");
+	
+	부모요소.appendChild("자식요소")  -> 가장 마지막 자식 요소로 추가
+	부모요소.removeChild("자식요소") -> 자식요소 제거 
+	부모요소.replaceChild("기존 요소", "새로운 요소");
+	부모요소.insertBefore("기준 요소", "추가 요소"); // 기준 요소 앞에 추가 요소가 추가 
+	
+	const liEl = document.createElement("li");
+	liEl;
+	<li>​</li>​
+	const textEl = document.createTextNode("메뉴3");
+	textEl;
+	"메뉴3"
+	liEl.appendChild(textEl);
+	"메뉴3"
+	liEl;
+	<li>​메뉴3​</li>​
+	const menusEl = document.querySelector(".menus");
+	menusEl.appendChild(liEl);
+
+	------------------------------------------------------
+	const liEl = document.createElement("li");
+	const textEl = document.createTextNode("메뉴3");
+	liEl.appendChild(textEl);
+	"메뉴3"
+	const menu2El = document.querySelector(".menus li:last-of-type");
+	menu2El;
+	<li>​…​</li>​
+	const menusEl = document.querySelector("menus");
+	menusEl;
+	null
+	const menusEl = document.querySelector(".menus");
+	menusEl.insertBefore(liEl, menu2El);
+	------------------------------------------------------
+
+코어객체
+	내장생성자 객체
+		Object
+		String
+		Array
+		Number
+		Boolean
+		...
+	
+	내장객체
+		JSON
+		Math
+	
+호스트객체 - 실행환경에 따른 객체
+
+웹브라우저객체
+	window
+		location
+		history : 방문기록 정보, 
+		screen, navigator..
+		
+		document객체 : 웹문서와 관련죈 객체
+	
+localStorage 객체
+	
+애플리케이션 - 저장용량 ->
+	로컬스토리지
+	
+	세션스토리지
+	
+	=> 
