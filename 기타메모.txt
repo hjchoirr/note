@@ -33,3 +33,4 @@ word-break: break-all;
 vertical-align : middle bottom
 cusor:pointer -> 손가락모양 마우스 포인터
 
+VSCODE terminal -> 설정 -> windows -> terminal ...-> null 을 command로 바꿔주기
