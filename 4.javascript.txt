@@ -2693,12 +2693,48 @@ Document 객체
 		screen, navigator..
 		
 		document객체 : 웹문서와 관련죈 객체
+
+
+4/8
 	
 localStorage 객체
 	
-애플리케이션 - 저장용량 ->
-	로컬스토리지
+검사 -> 애플리케이션 - 저장용량 ->
+
+브라우저 저장소 ( 키 -값 문자열쌍 )
+	로컬스토리지: 브라우저 종료해도 데이터 유지됨
+	세션스토리지: 브라우저 종료하면 데이터 삭제됨
 	
-	세션스토리지
+	추가, 수정
+	setItem("키", "값");
 	
-	=> 
+	조회
+	getItem("키");
+	
+	삭제
+	removeItem("키");
+	
+	전체삭제
+	clear()
+	
+	
+	localStorage.setItem('key1', 'value1');
+	localStorage.getItem('key1');
+	
+	객체 -> JSON 문자열 : JSON.stringify(객체);
+	
+	JSON 문자열 -> 객체 : JSON.parse(JSON 문자열);
+	
+	const person = {
+		name: 'hjchoi',
+		age: 40
+	};
+	localStorage.setItem("person", JSON.stringify(person));
+	const person2 = JSON.parse(localStorage.getItem("person"));
+	person2;
+	
+	localStorage.removeItem('key1');
+	localStorage.clear();
+	
+	
+	

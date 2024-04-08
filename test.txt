@@ -1,0 +1,42 @@
+const people = [
+    {name: 'hjchoi', age: 40},
+    {name: 'hjchoi1', age: 50},
+    {name: 'hjchoi2', age: 60},
+    {name: 'hjchoi3', age: 70},
+    {name: 'hjchoi4', age: 80},
+];
+
+people.map(p => {
+    const p2 = {};
+    p2[p.name] = p.age + 3;
+    return p2;       
+});
+
+
+people.map( (p) =>  ({name:p.name, age:p.age}));
+people.map( (p) =>  ({name:p.name, age:p.age +4}));
+
+people.map( (p) =>  `name: ${p.name} age : ${p.age}` );
+const p2 = people.map( (p) =>  ({...p}) );
+
+const p2 = people.map( (p) =>  ({...p, age: p.age + 4}) );
+
+people.map(p => (
+    console.log(p)
+    
+));
+
+==================================
+
+const people = [
+    {name: 'hjchoi', age: 40},
+    {name: 'hjchoi1', age: 50},
+    {name: 'hjchoi2', age: 60},
+    {name: 'hjchoi3', age: 70},
+    {name: 'hjchoi4', age: 80},
+];
+
+people.forEach((p) => console.log(p.name));
+
+people.forEach((p) => p.age += 4);
+
