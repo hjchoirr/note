@@ -34,3 +34,21 @@ vertical-align : middle bottom
 cusor:pointer -> 손가락모양 마우스 포인터
 
 VSCODE terminal -> 설정 -> windows -> terminal ...-> null 을 command로 바꿔주기
+
+
+apply call bind 중
+apply call : 함수호출
+bind : this 고정 등으로 새로운 함수 정의 ..?
+
+
+form은 재표적인 block 태그
+
+
+  3개 함께 쓰면 가운데 배치
+  display: flex;
+  align-items: center;
+  position: fixed;
+
+미리캔버스,  
+
+개발자도구 네트워크 -> 제한없음 화살표 눌러 지연로딩 상황 만들 수 있다.. 느린3G
