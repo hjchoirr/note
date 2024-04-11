@@ -2738,3 +2738,22 @@ localStorage 객체
 	
 	
 	
+4/11
+웹브라우저 객체
+todo3.js
+
+        <script type="text/html" id="tpl">
+            <li data-id="#id">#subject
+                <button type="button">삭제</button>
+            </li>
+        </script>
+		치환코드 만들어서 ...
+
+    const tpEl = document.getElementById("tpl");
+    this.tpl = tpEl.innerHTML;
+    this.parser = new DOMParser();
+	
+	
+	let html = this.tpl;
+    html = html.replace(/#subject/g, subject).replace(/#id/g, ++this.id);
+    const dom = this.parser.parseFromString(html, "text/html");
