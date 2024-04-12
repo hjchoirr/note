@@ -57,7 +57,23 @@ form은 재표적인 block 태그
 4/11
 
 
+.layout-width {
+  max-width: 1200px;
+  min-width: 1000px;
+  margin: 0 auto;     // 여백을 균등하게 자동으로 => 가운데 오도록 함
+}
+
+
+
+
 git에서 남의 소스 다운 받은 후
-npm -i  -> package.json에서 의존성 찾아서 설치해줌.
+npm i  -> package.json에서 의존성 찾아서 설치해줌.
+
+집 노트북
+git에서 clone 하여 사용.. -> npm i (리액트 의존성 설치)  -> 이렇게 쓰면 됨 (git init, react create 안해도 됨) 
 
 
+compact folder  세팅 변경
+
+
+교재 : 자바프로그래밍 입문, 자바의 정석

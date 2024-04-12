@@ -40,3 +40,15 @@ people.forEach((p) => console.log(p.name));
 
 people.forEach((p) => p.age += 4);
 
+
+ 
+ for(p in people) {
+     console.log( p, people[p], people[p].name, people[p].age);
+ }
+ >>
+ 
+ 0 {name: 'hjchoi', age: 40} hjchoi 40
+ 1 {name: 'hjchoi1', age: 50} hjchoi1 50
+ 2 {name: 'hjchoi2', age: 60} hjchoi2 60
+ 3 {name: 'hjchoi3', age: 70} hjchoi3 70
+ 4 {name: 'hjchoi4', age: 80} hjchoi4 80
