@@ -52,3 +52,13 @@ people.forEach((p) => p.age += 4);
  2 {name: 'hjchoi2', age: 60} hjchoi2 60
  3 {name: 'hjchoi3', age: 70} hjchoi3 70
  4 {name: 'hjchoi4', age: 80} hjchoi4 80
+
+
+const a = people.map( p => p );
+const b = people.map( (p) => p );
+const c = people.map( p => ({ ...p }) );
+const d = people.map( p => ( {...p, age: p.age + 4}));
+
+<주의: 아래 2개의 차이>
+const d = people.map( p => ({ ...p }) );
+const e = people.map( p => ({ p }) );
