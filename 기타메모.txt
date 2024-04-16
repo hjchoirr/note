@@ -95,3 +95,34 @@ intelij - view > Active edit > Soft Wrap
 - 물리적인 나열 구조(순차 자료 구조)
 
 
+	// 향상된 for문 : 배열 쉽게 반복
+	
+	package exam02;
+	public class Ex04 {
+		public static void main(String[] args) {
+			String[] str = {"가나", "다라", "마바"};
+			
+			for(int i = 0; i < str.length; i++) { // 일반 for문
+				System.out.println(str[i]);
+			}
+			for(String s: str) {         // 향상된 for문
+				System.out.println(s); 
+			}
+		}
+	}
+
+inteliJ -> setting -> editor -> General -> auto import -> java -> Add unambiguous.. 체크
+
+
+	javadoc 보기
+	
+	Field Summary : 변수정의
+	Nested Classes : 내부 클래스, 인터페이스
+	final : 상수
+	Type 자료형
+	Field : 매개변수
+	Constructor : 생성자
+	
+	접근제어자 범위크기 : public > protected > default > private	
+	
+	*** 패키지의 하위 패키지(하위폴더) 는 다른 패키지임
