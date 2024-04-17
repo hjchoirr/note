@@ -90,7 +90,7 @@
 		클래스 형태의 자료형 -> 객체가 되어야 사용 가능 
 		
 	참조 변수 : 생성된 객체의 주소값을 가지고 있는 변수 (지역변수)
-
+	```java
 	package exam01;
 	public class Student {
 
@@ -102,7 +102,7 @@
 					System.out.printf("%s가 %s를 공부한다.%n", name, subject);
 			}
 	}
-
+	
 	package exam01;
 	public class Ex01 {
 		public static void main(String[] args) {
@@ -132,7 +132,7 @@
 			s1.study();   // 오류발생
 		}
 	}
-	
+	```
 	
 생성자
 
@@ -151,7 +151,7 @@
 		생성자 함수 - 객체를 만드는 함수
 		           (함수 내용이 비어있어도 이 기능을 한다, 반환값 없어도 내부적으로 있다. 통제 못하게..)
 		생성자 함수 내부 내용 - 객체가 생성된 이후 실행코드 정의
-		
+		```java
 			package exam01;
 			public class Student {
 				int id;
@@ -169,7 +169,7 @@
 				}
 				*/
 			}	
-
+		```
 	3. 생성자 오버로드
 		
 		(함수의 오버로드)
@@ -178,7 +178,7 @@
 		패키지명 + 클래스명 + 반환값타입 + 함수명 + 매개변수 타입 + 예외전가
 		함수의 시그니처가 동일 -> 함수의 중복정의 -> 오류
 		함수의 시그니처가 동일하지 않으면 -> 함수명이 같아도 다른 함수를 정의한것
-		
+		```java
 		package exam01;
 		public class Ex04 {  //class name : exam01.Ex04
 			public static void main(String[] args) {
@@ -194,7 +194,7 @@
 				return num1 + num2;
 			}
 		}
-	
+		```
 	javadoc 보기
 	
 	Field Summary : 변수정의
@@ -205,7 +205,7 @@
 	Constructor : 생성자
 	
 		class 정보가 담겨 있는 객체 class
-		
+		```java
 		package exam01;
 
 		import java.lang.reflect.Method;
@@ -219,7 +219,7 @@
 				}
 			}
 		}
-		
+		```
 	
 	
 정보 은닉
@@ -250,6 +250,7 @@
 
 	
 	정보은닉
+		```java
 		package exam02;
 
 		public class Schedule {
@@ -258,29 +259,33 @@
 			private int day;
 
 			public void setYear(int _year) {
-				year = _year;
+				this.year = _year;
 			}
 			public void setMonth(int _month) {
-				month = _month;
+				this.month = _month;
 			}
 			public void setDay(int _day) {
-				day = _day;
-				if(month == 2 && day > 28) {
-					day = 28;
+				if(this.month == 2 && _day > 28) {
+					this.day = 28;
 				}
 			}
 			public int getYear() {
-				return year;
+				return this.year;
 			}
 			public int getMonth() {
-				return month;
+				return this.month;
 			}
 			public int getDay() {
-				return day;
+				return this.day;
 			}
 			void showDate() {
 				System.out.printf("year=%d, month=%d, day=%d%n", year, month, day);
 			}
+			
+			public Schedule returnThis() {
+				return(this);
+			}
+			
 		}
 
 		package exam02;
@@ -298,6 +303,7 @@
 			}
 		}
 
+		```
 	2. get(), set() 메서드 - 통제 가능하게 만들기 위해 getter setter 매서드 사용
 	
 		get멤버변수명();    -> getter 함수
@@ -306,6 +312,10 @@
 		
 
 	this 예약어		 
+		- 변수
+		- 인스턴스 메서드안에서 사용하는 지역변수 
+		- 자신 객체의 자원에 접근하기 위한 주소값 
+	
 	static 변수
 
 변수의 유효범위
