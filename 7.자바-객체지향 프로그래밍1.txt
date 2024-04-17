@@ -250,7 +250,7 @@
 
 	
 	정보은닉
-		```java
+```java
 		package exam02;
 
 		public class Schedule {
@@ -303,7 +303,7 @@
 			}
 		}
 
-		```
+```
 	2. get(), set() 메서드 - 통제 가능하게 만들기 위해 getter setter 매서드 사용
 	
 		get멤버변수명();    -> getter 함수
