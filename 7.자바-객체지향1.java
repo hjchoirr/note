@@ -311,6 +311,47 @@
 		
 		- 데이터 클래스 : 데이터를 담기 위한 클래스 - getter, setter 정의하는 클래스들
 		
+		package exam01;
+
+		public class Ex03 {
+			public static void main(String[] args) {
+				Schedule s1 = new Schedule(2024,3,20);
+				System.out.println(s1);  //s1.toString() -> 멤버변수 값을 확인하는 용도로 재정의
+				System.out.println(s1.toString());  //윗줄과 동일함
+			}
+		}
+
+		그런데 Schedule 클래스에 아래 추가하면
+		@Override
+		public String toString() {
+			return "Schedule{" +
+					"year=" + year +
+					", month=" + month +
+					", day=" + day +
+					'}';
+		}
+		
+		Ex03.java 다른 결과 => Schedule{year=2024, month=3, day=20}
+		
+		참고) Record 클래스
+		
+		package exam01;
+		public record Schedule2(int year, int month, int day) {
+		}
+
+		package exam01;
+		public class Ex04 {
+			public static void main(String[] args) {
+				Schedule2 s1 = new Schedule2(2024,4,17);
+				int year = s1.year();
+				int month = s1.month();
+				int day = s1.day();
+
+				System.out.println(s1);    
+			}
+		}
+
+		>> Schedule2[year=2024, month=4, day=17]
 		
 	this 예약어	
 		
@@ -342,10 +383,141 @@
 		
 	
 	static 변수
+		static : 정적인, 고정된 
+		
+		정적메모리 - 데이터영역 메모리, 변하지 않는 데이터
+		            프로그램 코드 & 상수 영역 : 애플리케이션 시작시 생성, 종료시 제거
+		동적메모리 - 스택영역메모리, 힙영역 메모리
+		
+		정적변수 static 
+		 - 객체가 생성되는 것과 상관 없이  프로그램 처음 로드될때 부터 공간 할당
+		 - 클래스명으로 직접 접근 가능
+		 - 그래서 "클래스 변수" 라고 함
+		 
+		package exam02;
+		public class Student {
+			public static int id;
+			private String name;
+			private String subject;
+
+			public static void staticMethod() {
+				System.out.println("정적매서드");  // 여기선 this 사용 못함 : 객체와 상관 없으므로 객체의 자원 사용 못함
+			}
+		}
+
+		package exam02;
+		public class Ex02 {
+			public static void main(String[] args) {
+				Student.id = 1000;     // 객체 생성 전부터 사용가능, 인스턴스 매서드에서 사용할때도 Student.id이렇게 사용하기
+				Student.staticMethod();   // 객체 생성 전부터 사용가능
+			}
+		}
+
+	static 매서드
+		- 객체생성과 상관없이 사용 가능
+		- 클래스명으로 직접 호출 가능
+		- 그래서 "클래스 매서드" 라고 함
+		- 그래서 static 매서드 내에서 this 못씀, 객체의 자원을 사용할 수 없음
+		
+		
+		package exam02;
+
+		public class Ex03 {
+			public static void main(String[] args) {
+				int result = add(10, 20);
+				System.out.println(result);
+			}
+			public static int add(int num1, int num2) {   // ****왜 static 썻는지 중요****
+				return num1 + num2;
+			}
+		}
+		
 
 변수의 유효범위
 	1. 지역변수 
+		- 함수가 호출되고 실행될때만 스택에 공간 할당
+		- 함수 연산 종료되면(return) 스택에서 제거
+		- 함수 지역 안에서만 유효함
+		
 	2. 멤버변수(인스턴스 변수)
+		- 객체가 생성되면 힙메모리에 공간 할당
+		- 객체의 참조가 끊어지면(더이상 사용하는 참조변수가 없을때 가비지 콜렉터가 제거
+		
 	3. static 변수 
+		- 애플리케이션 로딩 시 처음부터 데이터 영역에 할당되는 변수
+		- 애플리케이션 종료시 제거되는 변수
 
 	static 응용 - 싱글톤 패턴	
+		- 메모리를 절약하는 방법 패턴
+	
+	javadoc
+	
+	java.lang.Math : 수학관련 편의 기능 모음 
+	
+		Field : static final double PI  => 스태틱 상수 PI => Math.PI
+		Method : static int max(int a, int b)	
+
+	java.util.Arrays
+		method 에 다 static 붙어있음 -> 클래스명으로 접근하는 매서드
+		
+		=> Arrays.toString(arr) : Array클래스의 클래스 매서드를 사용하는 방법
+		
+	편의기능 모음 클래스는 객체 생성할 필요없이 static으로 정의하는 경우 많다.
+	문제점: 사용하지 않아도 메모리를 차지하는 문제 -> 싱글톤으로 해결
+	
+	
+	객체를 매번 생성하는 경우 :  데이터 클래스
+	
+	
+	참고) 디자인 패턴
+		싱글톤패턴 (메모리 절약 위해)
+		
+		1) 기능을 담당하는 객체는 여러개 만들 필요 없다
+		2) 이 기능이 항상 필요한건 아니므로 필요할때만 객체 생성
+		3) 객체는 필요할대 하나만 생성
+		
+		만드는 방식
+		1) 생성자를 외부에서 직접 호출하지 못하게 막기, private 생성자 매서드
+		2) 클래스 내부에서 정적(static)변수로 선언만 했다가
+		3) 클래스 내부에 생성된 객체를 반환하는 정적(static)함수
+		 - 최조 호출할때 객체 생성함
+		4) 동시성 작업시에는 동기화처리 해야함(lock걸고..-> 나중에 쓰레드에서)
+		 
+			package exam01;
+			public class Board {
+				//private static Board instance = new Board();  //클래스 로드 시점 부터 객체 생성, 메모리 차지하므로 아랫줄처럼 선언만
+				private static Board instance;
+
+				private Board() { }
+
+				public static Board getInstance() {
+					if(instance == null) {
+						instance = new Board();  // 필요한 시점에 1번만 객체 생성
+					}
+					return instance;
+				}
+			}
+					 
+			package exam01;
+			public class Ex01 {
+				public static void main(String[] args) {
+					/* b1, b2 계속 생성
+					Board b1 = new Board();
+					Board b2 = new Board();
+
+					System.out.println(b1 == b2);
+					System.out.println("b1주소: " + System.identityHashCode(b1));
+					System.out.println("b2주소: " + System.identityHashCode(b2));
+					*/
+
+					Board b1 = Board.getInstance();
+					Board b2 = Board.getInstance();
+
+					System.out.println(b1 == b2);
+					System.out.println("b1주소: " + System.identityHashCode(b1));
+					System.out.println("b2주소: " + System.identityHashCode(b2));
+
+				}
+			}
+		
+		

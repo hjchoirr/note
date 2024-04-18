@@ -1794,3 +1794,37 @@ handleSetColor = color => {
 handleSetSubcolor = subcolor => {
     this.context.actions.setSubcolor(subcolor);
 };
+
+
+
+
+UserInfoContext.Consumer 값조회
+UserInfoContext.Provider 값변경
+
+useContext() Hook -> 값 조회를 Consumer를 거치지 않고 가져온다.
+
+
+
+	UserInfoContext.js
+	---------------------------------------
+	import { createContext } from "react";
+	const UserInfoContext = createContext({
+		userInfo: {
+			email: "user01@text.org",
+			name: '사용자01',
+		},
+	});
+	export default UserInfoContext;
+	---------------------------------------
+
+
+    <UserInfoContext.Consumer>
+      {(value) => (
+        <>
+          <div>{value.userInfo.email}</div>
+          <div>{value.userInfo.name}</div>
+        </>
+      )}
+    </UserInfoContext.Consumer>
+	---------------------------------------
+	
