@@ -239,7 +239,7 @@
 		
 		default : 접근 제어자를 명시하지 않은 경우 : 동일 패키지에서 접근 가능
 		
-		private : 클래스 내부에서만 접근 가능 (클래스 내부 매서드에서만 가능)
+		private : 클래스 내부에서만 접근 가능 (클래스 내부 메서드에서만 가능)
 
 		범위크기 : public > protected > default > private
 
@@ -304,7 +304,7 @@
 		}
 
 ```
-	2. get(), set() 메서드 - 통제 가능하게 만들기 위해 getter setter 매서드 사용
+	2. get(), set() 메서드 - 통제 가능하게 만들기 위해 getter setter 메서드 사용
 	
 		get멤버변수명();    -> getter 함수
 		set멤버변수명();    -> setter 함수
@@ -360,8 +360,8 @@
 		- 메서드 안에서 자신 객체의 자원에 접근하기 위한 주소값 
 		(함수)
 		- 클래스 내부에서 정의된 생성자를 호출
-		- 생성자 함수(매서드) 내부에서 주로 사용
-		- 생성자 매서드의 첫줄에만 사용 가능
+		- 생성자 함수(메서드) 내부에서 주로 사용
+		- 생성자 메서드의 첫줄에만 사용 가능
 		
 		package exam01;
 
@@ -371,7 +371,7 @@
 			private int day;
 
 			public Schedule(){
-				this(2024, 4, 17);  // this - 생성자 메서드안에서 다른 생성자 매서드 호출, 첫줄이어야함
+				this(2024, 4, 17);  // this - 생성자 메서드안에서 다른 생성자 메서드 호출, 첫줄이어야함
 			}
 			public Schedule(int year, int month, int day) {
 				this.year = year;
@@ -401,23 +401,23 @@
 			private String subject;
 
 			public static void staticMethod() {
-				System.out.println("정적매서드");  // 여기선 this 사용 못함 : 객체와 상관 없으므로 객체의 자원 사용 못함
+				System.out.println("정적메서드");  // 여기선 this 사용 못함 : 객체와 상관 없으므로 객체의 자원 사용 못함
 			}
 		}
 
 		package exam02;
 		public class Ex02 {
 			public static void main(String[] args) {
-				Student.id = 1000;     // 객체 생성 전부터 사용가능, 인스턴스 매서드에서 사용할때도 Student.id이렇게 사용하기
+				Student.id = 1000;     // 객체 생성 전부터 사용가능, 인스턴스 메서드에서 사용할때도 Student.id이렇게 사용하기
 				Student.staticMethod();   // 객체 생성 전부터 사용가능
 			}
 		}
 
-	static 매서드
+	static 메서드
 		- 객체생성과 상관없이 사용 가능
 		- 클래스명으로 직접 호출 가능
-		- 그래서 "클래스 매서드" 라고 함
-		- 그래서 static 매서드 내에서 this 못씀, 객체의 자원을 사용할 수 없음
+		- 그래서 "클래스 메서드" 라고 함
+		- 그래서 static 메서드 내에서 this 못씀, 객체의 자원을 사용할 수 없음
 		
 		
 		package exam02;
@@ -458,9 +458,9 @@
 		Method : static int max(int a, int b)	
 
 	java.util.Arrays
-		method 에 다 static 붙어있음 -> 클래스명으로 접근하는 매서드
+		method 에 다 static 붙어있음 -> 클래스명으로 접근하는 메서드
 		
-		=> Arrays.toString(arr) : Array클래스의 클래스 매서드를 사용하는 방법
+		=> Arrays.toString(arr) : Array클래스의 클래스 메서드를 사용하는 방법
 		
 	편의기능 모음 클래스는 객체 생성할 필요없이 static으로 정의하는 경우 많다.
 	문제점: 사용하지 않아도 메모리를 차지하는 문제 -> 싱글톤으로 해결
@@ -477,7 +477,7 @@
 		3) 객체는 필요할때 하나만 생성하여 공유한다
 		
 		만드는 방식
-		1) 생성자를 외부에서 직접 호출하지 못하게 막기, private 생성자 매서드
+		1) 생성자를 외부에서 직접 호출하지 못하게 막기, private 생성자 메서드
 		2) 클래스 내부에서 정적(static)변수로 선언만 했다가
 		3) 클래스 내부에 생성된 객체를 반환하는 정적(static)함수
 		 - 최조 호출할때 객체 생성함
