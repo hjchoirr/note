@@ -1,0 +1,297 @@
+	
+[문항20]  다음중 옳지 않은 것은?
+1) 객체는 이름과 값을 한쌍을 묶은 데이터를 여러개 모은 것
+2) 객체는 데이터 여러개를 하나로 모은 복합 데이터로 연관배열 또는 사전(Diction) 이라고 부릅니다.
+3) 객체 안에는 프로퍼티(속성)이 반드시 정의되어야 한다.
+4) 객체의 속성값으로는 원시값, 객체를 사용할 수 있다.
+5) 객체의 데이터 속성은  value, writable, enumerable, configurable 으로 구성되어 있다.
+
+
+[문항16]  다음 중 옳지 않은 것은?
+1) 자바스크립트는 클래스를 정의하여  객체를 생성하며 속성명으로 값과 메서드를 접근할 수 있습니다.
+2) 상속(inheritance)이란 일반적으로 특정 객체가 다른 객체로부터 기능을 이어받는 것을 말합니다.
+3) 모든 객체는 Object.prototype의 메서드와 프로퍼티를 사용할 수 있습니다.
+4) 객체의 속성은 데이터 속성과 접근자 속성으로 나눌수 있습니다.
+5) 호스트 객체는 런타임에 따라 다릅니다.
+
+
+	
+[문항11]  배열은 Array 타입의 객체이며, Array.prototype 속성을 상속받습니다. 다음 중 옳지 않은 것은?
+1) 수정 메서드인 push, pop, slice는 수정한 새로운 배열 객체를 반환합니다.
+2) 접근자 메서드 slice는 새로운 배열 객체를 반환합니다.
+3) 반복 메서드인 some은 하나의 조건이라도 정의된 callback 함수 조건에 부합하는지를 판별합니다.
+4) values() 메서드는 배열 객체 요소의 데이터를 가지는 이터레이터를 반환합니다.
+5) map() 메서드는 callback 함수에서 처리된 새로운 결과를  가지고 새로운 배열 객체를 반환합니다.
+
+	
+[문항10]  다음 중 옳은 것은?
+1) 함수 객체에 정의된 지역변수 this는 함수 객체가 생성될 때 값이 결정된다
+2) this는 객체가 생성될떄 결정되므로 변경될 수 없다.
+3) var 변수 선언자로 선언된 변수는 함수 영역의 유효범위를 가진다.
+4) ECMASCript5부터 Symbol이라는 새로운 자료형이 추가 되었다.
+5) 자바스크립트는 같은 자료형을 가지고 물리적으로 연속된 공간에 나열되는 배열이 존재하지 않는다.
+
+================================================
+const f2 = function (a, b) {
+    const fa = a;
+    const fb = b;
+
+    console.log("a === fa: ",  a === fa , "  a:", a, "  fa:", fa);
+    console.log("b === fb: ",  b === fb , "  b:", b, "  fb:", fb);
+}
+
+const a = 2;
+const b = [1,2,3,4,5];
+const c = new f2(a,b);
+=======================================변수 선언 끌어올림: var
+const f2 = function () {
+    console.log('1st:', a);
+    var a = "local";
+    console.log('2nd:', a);
+    return a;
+}
+undefined
+f2();
+VM5040:2 1st: undefined
+VM5040:4 2nd: local
+'local'
+
+=======================================변수 선언 끌어올림 방지 : const
+const f2 = function () {
+    //console.log('1st:', a);
+    const a = "local";
+    console.log('2nd:', a);
+    return a;
+}
+
+const aa = f2();
+2nd: local
+
+aa;
+'local'
+
+======================== name, kname 차이?
+const f2 = function () {
+    this.name = 'HJCHOI';
+    this.age = 40;
+    console.log("name:", name, "  age:", age);
+}
+
+f2();
+name: HJCHOI   age: 40
+----------------------------------
+const F2 = function () {
+    this.name = 'HJCHOI';
+    this.age = 40;
+    console.log("name:", name, "  age:", age);
+    console.log("1st - this.name === name: ", this.name === name, "this.age === age: ", this.age === age);
+    
+    this.inner = function () {
+        console.log("inner - this.name === name: ", this.name === name, "this.age === age: ", this.age === age);
+    }
+}
+--------------------------------------
+
+const f3 = function () {
+    this.name = 'HJCHOI';
+    this.age = 40;
+    this.sf = function () {
+        console.log("name:", name, "  age:", age);
+    }
+}
+f4 = new f3();
+f4();
+
+VM5881:1 Uncaught TypeError: f4 is not a function
+    at <anonymous>:1:1
+
+f4.sf();
+name: HJCHOI   age: 40
+f4.age;
+40
+f4.name
+'HJCHOI'
+---------------------------------- 멤버 함수를 화살표함수로 가능
+const f = function () {
+    this.name = 'HJCHOI';
+    this.age = 40;
+    this.sf = () => {
+        console.log("name:", name, "  age:", age);
+    }
+}
+
+const f2 = new f();
+f2.sf();
+name: HJCHOI   age: 40
+--------------------------------- 멤버 함수가 존재하는 함수를 화살표함수로 정의 불가
+const f = () => {
+    this.name = 'HJCHOI';
+    this.age = 40;
+    this.sf = () => {
+        console.log("name:", name, "  age:", age);
+    }
+}
+
+const f2 = new f();
+VM6343:1 Uncaught TypeError: f is not a constructor
+    at <anonymous>:1:12
+(익명) @ VM6343:1
+----------------------------내부 함수가 없는 함수를 화살표함수로 정의 가능
+---------------------------- -> 바로 사용 가능
+---------------------------- -> 생성자로 인스턴스 못만듬(화살표함수는 constructor 로 사용불가)
+const f3 = () => {
+    this.name = 'hjchoi';
+    this.age = 40;
+    console.log("name:", name, "  age:", age);
+}
+
+f3();
+ > name: hjchoi   age: 40
+
+const f4 = new f3();
+ > Uncaught TypeError: f3 is not a constructor
+    at <anonymous>:1:12
+(익명) @ VM6673:1
+
+---------------------------내부함수 없는 함수 정의 
+---------------------------	-> 바로 사용 가능, 
+--------------------------- -> 생성자로 인스턴스 만들면 함수로 사용 불가(함수가 아님) 
+const f5 = function () {
+    this.name = 'hjchoi';
+    this.age = 40;
+    console.log("name:", name, "  age:", age);
+}
+
+const f6 = new f5();         
+ > name: hjchoi   age: 40
+
+f5();
+ > name: hjchoi   age: 40
+
+f6();                            
+ > Uncaught TypeError: f6 is not a function
+    at <anonymous>:1:1
+(익명) @ VM6784:1
+f6.name;
+ > 'hjchoi'
+f6.age;
+ > 40
+ 
+--------------------------------------------
+function outer() {
+		console.log("outer!");
+    
+		this.inner = function () {
+            console.log("inner!");
+		}
+}
+
+outer();
+ >  outer!
+
+const a = new outer();
+ > outer!
+
+a.inner();
+ > inner!
+ 
+--------------------------------------------
+
+
+let 문은 블록 유효 범위를 갖는 지역변수
+const 문은 블록 유효 범위를 가지면서 한 번만 할당할 수 있는 변수(상수)를 선언한다
+
+var 문은 함수 유효 범위를 갖는 지역변수-> 쓰지말기
+
+const 문으로 선언한 상수 값은 수정할 수 없지만, 상수값이 객체이거나 배열일 경우 프로퍼티 또는 프로퍼티 값을 수정할 수 있다.
+
+const F1 = function (name, age) {
+    this.name = 'HJCHOI';
+    this.age = 40;
+
+    console.log("this.name:", this.name, "  name:", name, "this.age:", this.age, "age:", age);
+        
+    this.inner = function (a, b) {
+        console.log("inner - this.name: ", this.name, " name: ", name,  "this.age:", this.age, "age:", age, "a:", a ?? "", "b:", b ?? "");
+    }
+}
+
+========================== 객체의 메서드 : 함수의 this변수 선언과 달리...==================
+var c = {
+    r : 5,
+    pi : 3.14,
+
+    inner: function () {
+        return this.r * this.r * this.pi;
+    }
+
+}
+
+c.inner();
+78.5
+-------------------------------------------------------------------------------------
+
+즉시실행함수
+(function (a,b) { return a + b; }) (1,2);
+
+((a, b) => { return a + b }) (1, 2);
+
+var x = ( (a, b) => { return a + b })(1, 2);
+x;
+
+-------------------------------------------------------------------
+생성자
+ - new 연산자로 객체를 생성할 것이라 기대하고 만든 함수를 생성자라고 한다.
+ - 생성자는 일반 함수와 구분할 수 있도록 관용적으로 첫 글자를 대문자로 쓴다(파스칼 표기법).
+ - 생성자 안에서 this.프로퍼티 이름에 값을 대입하면 그 이름을 가진 프로퍼티에 값이 할당된 객체가 생성된다.
+ - 생성자와 new 연산자로 생성한 객체를 생성자의 인스턴스라고 부른다.
+ 
+	var card = new Card("하트", "A"); 
+	
+	객체 리터럴로 고쳐 쓸 수 있다.
+	
+	function Circle(center, radius) {      
+		this.center = center;
+		this.radius = radius;
+	} ;
+
+	Circle.prototype.area = function () {
+		return this.radius * this.radius * Math.PI;
+	}
+
+	console.dir(Circle);
+
+	const c1 = new Circle({x:0,y:0}, 5);
+	c1.area();
+	 > 78.53981633974483
+	 
+	console.dir(c1);      // c1 : 인스턴스, prototype 없다.
+	console.dir(Circle);  // Circle : 생성자 이므로 prototype이 있다. 
+
+비구조화할당 예
+
+	[a,b, ...rest] = [1, 2, 3, 4];  // a = 2, b = 2, rest = [3, 4]와 같음
+	[a=0, b=1, c=2] = [1, 2];  // a = 1, b = 2, c = 2와 같음
+
+전개연산자 ...
+	전개 연산자는 반복 가능한(이터러블한) 객체를 반환하는 표현식 앞에 표기
+	이를 통해 반복 가능한 객체를 배열 리터럴 또는 함수의 인수 목록으로 펼칠 수 있습니다.
+	
+	[..."ABC"]  // -> ["A", "B", "C"]
+	f(..."ABC")  // f("A", "B", "C")와 같음
+	[1, ...[2, 3, 4], 5]  // -> [1, 2, 3, 4, 5]
+	f(...[1, 2, 3])  // f(1, 2, 3)과 같음
+
+	var a = ["A", "B", "C"];
+	a.push(...["D", "E"]);  // -> ["A", "B", "C", "D", "E"]
+
+	Math.max(1,2,3,4,5);
+	 > 5
+	const m = [1,2,3,4,5,6];
+	Math.max(...m);
+	 > 6
+	var a = [5,2,3,7,1];
+	Math.max(...a);
+	 > 7
+	 
+	 
