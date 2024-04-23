@@ -735,8 +735,10 @@ final 예약어
 	 
 	 - 인터페이스, 추상클래스가 객체가되는 조건  *****중요*****
 	   1) 지역 내부, 클래스의 멤버변수에서 객체 생성
-	   2) 미구현된 메서드의 재정의를 통해 생성 
-	   
+	   2) 미구현된 메서드의 구현을 통해 생성 
+	    - 함수형 프로그래밍: 매개변수, 반환값을 함수로 사용
+		- 람다식에 서 많이 사용됨
+		
 		package exam13;
 		public interface Calculator {
 			int add(int num1, int num2);
@@ -810,6 +812,18 @@ final 예약어
 				return cal;
 			}
 		}
+		---Outer 조금 간소화 하여 대치 가능--
+		package exam01;
+		public class Outer {
+
+			public Calculator method(int num3) {
+				return new Calculator() {                    // 바로 Calculator cal을 리턴 
+					public int add(int num1, int num2) {
+						return num1 + num2 + num3;
+					}
+				};
+			}
+		}
 		package exam13;
 		public class Ex01 {
 			public static void main(String[] args) {
@@ -822,130 +836,46 @@ final 예약어
 				System.out.println(result2);
 			}
 		}
-
+		-----------------------------------
+		package exam13;
+		public interface Calculator {
+			int add(int num1, int num2);
+		}
+		
 		package exam13;
 		public class Ex02 {
-			public static void main(String[] args) {    // 이렇게 많이 씀 ( 사용자 정의 함수 )
+			public static void main(String[] args) {    // 이렇게 많이 씀 ( 사용자 정의 함수 ) : Outer Class 빼고
 				Calculator cal = new Calculator() {
 					@Override
 					public int add(int num1, int num2) {
 						return num1 + num2;
 					}
 				};
+				
 				int result = cal.add(10, 20);
 				System.out.println(result);
+				
+				Calculator cal2 = (x, y) -> x + y;  // 나중에 이렇게 많이 사용 - 람다식  
 			}
 		}
+		-----------------------------------
+		package exam01;
+		public class A {
+			public void method() {
+				System.out.println("메서드!");
+			}
+		}
+		package exam01;
+		public class Ex04 {
+			public static void main(String[] args) {
+				A a = new A() {
+					public void method() {
+						System.out.println("재정의된 메서드!");    // ***중요***
+					}
+				};
+				a.method();
+			}
+		}
+		-----------------------------------
 
-예외처리
-1. 오류와 예외
-	오류(Error)	: 시스템의 오류, JVM 오류 ... : 통제 불가 오류
-	
-	예외(Exception) : 코드 상의 오류 : 통제 가능한 오류 
-					       -  버그
-	
-2. 예외 클래스의 종류
-	
-	      Throwable 
-		  
-	Error           Exception
-						
 
-Exception 
-	- Exception을 바로 상속 받은 예외 클래스
-		예) java.io.IOException  / 파일을 읽을때, 쓸때 (FileInputStream, FileOutputStream)
-			
-			 java.io.FileNotFoundException
-			 
-			- 예외있든 없든 처리가 안되어 있으면 컴파일 X
-			- 예외의 체크는 컴파일시 체크, 예외가 있으면 컴파일 X
-			- 예외가 발생하든 안하든 반드시 적절한 예외 처리가 필요한 예외 
-			- 엄격한 예외,  형식을 매우 중시 
-			
-	- RuntimeException을 중간에 상속 받은 예외 클래스
-		- Runtime : 실행 
-		예) java.lang.ArithmethicException  :  0으로 나눌때 발생 
-		
-		- 예외가 발생하더라도 컴파일 O, class 파일 생성 
-		- 예외의 체크는 실행 중 체크, 실행이 되려면? class 파일 필요(컴파일은 된다...)
-		- 유연한 예외, 형식은 X
-		
-	
-	예외가 발생하면 프로그램 중단! -> 프로그램 중단을 막기 위한 조치 
-		- 예외처리의 목적 : 예외가 발생시 적절한 조치 -> 서비스 중단을 막는 것 
-		
-참고)
-	java.exe : 클래스파일 실행 
-	javac.exe : java -> class 컴파일 
-
-예외 처리하기
-1. try ~ catch문
-
- try {
-	// 예외가 발생할 가능성이 있는 코드 
-	
- } catch (예외 객체 ....) {
-	// 예외 발생시 처리할 코드 
- }
-
-참고)
-	예외 발생 
-		throw 예외객체;
-
-	예외, 오류 -> 원인을 확인을 하는것이 중요
-	
-	
-	예외 클래스 주요 메서드 : 정보확인
-			java.lang.Throwable 
-										- String getMessage() - 오류 메세지 확인
-										- void printStackTrace() : 
-		
-		
-2. try-catch-finally문
-	- 자원을 소비하는 객체 - FileInputStream, FileOutputStream, Connection, PrepareStatement ... 
-	- 자원 해제 -> 애플리케이션 종료시에 해제 
-	- 서버? 종료 X -> 자원해제를 하지 않으면 메모리 부족 현상 발생 
-	- 자원해제를 적절하게 해야 된다.(close()...)
-	
-	try {
-	
-	} catch (...) {
-		...
-	} finally {
-		// 예외가 발생하든 안하든 항상 실행되는 코드 
-		// return 하더라도 코드가 실행 
-	}
-	
-3. try-with-resources문
-	- JDK7에서 추가
-	- 자원 해제를 자동 
-
-	try ( 해제할 자원 객체;
-			해제할 자원 객체 ...) {
-		// 예외가 발생할 가능성이 있는 코드 
-		
-	} catch(예외 객체 ...) {
-	
-	}
-	
-	
-	자원 자동해제의 기준
-		AutoCloseable 인터페이스의 구현 클래스 
-			- close() 메서드를 자동 호출 
-			
-	참고) 
-		instanceof 
-	
-
-예외 처리 미루기
-1. 예외 처리를 미루는 throws 사용하기
-	- 메서드를 호출 하는쪽에서 예외 처리 전가 
-	- 전가시키는 예외에 대해서 명시(throws)
-		메서드 매개변수 뒤쪽에 throws 전가할 예외 작성
-	- Exception을 상속 받은 경우(RuntimeException이 없는 경우)
-	
-2. 다중 예외 처리
-
-	
-3. 사용자 정의 예외
-	- JDK 기본 정의 예외 외에 따로 작성하는 예외 
