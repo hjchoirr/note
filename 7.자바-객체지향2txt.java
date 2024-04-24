@@ -858,6 +858,26 @@ final 예약어
 				Calculator cal2 = (x, y) -> x + y;  // 나중에 이렇게 많이 사용 - 람다식  
 			}
 		}
+		
+		이렇게도 동일
+		
+		package exam13;
+		public class Ex03 {
+			public static void main(String[] args) {
+				calc(new Calculator() {
+
+					@Override
+					public int add(int num1, int num2) {
+						return num1 + num2;
+					}
+				});
+				calc((x, y) -> x + y); 
+			}
+			public static void calc(Calculator cal) {
+				int result = cal.add(10,20);
+				System.out.println(result);
+			}
+		}		
 		-----------------------------------
 		package exam01;
 		public class A {

@@ -396,7 +396,7 @@ Object 클래스
 		}
 	}
 
-컴파일러가 자동 추가해 주는 내용
+컴파일러가 자동 추가해 주는 내용 *******
 
 	1. 기본생성자
 	2. 생성자에서 super()를 첫줄에 추가
@@ -471,7 +471,12 @@ Object 클래스
 		public boolean equals(Object obj) {
 			return (this == obj);
 		}
-		동일성 비교 (주소비교)
+
+		동일성 비교 (주소비교) => Object
+		동등성 비교 (내용비교) => String 
+		
+		동등성 비교하려면 : equals(), hashcode() 재정의 ****
+		
 		
 		package exam06;
 		public class Ex03 {
@@ -484,7 +489,7 @@ Object 클래스
 			}
 		}
 		>> b1 == b2 : false
-		   b1.equals(b2) : false
+		   b1.equals(b2) : false    => 객체에서는 주소비교 
 		   
 		package exam06;
 		public class Ex04 {
@@ -498,33 +503,422 @@ Object 클래스
 		}
 		>>
 		  str1 == str2 : false
-		  str1.equals(str2) : true  => equals : String 클래스에서는 재정의 하여 동등성 비교하도록 함
+		  str1.equals(str2) : true  => equals : String 클래스에서는 equals 재정의되어있어서 동등성 비교하도록 함
 		 
 		 참고) String 문자열 비교시 == 쓰면 안됨, equals 사용해야함  (js : == 동등성비교 === 동일성비교)
+		 
+		-----Book 클래스에서 equals를 이렇게 재정의한다면 ----------------------------
+		@Override
+		public boolean equals(Object obj) {
+			if(obj instanceof Book) {
+				Book book = (Book)obj;
+				if(isbn == book.isbn && title.equals(book.title) && author.equals(book.author)) {
+					return true;
+				}
+			}
+			return false;
+		}		
+		----------------------------------------------------------------------------
+		참고) 중복제거 : 동등성 비교로 중복제거됨
+		
+		package exam01;
+		import java.util.HashSet;
+
+		public class Ex05 {
+			public static void main(String[] args) {
+				HashSet<String> data = new HashSet<>();
+				data.add("AAA");
+				data.add("BBB");
+				data.add("AAA");
+				data.add("CCC");
+				System.out.println(data);
+			}
+		}
 
 	3. hashCode() 메서드
+		- 기본구현 : 객체의 주소값
+		- 동등성 비교하려면 equals와 hashcode 둘다 재정의해야함
+		
+		
+			package exam01;
+			import java.util.HashSet;
 
+			public class Ex06 {
+				public static void main(String[] args) {
+					HashSet<Book> books = new HashSet<>();
+					books.add(new Book(1000, "책1", "저자1"));
+					books.add(new Book(1000, "책1", "저자1"));
+					books.add(new Book(2000, "책2", "저자2"));
+					books.add(new Book(3000, "책3", "저자3"));
+					books.add(new Book(4000, "책4", "저자4"));
+					books.add(new Book(5000, "책5", "저자5"));
+
+					System.out.println(books);
+
+					for(Book book: books) {
+						System.out.println(book);
+					}
+				}
+			}		
+			>> 중복제거 안됨
+			---- Book Class 에 추가 하면 ----------
+			@Override
+			public int hashCode() {
+				return Objects.hash(isbn, title, author);  // Objects => util 패키지의 Object 편의기능 ***
+			}
+			>> 중복제거 성공
+		
+		java.util.Objects  util에 s 붙은 클래스 ->  편의기능
+		
+		참고) 가변적변수 예제
+			package exam01;
+			import java.util.Arrays;
+
+			public class Ex08 {
+				public static void main(String[] args) {
+					int result1 = sum(10, 20,30,40);
+					int result2 = sum(10,20);
+					System.out.println(result1);
+					System.out.println(result2);
+				}
+				public static int sum(int... nums) {
+
+					//System.out.println(Arrays.toString(nums));
+					int total= 0;
+					for(int num: nums) {
+						total += num;
+					}
+					return total;
+				}
+			}		
+		
 
 String 클래스
 
-1. String을 선언하는 두 가지 방법
-2. String 클래스의 final char[] 변수
-3. StringBuffer와 StringBuilder 클래스 활용하기
+	1. String을 선언하는 두 가지 방법
+	
+		String str = "문자열";
+		String str = new String("문자열");
+		
+		
+	2. String 클래스의 final char[] 변수  //jdk11까지는 이게 맞았는데 
+	
+		최근: final byte[]
+		- 문자열은 불변하는 특징
+		- 문자열의 불변성 -> 문자열 변화하면 주소 빠뀜 -> 문자열 변화 많으면 성눙저하
 
+		package exam02;
+		public class Ex03 {
+			public static void main(String[] args) {
+				
+				String str = "ABC";
+				System.out.printf("str주소 : %d%n", System.identityHashCode(str));
+				
+				str += "DEF";   // 주소바뀜, 문자열의 불변성 -> 문자열 변화 많으면 성눙저하
+				System.out.printf("str주소 : %d%n", System.identityHashCode(str));
+			}
+		}
+		
+		>>
+		str주소 : 1324119927
+		str주소 : 1922154895
+		
+	3. StringBuffer와 StringBuilder 클래스 활용하기
+	
+		버퍼 : 임시 메모리
+		- 문자열 가감이 많은 경우 사용, 
+		- StringBuffer : 쓰레드 안정성(동시성 작업시 안전)
+		- StringBuilder : 쓰레드 안정성X(동시성 작업시 불안전)
+		
+		반환값이 this : 동일한 객체를 반환 -> 메서드 체이닝 기법 의도
+		
+			package exam02;
+			public class Ex05 {
+				public static void main(String[] args) {
+					StringBuffer sb = new StringBuffer(100);
+					/*
+					StringBuffer sb2 = sb.append("ABC");
+					StringBuffer sb3 = sb2.append("EDF");
+					System.out.println(sb == sb2);
+					*/
+
+					// 메서드 체이닝
+					String str = sb.append("ABC").append("DEF").append("GHI").toString();
+					System.out.println(str);
+				}
+			}
+		
 
 Wrapper 클래스
 - 기본 자료형을 위한 클래스
 
+	기본자료형 
+
+	정수 - byte, short, int, long
+	실수 - float, double
+	논리 - boolean
+	문자 - char
+
 1. Wrapper 클래스의 종류
+	기본자료형은 기능이 없으므로 기본자료형에 기능을 부여하기 위해 
+	기본자료형의 값을 처리하는 편의 기능 클래스
+	
+	byte -> Byte 클래스
+	short -> Short 클래스
+	int -> Int 클래스
+	long -> Long 클래스
+	
+	float -> Float 클래스
+	double -> Double 클래스
+	boolean -> Boolean 클래스
+	char -> Character 클래스
+	
+	class Integer {
+		...
+		private final int value;
+		..
+	}
+
+	static 메서드 들 중에
+	- OOOOOO.parseOOO(...) OOO으로 변환
+	
 
 2. Integer 클래스 사용하기
+	static int parseInt(String s) : 문자열 숫자 -> integer로 변환 
+	static Integer valueOf(int i) : 
+	
+			int num3 = Integer.parseInt(str);
+	
+
+
 1) Integer 클래스의 메서드
+		package exam03;
+		public class Ex02 {
+			public static void main(String[] args) {
+				Integer num1 = new Integer(10);
+				Integer num2 = new Integer(10);
+				Integer num3 = Integer.valueOf(10);  // 자원낭비 방지위해 ( 단 작은 숫자에 한함 )
+				Integer num4 = Integer.valueOf(10);
+
+				Integer num5 = 10;
+				Integer num6 = 10;
+
+				System.out.printf("num1 주소 : %d%n", System.identityHashCode(num1));
+				System.out.printf("num2 주소 : %d%n", System.identityHashCode(num2));
+
+				System.out.printf("num3 주소 : %d%n", System.identityHashCode(num3));
+				System.out.printf("num4 주소 : %d%n", System.identityHashCode(num4));
+
+				System.out.printf("num5 주소 : %d%n", System.identityHashCode(num5));
+				System.out.printf("num6 주소 : %d%n", System.identityHashCode(num6));
+			}
+		}
+	
 
 3. 오토박싱과 언박싱
+	연산 (+, -, * , / ...) 
+	
+	기본자료형만 연산 가능 , 같은 형끼리만 가능, intValue() 자동추가됨 => 언박싱
+	
 
+		package exam03;
+		public class Ex05 {
+			public static void main(String[] args) {
+				int num1 = 100;
+				Integer num2 = Integer.valueOf(200);
+				
+				int result = num1 + num2;  //num2.intValue(); 자동추가됨, 원래는 숫자와 객체는 연산이 안됨
+				System.out.println(result);
 
+				Integer num3 = Integer.valueOf(100);
+				Integer num4 = Integer.valueOf(200);
+				
+				int result2 = num3 + num4; // num3.intValue() + num4.initValue() : 언박싱
+				System.out.println(result2);			
+				
+				Integer num1 = 100;  // Integer.valueOf(100); 자동추가됨 :  오토박싱
+				Integer num2 = 200;
+
+			}
+		}
+	
+		package exam03;
+		public class Ex06 {
+			public static void main(String[] args) {
+				Integer num1 = 100;  // Integer.valueOf(100); 자동추가 오토박싱
+				Integer num2 = 200;
+				
+				Integer num3 = num1 + num2; //내부적으로 Integer.valueOf(num1.intValue()) + Integer.valueOf(num2.intValue());
+				double num5 = num1.doubleValue(); 
+			}
+		}
+
+	java.lang.Number
+
+		package exam03;
+		public class Ex07 {
+			public static void main(String[] args) {
+				double result = add(10.0, 10L);
+				System.out.println(result);
+			}
+
+			public static double add(Number num1, Number num2) {
+				return num1.doubleValue() + num2.doubleValue();
+			}
+		}
 Class 클래스
-
+	- 클래스의 정보가 담겨있는 객체가 자동생성 - Class 클래스 객체
+	
 1. Class 클래스를 선언하고 클래스 정보를 가져오는 방법
+	1) 모든 클래스의 정적변수 class 
+	
+		Class cls1 = Person.class;  // 인스턴스 객체 생성 안해도 사용가능
+	
+	2) Object 클래스의 정의된 getClass()
+		
+		Person person = new Person();
+		Class cls2 = person.getClass(); 
+	
+
 2. Class 클래스를 활용해 클래스 정보 알아보기
+
+	package exam03;
+	public class Person {
+		public int age;
+		public String name;
+
+		public Person() {}
+		public Person(int age, String name) {
+			this.age = age;
+			this.name = name;
+		}
+		public int getAge() {
+			return age;
+		}
+
+		public String getName() {
+			return name;
+		}
+	}
+
+	package exam03;
+	import java.lang.reflect.Constructor;
+	import java.lang.reflect.Field;
+	import java.lang.reflect.Method;
+
+	public class Ex08 {
+		public static void main(String[] args) {
+
+			Class cls1 = Person.class;  // 인스턴스 객체 생성 안해도 사용가능
+			Field[] fields = cls1.getFields();
+			Method[] methods = cls1.getMethods();
+			Constructor[] constructors = cls1.getConstructors();
+
+			System.out.println("----- Fields -----");
+			for(Field field : fields) {
+				System.out.println(field);
+			}
+			System.out.println("----- Constructors -----");
+			for(Constructor constructor : constructors) {
+				System.out.println(constructor);
+			}
+			System.out.println("------ Methods -------");
+			for(Method method : methods) {
+				System.out.println(method);
+			}
+
+			Person person = new Person();
+			Class cls2 = person.getClass();   //인스턴스객체가 생성되어야 쓸수 있다. 클래스 내부에서 사용할 목적
+		}
+	}
+
 3. Class.forName()을 사용해 동적 로딩 하기
+
+
+
+
+유용한 클래스
+1. java.lang.Math 클래스
+
+	- 수학관련 편의기능 클래스
+	- 모두 정적 메서드
+	- abs(..) : 절대값
+	- ceil(..) : 올림
+	- floor(..) : 버림
+	- round(..) : 반올림
+	- max(..) : 둘중 큰거
+	- min(..) : 둘중 작은거
+	- pow(..) : pow(2,3) : 2의 3제곱
+	- random() : 0 ~ 1 사이의 무작위 난수
+	- sqrt(..) : 루트값 : 제곱근 
+	
+	Math.random() * n; // 정수부분이 언제나 n보다 작은 숫자 무작위로 나옴
+	
+			
+		package exam04;
+		import java.util.Arrays;
+
+		public class Ex02 {
+			public static void main(String[] args) {
+
+				// 1 ~ 43, 6개의 숫자 - 중복 X
+				int cnt = 0;
+				int[] lotto = new int[6];
+
+				while(cnt < 6) {
+					int num = getNumber();
+					if(chkDuplicated(lotto, num)) {
+						continue;
+					}
+					lotto[cnt] = num;
+					cnt++;
+				}
+				System.out.println(Arrays.toString(lotto));
+			}
+			public static int getNumber() {
+				return (int)(Math.random() * 43) + 1;
+			}
+
+			public static boolean chkDuplicated(int[] lotto, int num) {
+				for(int n : lotto) {
+					if( n == num) return true;
+				}
+				return false;
+			}
+		}
+
+		package exam04;
+		import java.util.HashSet;
+
+		public class Ex03 {
+			public static void main(String[] args) {
+				//set : 중복 X
+				HashSet<Integer> lotto = new HashSet<>();
+				while(lotto.size() < 6) {
+					lotto.add(getNumber());
+				}
+				System.out.println(lotto);
+			}
+			public static int getNumber() {
+				return (int)(Math.random() * 43) + 1;
+			}
+		}
+
+	
+2. java.util.Objects 클래스
+	- 객체를 다룰때 사용하는 편의기능
+	- 모든 메서드가 정적 (static)
+	- equals : 두객체간의 주소비교
+	- deepEquals : 중첩된 객체를 재귀적으로 주소 비교
+		참고) Arrays.equals(..), Arrays.deelpEquals(..)
+		
+	- int hash(Object.. values) :
+	- int hashCode(Object o) 
+	- boolean isNull(..)  : 참조변수가 널인지 체크
+	- boolean nonNull(..) : 참조변수가 널이 아닌지 체크
+	- requiredNonNullElse(..) :
+	
+	
+3. java.util.Random 클래스
+4. java.util.Scanner 클래스
+5. java.util.StringTokenizer 클래스
