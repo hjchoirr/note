@@ -1,4 +1,4 @@
-4/23
+4/24 day09
 
 예외처리
 
@@ -23,10 +23,10 @@ Exception  ( RuntimeException 상속여부 중요 )
 			
 	- RuntimeException을 중간에 상속 받은 예외 클래스
 	
-		- Runtime : 실행 
+		- Runtime : 실행 중
 		예) java.lang.ArithmethicException  :  0으로 나눌때 발생 
 		
-		- 예외가 발생하더라도 컴파일 O, class 파일 생성 
+		- 예외가 발생하더라도 컴파일 되고 class 파일 생성 
 		- 예외의 체크는 실행 중 체크, 실행이 되려면? class 파일 필요(컴파일은 된다...)
 		- 유연한 예외, 형식은 X
 		
@@ -36,8 +36,8 @@ Exception  ( RuntimeException 상속여부 중요 )
 			
 			 java.io.FileNotFoundException
 			 
-			- 예외있든 없든 처리가 안되어 있으면 컴파일 X   
-			- 예외의 체크는 컴파일시 체크, 예외가 있으면 컴파일 X ( <- RuntimeException을 상속 없으므로 )
+			- 예외있든 없든 처리가 안되어 있으면 컴파일 안됨  
+			- 예외의 체크는 컴파일시 체크, 예외가 있으면 컴파일 안됨 ( <- RuntimeException을 상속 없으므로 )
 			- 예외가 발생하든 안하든 반드시 적절한 예외 처리가 필요한 예외 
 			- 엄격한 예외,  형식을 매우 중시 
 	
@@ -66,9 +66,9 @@ Exception  ( RuntimeException 상속여부 중요 )
 	
 	
 	예외 클래스 주요 메서드 : 정보확인
-			java.lang.Throwable 
-										- String getMessage() - 오류 메세지 확인
-										- void printStackTrace() : 
+		java.lang.Throwable 
+			- String getMessage() - 오류 메세지 확인
+			- void printStackTrace() : 
 
 		package exam02;
 		import java.io.FileInputStream;
@@ -450,7 +450,7 @@ Object 클래스
 		package exam06;
 		public class Ex01 {
 			public static void main(String[] args) {
-				Book book = new Book(1000, "제목1","저자1");
+				Book book = new Book(1000, "제목1", "저자1");
 				System.out.println(book); // = System.out.println(book.toString());
 			}
 		}
@@ -503,7 +503,7 @@ Object 클래스
 		}
 		>>
 		  str1 == str2 : false
-		  str1.equals(str2) : true  => equals : String 클래스에서는 equals 재정의되어있어서 동등성 비교하도록 함
+		  str1.equals(str2) : true  => equals : String 클래스에서는 equals 재정의되어있어서 동등성 비교하도록 되어있음
 		 
 		 참고) String 문자열 비교시 == 쓰면 안됨, equals 사용해야함  (js : == 동등성비교 === 동일성비교)
 		 
@@ -687,8 +687,17 @@ Wrapper 클래스
 	static int parseInt(String s) : 문자열 숫자 -> integer로 변환 
 	static Integer valueOf(int i) : 
 	
-			int num3 = Integer.parseInt(str);
+	int num3 = Integer.parseInt(str);
 	
+		----------------------------------
+        Integer num1 = Integer.valueOf(10);
+        double num2 = num1.doubleValue();
+        
+		System.out.println(num2);
+
+        String str = "1000";
+        int num3 = Integer.parseInt(str);
+		----------------------------------
 
 
 1) Integer 클래스의 메서드
@@ -916,9 +925,590 @@ Class 클래스
 	- int hashCode(Object o) 
 	- boolean isNull(..)  : 참조변수가 널인지 체크
 	- boolean nonNull(..) : 참조변수가 널이 아닌지 체크
-	- requiredNonNullElse(..) :
+	- requireNonNullElse(..) : 참조변수가 NullPointerException 발생 방지를 위해 기본값 넣기
 	
+	
+		package exam04;
+		import java.util.Objects;
+
+		public class Ex04 {
+			public static void main(String[] args) {
+				String str = null;
+
+				str = Objects.requireNonNullElse(str, "");
+				str.toUpperCase(); // NullPointerException 발생, NPE
+			}
+		}
+
+		package exam04;
+		import java.util.Arrays;
+
+		public class Ex06 {
+			public static void main(String[] args) {
+				int[][] nums1 = {{10,20,30},{40,50,60}};
+				int[][] nums2 = {{10,20,30},{40,50,60}};
+
+				boolean isSame = Arrays.deepEquals(nums1, nums2);
+				System.out.println(isSame);
+			}
+		}
+
+4/25 day08 ( day09는 어제 )	
 	
 3. java.util.Random 클래스
+
+	Math.random() : 0 ~ 1 미만의 난수
+
+		package exam01;
+		import java.util.Random;
+
+		public class Ex01 {
+			public static void main(String[] args) {
+				System.out.println(Math.random());
+				
+				Random rand = new Random();
+				for(int i = 0 ; i < 6; i++) {
+					
+					int num = rand.nextInt();
+					System.out.println(num);
+
+					boolean b = rand.nextBoolean();
+					System.out.println(b);
+				}
+			}
+		}
+	
+	
 4. java.util.Scanner 클래스
+
+	- java.io
+	
+	- 데이터 입력받을 때 사용하는 편의 클래스
+	
+		- 터미널에서 입력
+			InputStream System.in
+		- 파일
+			File
+			FileInputStream ..
+			
+		- 네트워크
+					
+			package exam01;
+			import java.util.Scanner;
+
+			public class Ex02 {
+				public static void main(String[] args) {
+
+					Scanner sc = new Scanner(System.in);  // 터미널에서 입력받기
+					System.out.print("이름입력하세요 : ");
+
+					String name = sc.nextLine();   // 라인 단위로 읽기
+					System.out.printf("이름 : %s%n", name);
+				}
+			}
+					
+			package exam01;
+			import java.io.File;
+			import java.io.FileNotFoundException;
+			import java.util.Scanner;
+
+			public class Ex03 {
+				public static void main(String[] args) throws FileNotFoundException {
+					Scanner sc = new Scanner(new File("data.txt"));  // 파일에서 
+					int tot = 0;
+					while(sc.hasNextInt()) {
+						int num = sc.nextInt();   // 숫자 읽기
+						tot += num;
+					}
+					System.out.println(tot);
+				}
+			}
+
 5. java.util.StringTokenizer 클래스
+
+	- 구분문자(토큰)를 가지고 문자를 분리할때
+	
+		package exam01;
+		import java.util.StringTokenizer;
+
+		public class Ex04 {
+			public static void main(String[] args) {
+				String fruits = "Apple#Orange#Melon#Banana#Mango";
+				String fruits2 = "Apple,Orange#Melon_Banana#Mango";
+				StringTokenizer st = new StringTokenizer(fruits, "#");
+
+				while(st.hasMoreTokens()) {
+					String fruit = st.nextToken();
+					System.out.println(fruit);
+				}
+				System.out.println("--------------");
+				StringTokenizer st2 = new StringTokenizer(fruits2, "#_,");  // delimiter 여러가지일때 나열만
+				while(st2.hasMoreTokens()) {
+					String fruit = st2.nextToken();
+					System.out.println(fruit);
+				}
+			}
+		}	
+		
+6. 정규표현식
+	- java.util.regex
+	
+	Pattern 클래스 : 정규표현식 패턴 객체를 생성
+	
+		- static compile("정규식 패턴") - Pattern 객체 생성
+		- static compile(CharSequence str)
+		- static compile(CharSequence str, FLAG ) :  
+			옵션 FLAG 패턴 객체 생성 ( 예: Pattern.CASE_INSENSITIVE, Pattern.MULTILINE )
+		 
+		
+	Matcher 클래스 : 패턴의 일치여부 체크, 일치하는 문자열 추출
+	  
+		- boolean find() : 패턴에 일치여부 체크, 다음 패턴으로 이동
+		- String group() : 패턴에 일치하는 문자열 추출, 특정 그룹의 문자열 추출
+		- boolean matches() : 패턴의 일치여부 체크 - 해당 패턴이 문자열 전체와 일치
+		
+		
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex01 {
+			public static void main(String[] args) {
+				String str = "I like java and javascript";
+
+				Pattern p1 = Pattern.compile("java");
+				Matcher m1 = p1.matcher(str);
+
+				boolean result = m1.find();   //첫번째 있는 "java" 찾기
+				System.out.println(result);
+				System.out.println(m1.group());
+
+				result = m1.find();     //2번째 있는 "java" 찾기
+				System.out.println(result);
+				System.out.println(m1.group());
+
+				result = m1.find();     //2번째 있는 "java" 찾기
+				System.out.println(result);
+				//System.out.println(m1.group());  // 없어서 에러
+
+			}
+		}
+			  
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex02 {
+			public static void main(String[] args) {
+				String str = "I like java and javascript";
+
+				Pattern p1 = Pattern.compile("java");
+				Matcher m1 = p1.matcher(str);
+
+				boolean match = m1.matches();
+				System.out.println(match); // false : str에 java만 있어애 true
+			}
+		}
+	 
+	 
+	정규식 패턴
+	  - 대괄호 [ ]  문자 하나 하나  [abc] [a-z] [a-zA-Z]
+	  
+		package exam02;
+		import java.util.Scanner;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex04 {
+			public static void main(String[] args) {
+				Scanner sc = new Scanner(System.in) ;
+
+				System.out.println("문장 입력하세요 :");
+				String str = sc.nextLine();
+
+				Pattern p1 = Pattern.compile("[a-zA-Z]"); // a ~ z, A ~ Z까지 문자 하나하나,
+				Pattern p1 = Pattern.compile("[a-z]", Pattern.CASE_INSENSITIVE);  // 위와 같음
+				Matcher m1 = p1.matcher(str);
+
+				if(!m1.find()) {
+					System.out.println("알파벳 안 포함됨!");
+				}
+			}
+		}
+
+		-------------------------------------------------------------------------
+		Pattern p1 = Pattern.compile("abc"); 	// abc 
+		Pattern p1 = Pattern.compile("[a-zA-Z]"); // a ~ z, A ~ Z까지 문자 하나하나,
+		Pattern p1 = Pattern.compile("[a-z]", Pattern.CASE_INSENSITIVE);  // 위와 같음
+		"[0-9]"  : 숫자 포함?
+		"[^0-9]" :  숫자 아닌 문자 포함 ?
+		
+		.   => 줄바꿈 문자 제외한 문자 한개
+		
+		\d  =>  [0-9]   ( java 문법상 "\\d"  로 써야함 : escape 문자 )
+		\D  =>  [^0-9]  숫자 아닌 문자 포함 ?
+		
+		\w  =>  [a-zA-Z0-9_]  알파벳, 숫자, 언더스코어 포함?
+		\W  =>  [^a-zA-Z0-9_] 알파벳, 숫자, 언더스코어 아닌문자 포함?
+		
+		\b  : 문자클래스 -> 백스페이스키
+		      문자클래스 외부 -> 단어와 단어 사이의 경계
+		\B  : 단어와 단어 사이 경계이 없는 패턴
+		
+		패턴+ : 패턴을 한번 이상 반복		
+		
+		^   : 문자클래스 [^..] : 부정문자 클래스 [^0-9] : 숫자 아닌문자
+			  문자 클래스 외부 -> 시작하는 패턴 ^java -> java로 시작하는 패턴
+			   
+		$ 	: 끝나는 패턴
+		
+		
+		Pattern p1 = Pattern.compile("^\\w+\\s", Pattern.MULTILINE);  //각 행마다 다 찾는다
+		
+		패턴{반복횟수} : [0-9]{4} : 숫자 4개 => \d{4}
+		패턴{반복횟수,} : 패턴의 반복횟수 이상 : \d{4,} => 숫자 4개 이상
+		패턴{반복횟수from,반복횟수to} : 패턴의 반복횟수 from이상, to이하 : \d{4,5} => 숫자 4개 이상, 5개 이하
+		
+		패턴+ : 패턴의 1번 이상 반복  = 패턴{1,}
+		패턴* : 패턴의 0번 이상 반복  = 패턴{0,}
+		패턴? : 패턴이 없어도 되고 한번 있는 패턴 = 패턴{0,1}
+		
+		단어1|단어2|단어3 : 단어1,단어2,단어3 중 하나라도 있으면 되는 패턴
+		() 그룹핑 
+			(ABC){3} : ABC 패턴이 3번 반복
+			특정 그룹의 패턴으로 특정그룹의 문자열을 추출
+			이미지 태그에서 src=
+		
+		
+
+		-------------------------------------------------------------------------
+		package exam02;
+		import java.awt.*;
+		import java.util.Scanner;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex05 {
+			public static void main(String[] args) {
+
+				Scanner sc = new Scanner(System.in);
+				System.out.println("숫자 포함하여 입력 : ");
+				String str = sc.nextLine();
+
+				Pattern p1 = Pattern.compile("[0-9]");  // 숫자 포함 ?
+				Matcher m1 = p1.matcher(str);
+
+				if(!m1.find()) {
+					System.out.println("숫자가 포함되지 않았어요.");
+				}
+
+			}
+		}
+	  
+	    Pattern p1 = Pattern.compile("[^0-9]"); // 숫자 아닌 문자 포함 ?
+        Matcher m1 = p1.matcher(str);
+
+        if(m1.find()) {
+            System.out.println("숫자만 입력하라구요");
+        }
+		-------------------------------------------------------------------------
+		
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex06 {
+			public static void main(String[] args) {
+				String str = "java I like java and javascript.";
+				Pattern p1 = Pattern.compile("\\bjava\\b");   // java java 2개 찾음
+				//Pattern p1 = Pattern.compile("\\bjava\\B");  // 두번째 java 만 찾음 
+				Matcher m1 = p1.matcher(str);
+
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+			}
+		}
+		-------------------------------------------------------------------------
+
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex07 {
+			public static void main(String[] args) {
+				String str = "java one\njava two\njava three";
+				System.out.println(str);
+				System.out.println("-------------");
+
+				Pattern p1 = Pattern.compile("^\\w+\\s"); // 시작부분이 알파벳, 숫자, 언더스코어 포함 반복 후 스페이스
+				Matcher m1 = p1.matcher(str);
+
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+			}
+		}
+		>>
+		java one
+		java two
+		java three
+		-------------
+		java 		
+		-------------------------------------------------------------------------
+
+		public class Ex07 {
+			public static void main(String[] args) {
+				String str = "java one\njava two\njava three";
+				System.out.println(str);
+				System.out.println("-------------");
+
+				//Pattern p1 = Pattern.compile("\\w+\\s");
+				//Pattern p1 = Pattern.compile("^\\w+\\s");
+				Pattern p1 = Pattern.compile("^\\w+\\s", Pattern.MULTILINE);  //각 행마다 다 찾는다
+				Matcher m1 = p1.matcher(str);
+
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+			}
+		}
+		>>
+		java one
+		java two
+		java three
+		-------------
+		java 
+		java 
+		java 		
+		
+				
+		package exam02;
+
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex08 {
+			public static void main(String[] args) {
+				String str = "AAA\n1234\nBBBB\n456";
+
+				Pattern p1 = Pattern.compile("\\b....\\b");  // 동일   "\\b.{4}\\b"
+				Matcher m1 = p1.matcher(str);
+
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+			}
+		}
+		>>
+		1234
+		BBBB		
+		-----------------------------------------------
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex08 {
+			public static void main(String[] args) {
+				String str = "AAA\n1234\nBBBB\n456\nCCCCC\nDDDDDD";
+
+				Pattern p1 = Pattern.compile("\\b.{4,5}\\b");
+				Matcher m1 = p1.matcher(str);
+
+				while(m1.find()) {
+					System.out.println(m1.group());
+				}
+			}
+		}
+		>>
+		1234
+		BBBB
+		CCCCC
+		-----------------------------------------------
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex09 {
+			public static void main(String[] args) {
+				String mobile = "010-8200-9572";
+				System.out.println(checkMobile(mobile));
+			}
+			public static boolean checkMobile(String mobile) {
+				/**
+				 * 010-0000-0000
+				 * 011-000-0000
+				 * 016-000-0000
+				 */
+				Pattern pattern = Pattern.compile("^01[016]-\\d{3,4}-\\d{4}$");
+				Pattern pattern = Pattern.compile("^01[016]\\D*\\d{3,4}\\D*\\d{4}$");
+				Matcher matcher = pattern.matcher(mobile);
+
+				boolean matched = matcher.find();
+				return matched;
+			}
+		}
+		-------------------------------------------
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex10 {
+			public static void main(String[] args) {
+				//String str = "cat|dog|pig";
+				String str = "I like a cat";
+				Pattern p1 = Pattern.compile("cat|dog|pig");
+				Matcher m1 = p1.matcher(str);
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+			}
+		}		
+		-------------------------------------------
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex11 {
+			public static void main(String[] args) {
+				String str = "ABCABCABC";
+				Pattern p1 = Pattern.compile("(ABC){3}");
+				Matcher m1 = p1.matcher(str);
+				if(m1.find()) {
+					System.out.println(m1.group());
+				}
+			}
+		}
+
+
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex13 {
+			public static void main(String[] args) {
+				String str = "이이름: 010-4567-7543\n김이름: 010-1111-1111";
+				Pattern p1 = Pattern.compile("([^:]+):\\s*(01[016]\\D*\\d{3,4}\\D*\\d{4})", Pattern.MULTILINE);
+				Matcher m1 = p1.matcher(str);
+
+				while(m1.find()) {
+					System.out.printf("이름:%s, 전화번호: %s%n", m1.group(1).replace("\n",""), m1.group(2));
+				}
+
+			}
+		}
+
+
+전방 탐색(?=패턴) -> 패턴 앞에 있는 패턴 예) \w*(?=:) : 문자 앞에 있는 단어 여러개 패턴
+전방 부정 탐색 (?!=패턴) 예) \w 
+
+
+		package exam02;
+		import java.util.regex.Matcher;
+		import java.util.regex.Pattern;
+
+		public class Ex14 {
+			public static void main(String[] args) {
+				String str1 = "https://www.naver.com";
+				String str2 = "ftp://www.naver.com";
+				Pattern p1 = Pattern.compile("\\w*(?=:)");
+				Matcher m1 = p1.matcher(str2);
+				if(m1.find() ) {
+					System.out.println(m1.group());
+				}
+			}
+		}
+
+String 클래스 메서드 중 정규 표현식을 지원 형식
+
+		package exam02;
+		import java.util.Arrays;
+
+		public class Ex15 {
+			public static void main(String[] args) {
+				String str = "Apple Mango Melon    Banana";
+				String[] fruits = str.split("\\s+");
+				System.out.println(Arrays.toString(fruits));
+			}
+		}
+
+
+String 클래스
+
+	boolean endsWith(..)
+	boolean startsWith(..)
+	boolean equalsIgnoreCase(..)
+	
+	static String format(Locale l, String format, Object... args)
+	byte[] getBytes()
+	
+	int indexOf(..)  : 왼쪽에서 오른쪽으로 검색
+	int lastIndexOf(..) : 오른쪽에서 왼쪽으로 검색
+	boolean isBlank()  : 여백 포함하고 체크 
+	boolean isEmpty()  : 여백 포함 안하고 체크
+	
+	static String join(..)
+	int length()
+	boolean matches(String regex)
+	String repeat(int count)
+	String replace(char oldChar, char newChar)
+	String replaceAll(String regex, String replacement)
+	String[] split(String regex)
+	String strip()  = trim() 
+	String stripLeading()
+	String stripTrailing()	
+	String substring(int beginIndex)
+	String substring(int beginIndex, int endIndex)   beginIndex ~ endIndex 미만까지
+	
+	(참고) 
+		Locale : 지역화
+		
+	String fruits = String.join(",", "Apple", "Orange","Melon"); // fruits => "Apple,Orange,Melon"
+	String str = String.format("%d + %d = %d", 10, 20, 30); // str => "10 + 20 = 30"
+	
+	String fileName = "image.png";
+	String extension = fileName.substring(6); // extension => "png"
+	String str = fileName.substring(2,5); // str => "age"
+	
+	String str = "    ";
+	System.out.printf("str.isEmpty() : %s%n", str.isEmpty() );
+	System.out.printf("str.isBlank() : %s%n", str.isBlank() );	
+	>>
+	str.isEmpty() : false
+	str.isBlank() : true		
+	
+	String fruits = "Apple, Orange, Mango, Melon, Apple";
+	System.out.printf("indexOf Apple: %d%n", fruits.indexOf("Apple"));
+	System.out.printf("lastIndexOf Apple: %d%n", fruits.lastIndexOf("Apple"));
+	System.out.printf("indexOf Banana : %d%n",fruits.indexOf("Banana") );
+	>>
+	indexOf Apple: 0
+	lastIndexOf Apple: 29
+	indexOf Banana : -1
