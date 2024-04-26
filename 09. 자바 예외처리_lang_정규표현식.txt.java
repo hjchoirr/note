@@ -1140,8 +1140,11 @@ Class 클래스
 		Pattern p1 = Pattern.compile("abc"); 	// abc 
 		Pattern p1 = Pattern.compile("[a-zA-Z]"); // a ~ z, A ~ Z까지 문자 하나하나,
 		Pattern p1 = Pattern.compile("[a-z]", Pattern.CASE_INSENSITIVE);  // 위와 같음
-		"[0-9]"  : 숫자 포함?
-		"[^0-9]" :  숫자 아닌 문자 포함 ?
+		
+		패턴 종류
+		
+		[0-9]  : 숫자 포함?
+		[^0-9] :  숫자 아닌 문자 포함 ?
 		
 		.   => 줄바꿈 문자 제외한 문자 한개
 		
@@ -1489,7 +1492,7 @@ String 클래스
 	
 	(참고) 
 		Locale : 지역화
-		
+	-------------------------------------------------------------------
 	String fruits = String.join(",", "Apple", "Orange","Melon"); // fruits => "Apple,Orange,Melon"
 	String str = String.format("%d + %d = %d", 10, 20, 30); // str => "10 + 20 = 30"
 	
@@ -1503,7 +1506,7 @@ String 클래스
 	>>
 	str.isEmpty() : false
 	str.isBlank() : true		
-	
+	-------------------------------------------------------------------
 	String fruits = "Apple, Orange, Mango, Melon, Apple";
 	System.out.printf("indexOf Apple: %d%n", fruits.indexOf("Apple"));
 	System.out.printf("lastIndexOf Apple: %d%n", fruits.lastIndexOf("Apple"));
@@ -1512,3 +1515,20 @@ String 클래스
 	indexOf Apple: 0
 	lastIndexOf Apple: 29
 	indexOf Banana : -1
+	-------------------------------------------------------------------
+	package exam03;
+	public class Ex05 {
+		public static void main(String[] args) {
+			String str = "I like java and javascript";
+			boolean matched = str.matches(".*java.*"); //java 앞 뒤에 뭐 있어도 찾기
+			System.out.println(matched);
+
+			String str2 = "     ABC    ";
+			String str3 = str2.stripLeading();
+			String str4 = str2.stripTrailing();
+			System.out.printf("(%s)(%s)%n",str3, str4);
+		}
+	}
+	>>
+	true
+	(ABC    )(     ABC)
