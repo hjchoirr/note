@@ -501,9 +501,9 @@
 				}
 			}
 		}
-		-------------T 사용 --------------------------------
+		--------타입 매개변수 T 사용 --------------------------------
 		package exam05;
-		public class Box<T> { // T : Type,자료형
+		public class Box<T> { //Box<T> : 지네릭클래스 T:타입매개변수 Box: 원시타입
 			private T item;
 
 			public T getItem() {
@@ -527,9 +527,235 @@
 				System.out.println(apple.get());
 			}
 		}
-
-		컴파일러는 T 를 Object 로 바꿔줌 -> 객체 생성 시 투입된 자료형(Apple)으로 Object를 형변환
 		
+2. 지네릭 클래스의 선언
+
+3. 지네릭스의 용어
+1) 지네릭 클래스
+	class Box<T> { .... }
+2) 타입변수 T
+3) 원시타입 Box 
+
+타입 매개변수는 컴파일시 제거 -> Object -> 객체가 생성될때 타입 매개변수의 자료형으로 형변환 
+타입은 객체 생성시(실행시) 결정
+
+사용의 제한점)
+	static 멤버 변수에는 타입 매개변수 사용 불가 
+		- 처음부터 자료형이 명시 되어야 공간을 할당 
+	
+	배열 생성 불가 
+		- new 연산자 : 배열 공간 생성 : 명확한 자료형을 알아야 공간을 계산 ..
+
+4. 지네릭스의 제한
+1) 타입 매개변수와 동일한 자료형
+2) static멤버에 타입 변수 T를 사용할 수 없다.
+3) 지네릭 타입의 배열을 생성하는 것도 허용하지 않는다.
+
+5. 지네릭 클래스의 객체 생성과 사용
+
+		컴파일러는 T 를 Object 로 바꿔줌 (모든 클래스는 Object의 하위 클래스이므로)
+		
+		-> 객체 생성 시 타입힌트를 통해 자료형(Apple)으로 Object를 형변환 (Object -> Apple)
+		    Box<Apple> appleBox = new Box<Apple>()
+		
+		-> 지네릭 타입의 자료형은 객체 생성 시점에만 결정되므로 처음부터 자료형이 결정되어야 하는 변수에는 사용하지 못함
+			1) 정적변수에는 사용 불가 private staic T item : 이건 안됨
+			2) 배열 사용 불가 : 메모리에 공간 생성 역할 
+			   private T[] nums = new T[3]; // 안됨
+			
+		-> 이렇게 사용하는게 더 일반적임
+		   Box<Apple> appleBox = new Box<>(); //아래줄과 동일함
+		   Box<Apple> appleBox = new Box<Apple>();  
+		   
+		-> 메서드 내부에서 접근 가능한 지네릭 타입 인스턴스 자원은 모두 Object 형
+			형변환된 객체가 정의된 인스턴스 자원 접근 안됨.
+			<T extends Fruit> 으로 해결
+			
+			공통된 틀 Fruit 을 정해서 타입 매개변수의 하위 클래스임을 명시하면 
+
+			package exam01;
+			public abstract class Fruit {      // 껍데기 추상클래스 Fruit만들고 
+				public abstract String get();
+			}
+			
+			package exam01;  
+			public class Apple extends Fruit {    //Fruit를 상속받아 정의
+				public String get() {
+					return "사과";
+				}
+			}
+			package exam01;
+			public class Grape extends Fruit{    //Fruit를 상속받아 정의
+				public String get() {
+					return "포도";
+				}
+			}
+
+			package exam01;
+			public class Box<T extends Fruit> { // T 는 Fruit의 하위클래스로 한정하면 Fruit의 get 사용가능
+				private T item;
+
+				public void setItem(T item) {
+					this.item = item;
+				}
+				public T getItem() {
+					return item;
+				}
+				public String toString() {  
+					return item.get();    // Fruit을 상속받은 클래스로 T를 한정했으므로 가능함
+				}
+			}		   
+
+
+6. 제한된 지네릭 클래스
+	<T extends 타입> -> T 를 "타입"의 하위 클래스로 제한한다.. 
+	<T extends 타입1 & 타입2> -> T를 "타입1" 의 하위 클래스 이고 "타입2" 인터페이스의 구현 클래스 
+	
+	package exam01;
+	public class Box<T extends Fruit & Eatable> { //Fruit는 추상클래스, Eatable은 인터페이스까지 들어가면
+		private T item;
+	
+		public void setItem(T item) {
+			this.item = item;
+		}
+		public T getItem() {
+			return item;
+		}
+		public String toString() {
+			return item.get();
+		}
+	}
+	
+	package exam01;
+	public interface Eatable {
+	}	
+	
+7. 와일드 카드
+	<?> : <? extends Object>
+	<? extends 타입> -> T는 "타입"의 하위 클래스 : 타입으로 상한 제한 
+		<? extends 클래스형 & 인터페이스형>  : 사용불가함
+		
+	<? super 타입> -> T는 "타입"의 상위 클래스 : 타입으로 하한 제한
+	
+	package exam02;
+	public class Apple {
+		public String toString() {
+			return "사과";
+		}
+	}	
+		
+	package exam02;
+	public class Grape {
+		public String toString() {
+			return "포도";
+		}
+	}
+
+	package exam02;
+	import java.util.ArrayList;
+
+	public class Juicer {
+		public static void make(FruitBox<?> box) {
+			ArrayList<?> fruits = box.getItems();
+			System.out.println(fruits);
+		}
+	}
+	package exam02;
+	import exam01.Apple;
+	import exam01.Fruit;
+
+	package exam02;
+
+	public class Ex02 {
+		public static void main(String[] args) {
+			FruitBox<Grape> grapeBox = new FruitBox<>();
+			grapeBox.add(new Grape());
+			grapeBox.add(new Grape());
+			Juicer.make(grapeBox);
+		}
+	}
+
+	--------------------------------------------------
+	package exam02;
+	public class Ex03 {
+		public static void main(String[] args) {
+			FruitBox<Toy> toyBox = new FruitBox<>();
+			toyBox.add(new Toy()); 
+			Juicer.make(toyBox);    // 이게 되면 안되므로 아래와 같이 수정
+		}
+	}
+	
+	package exam02;
+	public abstract class Fruit {
+
+	}
+	package exam02;
+	public class Apple extends Fruit{
+		public String toString() {
+			return "사과";
+		}
+	}
+	package exam02;
+
+	public class Grape extends Fruit{
+		public String toString() {
+			return "포도";
+		}
+	}
+
+	package exam02;
+	import java.util.ArrayList;
+
+	public class Juicer {
+		public static void make(FruitBox<? extends Fruit> box) {
+			ArrayList<?> fruits = box.getItems();
+			System.out.println(fruits);
+		}
+	}
+	--------------------------------------------------
+	package exam02;
+	import java.util.ArrayList;
+
+	public class Juicer {
+		public static void make(FruitBox<? extends Fruit> box) {
+			ArrayList<?> fruits = box.getItems();
+			System.out.println(fruits);
+		}
+	}
+	
+	
+8. 지네릭 메서드
+	타입을 클래스에 정의하면 : 지네릭 클래스
+	예) clas Box<T> : 
+	
+	타입을 메서드 반환값 앞에 정의하면 : 지네릭 메서드
+	public <T, U>String method(T, U)의 자료형은 함수가 함수가 호출될때 결정
+	
+		package exam03;
+		public class Box<T> {
+			private T item;
+
+			// Box가 객체가 될때 T 결정됨 - 지네릭 클래스
+			public void method1(T str1, T str2) {
+				
+			}
+
+			//지네릭 메서드 - 호출시에 T의 자료형이 결정된다
+			public <T> void method2(T str1, T str2) {
+			}
+		}	
+
+9. 지네릭 타입의 제거		
+
+
+지네릭스
+1. 지네릭스란?
+
+참고)
+- 다양한 자료형을 수용 -> Object 클래스 사용 
+	단점
+	1) 타입 안정성 X  // instanceof 연산자 
+	2) 형변환의 번거로움
 
 2. 지네릭 클래스의 선언
 
@@ -564,4 +790,73 @@
 	<? extends 타입> -> T는 타입의 하위 클래스 : 타입으로 상한 제한 
 	<? super 타입> -> T는 타입의 상위 클래스 : 타입으로 하한 제한
 8. 지네릭 메서드
-9. 지네릭 타입의 제거		
+9. 지네릭 타입의 제거
+
+
+
+
+package exam01;
+
+public class Box {
+    private Object item;
+
+    public void setItem(Object item) {
+        this.item = item;
+    }
+
+    public Object getItem() {
+        return item;
+    }
+}
+
+컴파일 시점 ? 
+	자료형이 명확하게 결정되어 있어야 컴파일 가능
+		-> 컴파일러가 알수 있는 형태로 자료형을 결정 
+		    (모든 클래스는 Object의 하위 클래스임을 알고 있다 -> 자료형을 Object로 결정)
+		
+	<T> : 형식상 오류
+	-> 컴파일 시점에 형식상의 오류를 해결하기 위해서 지네릭 타입은 모두 제거
+	
+	
+자료형 결정 시점
+객체를 생성하는 시점에 타입 힌트를 통해서 형변환이 발생(Object -> Apple)
+예) Box<Apple> appleBox = new Box<Apple>();
+
+-> 지네릭 타입의 자료형은 객체 생성 시점에만 결정되므로 처음부터 자료형이 결정되어야 하는 변수에는 사용 불가
+	1) 정적 변수는 사용 불가
+		private static T item (X)
+		
+	2) 배열 사용 불가 
+		new 연산자 때문 : 메모리에 공간 생성 역할
+		private static T[] nums; (X)
+	
+
+<T extends Fruit>
+: T는 Fruit의 하위 클래스, 충분한 정보가 있으므로 Object가 아니라 T를 Fruit로 변경
+public class Box {
+    private Fruit item;
+
+    public void setItem(Fruit item) {
+        this.item = item;
+    }
+
+    public Fruit getItem() {
+        return item;
+    }
+}
+
+
+지네릭 클래스 T 
+	-> 컴파일시에 형식 오류로 제거 
+	-> 타입 매개변수 T는 우선 Object 변경 
+	-> 객체를 만드는 시점에 있는 타입 힌트를 통해서 형변환이 발생
+		Box<Apple> appleBox = new Box<>()
+			-> Object -> (Apple)
+		-> 제한 조건이 발생 
+			: 처음부터 공간이 필요한 정적(static) 변수는 사용 불가 
+			: 배열도 new 연산자를 통한 생성을 하려면 명확한 자료형이 정의 -> 사용 불가 
+			
+			: 메서드 내부에서 접근 가능한 지네릭 타입 인스턴스 자원은 모두 Object 형
+				-> 형변환된 객체의 정의된 인스턴스 자원 접근 X
+				-> 공통된 틀을 정해서 타입 매개변수의 하위 클래스임을 정의 
+					<T extends Fruit> -> T는 Fruit의 하위 클래스임을 알수 있음 -> Object 보다는 Fruit로 변환
