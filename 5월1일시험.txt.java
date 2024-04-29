@@ -13,7 +13,7 @@ final 관련 문제
 
 
 
-
+Cahpter6 
 1. 클래스내부에서 자기 자신을 가리키는 예약어
 2. 클래스에 여러 생성자가 오버로드되어 있을 경우 하나의 생성자에서 다른 생성자를 호출할때 (_)를 사용합니다
 3. 클래스 내부에 선언하는 static 변수는 생성되는 인스턴스마다 만들어지는 것이 아닌 여러 인스턴스가 공유하는 변수입니다
@@ -24,18 +24,129 @@ final 관련 문제
 다방에서아메리카노 사먹었고
 이씨는 콩다방에서 4500원 라떼를 사 마셨습니다. 06-2 객체간의 협력을 참고하여 이 과정을 객체 지향으로 프로그래밍 해보세요
 6. 카드회사에서 카드를 발급받을 때마다 새로운 카드번호를 부여합니다. 06-3 학번 생성하기 예제를 참조하여 카드가 생성될때마다 카드번호 자동 증가하도록 카드 클래스를 만들고 생성해 보세요
-7. 6번에 구현한 카드회사 클ㄹ스 CardCompany를 싱글톤 패턴을 사용하여 구현해 보세요
+7. 6번에 구현한 카드회사 클래스 CardCompany를 싱글톤 패턴을 사용하여 구현해 보세요
 
+package singleton;
+public class Company {
+
+	private static Company instance = new Company();
+	
+	private Company(){}
+	
+	public static Company getInstance(){
+		if(instance == null){
+			instance = new Company();
+		}
+		return instance;
+	}
+}
+
+package singleton;
+public class CompanyTest {
+
+	public static void main(String[] args) {
+
+		Company myCompany1 = Company.getInstance();
+		Company myCompany2 = Company.getInstance();
+		
+		System.out.println( myCompany1 == myCompany2 );
+	}
+}
+------------------------------------------------------------
+package chapter6.q6;
+public class Card {
+
+	private int cardNumber;
+	private static int serialNum = 10000;
+	
+	Card(){
+		serialNum++;
+		cardNumber = serialNum;
+	}
+
+	public int getCardNumber() {
+		return cardNumber;
+	}
+
+	public void setCardNumber(int cardNumber) {
+		this.cardNumber = cardNumber;
+	}
+
+}
+
+package chapter6.q6;
+public class CardCompany {
+
+	private static CardCompany instance = new CardCompany();
+	
+	private CardCompany() {}
+	public static CardCompany getInstance() {
+		if(instance == null )
+			instance = new CardCompany();
+		return instance;
+	}
+	public Card createCard() {
+		
+		Card card = new Card();
+		return card;
+	}
+}
+package chapter6.q6;
+public class CardCompanyTest {
+
+	public static void main(String[] args) {
+
+		CardCompany company = CardCompany.getInstance();  //싱글톤 패턴
+		
+		Card myCard = company.createCard();   //메서드에서 Card 생성
+		Card yourCard = company.createCard();
+		
+		System.out.println(myCard.getCardNumber());    //10001  출력
+		System.out.println(yourCard.getCardNumber());  //10002  출력
+	}
+}
+
+------------------------------------------------------------
+
+Chapter8.
 1.자바에서는 어떤 클래스의 기능을 확장하기 위하여 새로운 클래스를 만들기 위해 상속을 합니다. 이때 사용하는 예약어는 ()입니다
 2. 하위클래스가 상위 클래스의 생성자를 호출하거나 클래스의 주소, 즉 참조값을 나타내응 예약어는 (_) 입니다.
-3. 클래스를 상속받은 상태에서 상위 클래스에 이미 정의되어 있는 메서드를 하위 클래스에서 사용하기에 적합하지 않은 경우에 해담 매서드를 재정의 할 수 있습니다.
+3. 클래스를 상속받은 상태에서 상위 클래스에 이미 정의되어 있는 메서드를 하위 클래스에서 사용하기에 적합하지 않은 경우에 해당 매서드를 재정의 할 수 있습니다.
 이것을 () 이라고 합니다.
 4.다음 코드가 오류를 발생하는 원인
+
+package Quize0501;
+
+public class Employee {
+    public String name;
+    public String grade;
+
+    public Employee(String name) {
+        this.name = name;
+    }
+}
+package Quize0501;
+
+public class Engineer extends Employee{
+    private String skillset;
+
+    public Engineer(String name) {   // 요부분 넣어줘야 함
+        super(name);
+    }
+    public String getSkillset() {
+        return skillset;
+    }
+
+    public void setSkillset(String skillset) {
+        this.skillset = skillset;
+    }
+}
+
+
 
 
 
 package chapter6.q5;
-
 public class BeanCoffee {
 
 	int money;
@@ -56,7 +167,6 @@ public class BeanCoffee {
 }
 
 package chapter6.q5;
-
 public class CoffeeTest {
 
 	public static void main(String[] args) {
@@ -72,7 +182,6 @@ public class CoffeeTest {
 }
 
 package chapter6.q5;
-
 public class Menu {
 
 	public static final int STARAMERICANO = 4000;
@@ -84,7 +193,6 @@ public class Menu {
 
 
 package chapter6.q5;
-
 public class Person {
 
 	String name;
@@ -99,7 +207,7 @@ public class Person {
 		String message = sCoffee.brewing(4000);
 		if(message != null) {
 			this.money -= money;
-			System.out.println(name + " ����" + money +"���� "  + message);
+			System.out.println(name + " 님이" + money "으로 "  + message);
 		}
 	}
 	
@@ -107,13 +215,12 @@ public class Person {
 		String message = bCoffee.brewing(4500);
 		if(message != null) {
 			this.money -= money;
-			System.out.println(name + " ����" + money +"����"  + message);
+			System.out.println(name + " 님이" + money +"으로 "  + message);
 		}
 	}
 }
 
 package chapter6.q5;
-
 public class StarCoffee {
 
 	int money;
