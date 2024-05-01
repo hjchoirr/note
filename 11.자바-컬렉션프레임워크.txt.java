@@ -672,6 +672,282 @@ Map : 사전 자료 구조에 대한 설계
 
 4. Comparator와 Comparable
 
+	참고) 
+		Unsigned : 양수
+		byte : -128 ~ 127  
+		Unsigned byte : 0 ~255
+		
+		from ~ to : from 부터 to 미만까지
+
+
 5. Arrays
 
+	- java.util.Arrays
+	- 배열의 편의기능 모음
+	
+	- deep... : 다차원배열에서 ..
+
+			
+	--Arrays.asList 사용-----
+	package exam01;
+	import java.util.ArrayList;
+	import java.util.Arrays;
+	import java.util.List;
+
+	public class Ex01 {
+		public static void main(String[] args) {
+			List<String> names = Arrays.asList("이름1","이름2","이름3","이름4");
+			System.out.println(names);
+
+			//Arrays.asList 로 만든 리스트는 변경불가 List, 추가, 수정, 삭제 안됨
+			names.remove(0); //에러
+
+			//변경 필요시 List의 구현 클래스의 객체 생성 시 생성자 매개변수로 대입
+			List<String> names2 = new ArrayList<>(names);
+			names2.remove(0);
+
+			System.out.println(names2);
+		}
+	}
+	---------------------------------------------------------------------
+	-- Arrays.copyOf(..) Arrays.copyOfRange(..), Arrays.toString(..) ----
+	---------------------------------------------------------------------
+	package exam01;
+	import java.util.Arrays;
+
+	public class Ex02 {
+		public static void main(String[] args) {
+			int[] nums1 = {10,20,30,40,50,60};
+			int[] nums2 = Arrays.copyOf(nums1, 3);  // 0부터 3개 복사
+			int[] nums3 = Arrays.copyOfRange(nums1, 1,5); // 1부터 5 미만까지 복사
+
+			System.out.println(Arrays.toString(nums1)); // Arrays.toString 필요
+			System.out.println(Arrays.toString(nums2));
+			System.out.println(Arrays.toString(nums3));
+		}
+	}
+	>>
+	[10, 20, 30, 40, 50, 60] 
+	[10, 20, 30]
+	[20, 30, 40, 50]
+	
+	---------------------------------------------------------------------
+	--- Arrays.deepToString(..) -----
+	---------------------------------------------------------------------
+	package exam01;
+	import java.util.Arrays;
+
+	public class Ex03 {
+		public static void main(String[] args) {
+			int[][] nums1 = {{10,20,30},{40,50,60}};
+			System.out.println(Arrays.toString(nums1));
+			System.out.println(Arrays.deepToString(nums1));
+		}
+	}
+
+	---------------------------------------------------------------------
+	--- Arrays.deepEquals(..) -----
+	---------------------------------------------------------------------
+	package exam01;
+	import java.util.Arrays;
+
+	public class Ex04 {
+		public static void main(String[] args) {
+			int[] nums1 = {10,20,30,40,50,60};
+			int[] nums2 = {10,20,30,40};
+
+			int isComp = Arrays.compare(nums1, nums2);
+			boolean isSame = Arrays.equals(nums1, nums2); // 1차원배열만 비교
+
+			int[][] nums3 = {{10,20,30},{40,50,60}};
+			int[][] nums4 = {{10,20,30},{40,50,60}};
+
+			boolean isSame2 = Arrays.equals(nums3, nums4); // 1차원배열만 비교
+			System.out.println(isSame2);
+
+			boolean isSame3 = Arrays.deepEquals(nums3, nums4); // 다차원배열만 비교
+			System.out.println(isSame3);
+		}
+	}
+	
+	---------------------------------------------------------------------
+	--- Arrays.fill(..) -----
+	---------------------------------------------------------------------
+	package exam01;
+	import java.util.Arrays;
+
+	public class Ex05 {
+		public static void main(String[] args) {
+			char[] chars = new char[10];
+			Arrays.fill(chars, '*');
+			System.out.println(Arrays.toString(chars));
+
+			// user01 -> use***
+			String userId = "user01";
+			char[] char2 = userId.toCharArray();
+			Arrays.fill(char2, 3, userId.length(), '*');
+			System.out.println(Arrays.toString(char2));
+			userId = String.valueOf(char2);
+			System.out.println(userId);
+		}
+	}
+
+	---------------------------------------------------------------------
+	--- Arrays.mismatch(..) -----
+	---------------------------------------------------------------------
+	package exam01;
+	import java.util.Arrays;
+
+	public class Ex06 {
+		public static void main(String[] args) {
+			String[] fruits1 = {"사과","오렌지","망고","멜론"};
+			String[] fruits2 = {"사과","오렌지","바나나","포도"};
+
+			int pos = Arrays.mismatch(fruits1, fruits2);
+			System.out.println(pos);
+
+			int pos2 = Arrays.mismatch(fruits2, fruits2);
+			System.out.println(pos2);
+		}
+	}
+
+	---------------------------------------------------------------------
+	--- Arrays.sort(..) -----
+	---------------------------------------------------------------------
+	package exam01;
+	import java.util.Arrays;
+	import java.util.Comparator;
+
+	public class Ex07 {
+		public static void main(String[] args) {
+			int[] nums = { 22,10, 5, 1, 99, 50};
+
+			Arrays.sort(nums); // 기본정렬, Integer 기본정렬 기준 - java.lang.Comparable, int compareTo(..)
+			System.out.println(Arrays.toString(nums));
+
+			Integer[] nums2 = { 22,10, 5, 1, 99, 50};
+			Arrays.sort(nums2, Comparator.reverseOrder()); // Comparator 사용하려면 int[] 안되고 Integer[] 써야 함
+			System.out.println(Arrays.toString(nums2));
+		}
+	}
+
+
 6. Collections
+	- java.util.collections
+	- 컬렉션의 편의기능 모음
+		---------------------------------------------------------------------
+		---static <T> boolean addAll(Collection<? super T> c, T... elements)
+		---------------------------------------------------------------------
+		package exam01;
+		import java.util.ArrayList;
+		import java.util.Collections;
+		import java.util.List;
+
+		public class Ex08 {
+			public static void main(String[] args) {
+				List<String> names = new ArrayList<>();
+				Collections.addAll(names, "이름1","이름2","이름3");
+				System.out.println(names);
+			}
+		}
+		-------------------------------------------------
+		static int frequency(Collection<?> c, Object o)
+		-------------------------------------------------
+		package exam01;
+		import java.util.Arrays;
+		import java.util.Collections;
+		import java.util.List;
+
+		public class Ex09 {
+			public static void main(String[] args) {
+				List<String> chars = Arrays.asList("aa", "bb","cc","aa","aa");
+
+				int cnt = Collections.frequency(chars, "aa");
+				System.out.println(cnt);
+			}
+		}
+	
+		----------------------------------------------
+		Collections.max(Collection<? extends T> coll)
+		static <T extends Object & Comparable<? super T>> T Collections.min(Collection<? extends T> coll)
+		Collections.shuffle(..)
+		----------------------------------------------
+		
+		package exam01;
+		import java.util.Arrays;
+		import java.util.Collections;
+		import java.util.List;
+
+		public class Ex10 {
+			public static void main(String[] args) {
+				List<String> names = Arrays.asList("이름1","이름2","이름3","이름4", "이름5");
+
+				String max = Collections.max(names); //정렬후 마지막 요소
+				String min = Collections.min(names); //정렬후 처음 요소
+
+				System.out.printf("max=%s min=%s%n", max,min);
+
+				Collections.shuffle(names);
+				System.out.println(names);
+				String max2 = Collections.max(names); //정렬후 마지막 요소
+				String min2 = Collections.min(names); //정렬후 처음 요소
+
+				System.out.printf("max=%s min=%s%n", max2,min2);
+			}
+		}
+		-------------------------------------------------------
+		static void Collections.swap(List<?> list, int i, int j)  : 자리 바꾸기
+		static void Collections.reverse(List<?> list)
+		static <T> boolean Collections.replaceAll(List<T> list, T oldVal, T newVal)
+		-------------------------------------------------------
+		package exam01;
+		import java.util.ArrayList;
+		import java.util.Collections;
+		import java.util.List;
+
+		public class Ex11 {
+			public static void main(String[] args) {
+				List<String> names = new ArrayList<>();
+				names.add("이름1");
+				names.add("이름2");
+				names.add("이름3");
+				names.add("이름4");
+				names.add("이름5");
+
+				Collections.swap(names, 1, 3);
+				System.out.println(names);
+
+				Collections.reverse(names);
+				System.out.println(names);
+
+				Collections.replaceAll(names, "이름3", "Name3");
+				System.out.println(names);
+			}
+		}
+		>>
+		[이름1, 이름4, 이름3, 이름2, 이름5]
+		[이름5, 이름2, 이름3, 이름4, 이름1]
+		[이름5, 이름2, Name3, 이름4, 이름1]	
+	
+		----------------------------------------------------------------------------
+		static <T extends Comparable<? super T>> void Collections.sort(List<T> list)
+		----------------------------------------------------------------------------
+		package exam01;
+		import java.util.Arrays;
+		import java.util.Collections;
+		import java.util.Comparator;
+		import java.util.List;
+
+		public class Ex12 {
+			public static void main(String[] args) {
+				List<String> names = Arrays.asList("이름3","이름1","이름2","이름4", "이름5");
+
+				//Collections.sort(names); //기본정렬기준(Natural Order - java.lang.Comparable, int compareTo(..)
+				//System.out.println(names);
+
+				Collections.sort(names, Comparator.reverseOrder());
+				System.out.println(names);
+			}
+		}
+		>>
+		[이름5, 이름4, 이름3, 이름2, 이름1]
