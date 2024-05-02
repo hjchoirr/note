@@ -533,7 +533,7 @@
 3. 지네릭스의 용어
 1) 지네릭 클래스
 	class Box<T> { .... }
-2) 타입변수 T
+2) 타입변수 T  : 참조자료형과 배열만 가능, 기본자료형은 불가능함
 3) 원시타입 Box 
 
 타입 매개변수는 컴파일시 제거 -> Object -> 객체가 생성될때 타입 매개변수의 자료형으로 형변환 
@@ -860,3 +860,41 @@ public class Box {
 				-> 형변환된 객체의 정의된 인스턴스 자원 접근 X
 				-> 공통된 틀을 정해서 타입 매개변수의 하위 클래스임을 정의 
 					<T extends Fruit> -> T는 Fruit의 하위 클래스임을 알수 있음 -> Object 보다는 Fruit로 변환
+					
+
+
+지네릭스
+
+지네릭 클래스 - 타입결정 시점 : 객체생성시
+
+지네릭 메서드 - 타입결정시점 : 매서드가 호출될때
+
+  
+  class Box<T> {
+	  
+	  private T item; // T: 지네릭클래스의 T
+	  
+	  public <T> void print(T item) {  // T : 지네릭 메서드의 T
+		  
+	  }
+  }
+  
+  
+  Box box = new Box();
+  box.<Apple> print(apple); //타입결정시점 : 매서드가 호출될때
+  box.print(apple)
+  
+
+지네릭 메서드 
+  - 와일드 카드 <?>
+  
+  public void print(FruitBox<?> box) {
+	  
+  }
+  
+  
+javadoc 에서
+
+Interface List<E>  : E - 지네릭클래스
+
+메서드 앞에 static <E> : 지네릭메서드 
