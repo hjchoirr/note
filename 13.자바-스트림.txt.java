@@ -14,9 +14,10 @@ java.util.Collections : 컬렉션의 편의 기능
 		- Stream 객체로 변환하면 동일한 방식으로 처리 가능
 		- + 편의 기능 
 		
-	- 스트림은 데이터 소스를 변경하지 않는다.
+	- 스트림은 원본 데이터 소스를 변경하지 않는다.
 	- 스트림은 일회용이다.
 	- 스트림은 작업을 내부 반복으로 처리한다.
+
 	
 2. 스트림만들기
 	1) 컬렉션
@@ -88,18 +89,7 @@ java.util.Collections : 컬렉션의 편의 기능
 	}
 
 
-스트림(Stream)
-1. 스트림이란?
-	java.util.stream
-	
-	- 데이터 소스가 무엇이든 간에 같은 방식으로 다룰 수 있게 데이터를 추상화 하고 데이터를 다루는데 자주 사용되는 메서드들을 정의해 놓음
-		- 배열이든, 컬렉션이든
-		- Stream 객체로 변환하면 동일한 방식으로 처리 가능
-		- + 편의 기능 
-		
-	- 스트림은 데이터 소스를 변경하지 않는다.
-	- 스트림은 일회용이다.
-	- 스트림은 작업을 내부 반복으로 처리한다.
+
 	
 		package exam02;
 		import java.util.Arrays;
@@ -195,7 +185,7 @@ java.util.Collections : 컬렉션의 편의 기능
 2. 스트림의 연산
 	1) 중간연산
 		- 스트림 중간 부분에 정의된 메서드
-		- 반환값이 Stream인 형태이면   *** 중요 ***  메서드 체인 사용 가능 
+		- 반환값이 Stream인 형태이면 중간연산  *** 중요 ***  메서드 체인 사용 가능 
 		- 최종연산이 호출될때까지는 연산 안함. -> 지연된 연산
 
 			package exam02;
@@ -216,6 +206,23 @@ java.util.Collections : 컬렉션의 편의 기능
 
 	3) 지연된연산
 		중간 연산은 최종 연산이 호출되어야 스트림을 소비하면서 연산이 진행 된다.
+
+		package exam01;
+		import java.util.Arrays;
+
+		public class Ex01 {
+			public static void main(String[] args) {
+				String[] fruits = { "apple", "Orange", "Banana", "apple", "Mango"};
+				/**
+				 * 1. 중복 제거
+				 * 2. 문자열 길이 변경
+				 * 3. int[]배열로
+				 */
+				int[] nums = Arrays.stream(fruits).distinct().mapToInt(String::length).toArray();
+				System.out.println(Arrays.toString(nums));
+			}
+		}
+		
 
 3. 기본자료형을 다루는 스트림
 
@@ -323,7 +330,7 @@ java.util.Collections : 컬렉션의 편의 기능
 		static IntStream IntStream.range(시작번호, 종료 번호(미만))
 		static IntStream IntStream.rangeClosed(시작번호, 종료 번호(이하))
 								 
-
+		-------------------------------------------------------------
 		package exam02;
 		import java.util.stream.IntStream;
 
@@ -335,28 +342,100 @@ java.util.Collections : 컬렉션의 편의 기능
 								
 			}
 		}
+		-------------------------------------------------------------
+		package exam01;
+		import java.util.stream.IntStream;
+
+		public class Ex02 {
+			public static void main(String[] args) {
+				int tot = IntStream.rangeClosed(1,100).filter(x -> x % 2 == 0).sum();
+				System.out.println(tot);
+			}
+		}
 	
 	
 	
 2) 임의의 수
 	java.util.Random
-		무한 스트림 - 갯수 제한이 필요
+		무한 스트림 - 갯수 제한이 필요 **** 중요 ****
 		IntStream ints();  : 정수범위 난수 
 		LongStream longs() : 
 		DoubleStream doubles() : 실수 범위 난수
 		
+		package exam01;
+		import java.util.Random;
+		import java.util.stream.DoubleStream;
+
+		public class Ex03 {
+			public static void main(String[] args) {
+				Random rand = new Random();
+				rand.ints().limit(6).forEach(System.out::println); //6개만 난수 만들기
+				rand.ints(6).forEach(System.out::println); // 위와 동일 6개만 난수 만들기
+			}
+		}
+		
+		
 3) 람다식 - iterate(), generate()
 	- 무한스트림
 	
-	
+		package exam01;
+		import java.util.Arrays;
+		import java.util.stream.IntStream;
+
+		public class Ex04 {
+			public static void main(String[] args) {
+				int[] nums = IntStream.iterate(2, x -> x + 2).limit(10).toArray();
+				System.out.println(Arrays.toString(nums));
+			}
+		}	
+		package exam01;
+		import java.util.Arrays;
+		import java.util.stream.IntStream;
+
+		public class Ex05 {
+			public static void main(String[] args) {
+				int[] nums = IntStream.generate(() -> 1).limit(10).toArray();
+				System.out.println(Arrays.toString(nums));
+			}
+		}
+			
 4) 두 스트림의 연결 - concat()
+		package exam01;
+		import java.util.Arrays;
+		import java.util.stream.IntStream;
+
+		public class Ex06 {
+			public static void main(String[] args) {
+				IntStream stm1 = IntStream.rangeClosed(1, 50);
+				IntStream stm2 = IntStream.rangeClosed(51, 100);
+				IntStream stm = IntStream.concat(stm1, stm2);
+
+				int[] nums = stm.toArray();
+				System.out.println(Arrays.toString(nums));
+			}
+		}
 	
 
 2. 스트림의 중간 연산
-1)  skip(), limit()
+1)  skip(), limit() 
 
-limit() : 갯수 제한 
-skip() : 건너 뛰기
+	limit() : 갯수 제한 
+	skip() : 건너 뛰기
+
+		package exam01;
+		import java.util.Arrays;
+		import java.util.List;
+
+		public class Ex07 {
+			public static void main(String[] args) {
+				List<String> fruits = Arrays.asList("사과","배","오렌지","망고","멜론");
+				
+				String[] selected = fruits.stream().skip(2).limit(2).toArray(i->new String[i]);
+				String[] selected = fruits.stream().skip(2).limit(2).toArray(String[]::new); //윗줄 동일
+				
+				System.out.println(Arrays.toString(selected));
+			}
+		}
 
 2) filter(), distinct()
  filter(Predicate<T> ...)  : 스트림을 걸러주는 기능 
@@ -366,17 +445,46 @@ skip() : 건너 뛰기
  
  
 3) sorted()
-	- 정렬 : 기본 정렬 기준 java.lang.Comparable  int compareTo(...)
+	- 정렬 : 기본 정렬 기준 java.lang.Comparable  int compareTo(...)  / Natural Order
 	- sorted(Comparator ....) 
 		- 대안적인 기준 : java.util.Comparator :: int compare(....)
 	
 4) map()
+
 	map(Function<T,R> ...)  : 변환 메서드 
+
+	참고) 기본자료형 스트림 변환 메서드
+		IntStream mapToInt(ToIntFunction<T>..)
+		LongStream mapToLong(ToLongFunction<T> ..)
+		DoubleStream mapToDouble(ToDoubleFunction<T> ..)
+		
 	
-5) peek()
+5) peek()  (훔쳐보다)
 	- forEach와 매개변수가 동일 
 	- Stream peek(Consumer<T> ... ) : 중간 연산 : 중간에 값을 확인할 경우 많이 사용 
 	- void forEach(Consumer<T> ...) : 최종 연산 : 최종적으로 출력할때 사용
+	
+		package exam01;
+		import java.util.Arrays;
+		import java.util.List;
+
+		public class Ex07 {
+			public static void main(String[] args) {
+				List<String> fruits = Arrays.asList("사과","배","오렌지","망고","멜론");
+				String[] selected = fruits.stream()
+						.peek(System.out::println)  // 확인용
+						.skip(2)
+						.limit(2)
+						.toArray(String[]::new);
+				System.out.println(Arrays.toString(selected));
+			}
+		}
+		>>
+		사과
+		배
+		오렌지
+		망고
+		[오렌지, 망고]	
 
 6) mapToInt(), mapToLong(), mapToDouble()
 
@@ -385,6 +493,15 @@ Optional 클래스
 - JDK8 
 - null에 대한 다양한 처리 방법을 제공하는 클래스 
 - Wrapper 클래스 
+
+Optional 클래스의 목적
+	: NullPointerException 문제 방지 ( 자바는 NPE 에 취약한 언어 )
+	: null에 대한 다양한 처리방식을 제공하는 클래스
+
+Optional 클래스의 특징
+	: 값이 null인지 아닌지 체크해 보려면 값을 가지고 있어야 함
+	: Wrapper 클래스
+	
 
 class Optional<T> {
 	...
@@ -395,15 +512,61 @@ class Optional<T> {
 
 1. Optional 객체 생성하기
 	static Optional<T> of(T t) : t가 null이면 오류 발생 
-	static Optional<T> ofNullable(T t) : t가 null이어도 오류  발생 X 
+	static Optional<T> ofNullable(T t) : t가 null이어도 오류  발생 안함 
 	
 2. Optional 객체의 값 가져오기
 	
-	T get() : null 이면 오류 발생 
-	T orElse(T other) : null이 아니면 값 반환, null이면 other 반환 
-	T orElseGet(Supplier<T ... >  )
-	T orElseThrow() : null이면 예외 발생 
-	T orElseThrow(Supplier<T ... > ) 
+	T get() : null 이면 오류 발생 (NoSuchElementException 발생)
+	
+	T orElse(T other) : null이 아니면 값 반환, null이면 other 값 반환 
+	
+	T orElseGet(Supplier<T ... >  ) : 값을 조금 더 가공, 처리가 필요할땐? 함수형 인터페이스
+		- null이아니면 값반환, null이면 Supplier::get() 함수에서 생성한 값을 반환
+		- 값에 대한 변경, 코드 추가가 필요한 경우에 사용
+		
+	T orElseThrow() : null이면 예외 발생 (NoSuchElementException 발생)
+	
+	T orElseThrow(Supplier<T ... > ) : null이면 Supplier의 get()에 정의한 예외 발생
+	
+	(참고) 반환값이 Optional 인 메서드들은 반환값이 null일 수 있어서.. 그걸 처리하려고
+
+		package exam01;
+		import java.util.Optional;
+
+		public class Ex08 {
+			public static void main(String[] args) {
+				String str = "ABC";
+				Optional<String> opt = Optional.of(str);  // str이 null 아닐때 문제 없음, str을 Optional Wrapper 클래스로 감싸기
+				System.out.println(opt.get());            // str이 null 아닐때 문제 없음
+				
+				String str1 = null;
+				//Optional<String> opt1 = Optional.of(str); //NPE 발생 하므로 아랫줄로
+				Optional<String> opt1 = Optional.ofNullable(str1);  //NPE 발생안함 null 허용
+
+				//System.out.println(opt.get()); //NPE 발생
+				String value = opt1.orElse("기본값"); //null 허용된 opt => 꺼낼때 null 인지 체크하기 
+				System.out.println(value);
+			}
+		}
+
+		package exam01;
+		import java.util.Optional;
+
+		public class Ex09 {
+			public static void main(String[] args) {
+				Book book = null;
+
+				//System.out.println(book.toString());  //NPE 발생
+				Optional<Book> opt = Optional.ofNullable(book);
+
+				Book book2 = opt.orElseGet(() -> new Book());
+				Book book3 = opt.orElseGet(Book::new); //윗줄과 동일
+
+				System.out.println(book2.toString());
+
+			}
+		}
+	
 	
 3. OptionalInt, OptionalLong, OptionalDouble
 - 기본형을 처리하는 Optional 클래스 

@@ -1,0 +1,268 @@
+데이터와 데이터베이스, DBMS
+
+1. 데이터베이스
+	-  데이터(data)와 베이스(base)의 합성어
+	- 효율적인 데이터 관리와 검색을 위한 구조화돤 데이터 집합
+2. DBMS
+	- Database ManagementSystem의 약자로 '데이터베이스 관리 시스템'
+3. 관계형 데이터베이스(RDBMS)
+	관계대수..
+	
+데이터와 정보
+1. 데이터 
+	- 어떤 필요에 의해 수집했지만 아직 특정 목적을 위해 평가하거나 정제하지 않은 값이나 사실 또는 자료 자체를 의미
+	- 수집한 데이터
+2. 정보
+	- 수집한 데이터를 어떠한 목적을 위해 분석하거나 가공하여 가치를 추가하거나 새로운 의미를 이끌어 낼 수 있는 결과
+	- 수집한 데이터 -> 가치판단 -> 정보
+
+효율적인 데이터 관리를 위한 조건
+1. 데이터를 통합하여 관리
+2. 일관된 방법으로 관리 - 도메인 무결성 제약조건 (자료형 관련)
+3. 데이터 누락 및 중복 제거 - 참조 무결성 제약조건
+4. 여러 사용자가 공동으로 실시간 사용 가능 
+5. 효율적인 데이터 관리와 검색을 위한 구조화돤 데이터 집합
+
+
+파일 시스템과 DBMS
+1. 파일 시스템을 통한 데이터 관리
+2. DBMS를 통한 데이터 관리
+
+관계형 데이터 모델
+
+1. Relational Data Model
+	관계 : 테이블간의 관계 : JOIN
+	
+2. 에드거 프랭크 커드(E. F. Codd)가 제안한모델 
+	관계대수 - JOIN : SQLCODE
+	
+3. 데이터 간 관계(relationship)에 초점
+
+SQL이란
+
+1. SQL은 Structured Query Language의 약자
+2. SQL은 RDBMS에서 데이터를 다루고 관리하는 데 사용하는 데이터베이스 질의 언어
+3. 종류 
+	1) DML (Data Manipulation Language) : 데이터 조작어 
+		- DQL(Data Query  : SELECT)
+		INSERT, UPDATE, DELETE, SELECT
+		
+	2) DDL(Data Definition Language) : 데이터 정의어
+	3) DCL(Data Control Language) : 데이터 제어어
+		사용자권한 : GRANT, REVOKE
+		- TCL(Transaction Control Language) 
+		   트랜잭션 : SQL 처리 단위 ( 트랜잭션 종료되면 데이터 베이스 영구 반영 )
+		     : COMMIT 
+			 : ROLLBACK 
+		   
+
+관계형 데이터베이스의 구성 요소
+1. 테이블
+- 데이터를 2차원 표 형태로 저장하고 관리
+- 이 표형태의 데이터 저장 공간을 테이블(table)이라고 합니다.
+- 가로줄을 행(row), 세로줄을 열(column)이라고 부릅니다.
+
+	행 : 레코드, 튜플..
+	열 : 컬럼, 필드 ..
+
+특별한 의미를 지닌 열, 키
+	
+1. 기본키(Primary Key - PK)
+	// 복합키 - 하나의 값으로 레코드를 대표하기가 어려운 경우, 여러 값을 조합해서 기본키를 만드는 방식
+2. 후보키
+	- 레코드를 대표할 수 있는 값의 후보군
+3. 대리키
+	- 기본키, 증감번호 등, 회원번호, 게시글번호 등
+4. 외래키(Foreign Key -FK)
+	- 참조무결성 제약조건
+
+
+오라클 데이터베이스
+1. 자료형 : 도메인 무결성 제약조건
+	문자
+		CHAR(문자의 길이) : 문자의 길이만큼 바이트 공간이 생성(최대 4000바이트 설정가능 - 영문기준) 
+			참고) UTF-8 : 한글 1글자가 3바이트
+			CHAR(40) : 40바이트 고정공간 할당 
+		VARCHAR2(문자열길이) : 최대 문자열 길이 만큼 공간 생성(최대 4000바이트 설정가능 - 영문기준)
+			보통 한줄 텍스트를 저장
+		CLOB : Character Large Object
+			최대 4GB 까지 
+			여러줄 텍스트 사용할때 주로 사용
+		
+	숫자
+		NUMBER(전체숫자, 소숫점 자리수)
+	기타
+		DATE : 날짜, 시간
+		BLOB : Byte Large Object
+
+참고
+무결성 제약조건
+1. 도메인 무결성 제약조건 : 자료형과 관련, 컬럼에는 지정된 자료형만 데이터 허용
+2. 개체 무결성 제약조건 : 기본키 제약조건 - 중복안됨, null 허용안됨
+3. 참조 무결성 제약조건 : 외래키 제약조건 - 부모레코드에 자식레코드가 있으면, 부모 레코드 삭제 제한
+
+2. 객체
+- 객체는 오라클 데이터베이스 내에서 데이터를 저장하고 관리하기 위한 논리 구조를 가진 구성 요소
+	1) 테이블(table)
+
+	2) 인덱스(index)
+		
+	3) 뷰(view)
+	4) 시퀀스(sequence)
+		- 숫자의 증감
+		
+	5) 프로시저(procedure)
+		- 저장 프로그램, 독립적인 함수 프로그램 (절차형)
+		- 반환값 없음
+		
+	6) 함수(function)
+		-  반환값 있음
+		
+	7) 패키지(package)
+		- 비슷한 함수, 프로시저의 묶음
+	
+	8) 트리거(trigger)
+		- 특정 동작 발생시 실행되는 함수
+		- INSERT, DELETE, UPDATE 시
+
+3. PL/SQL
+- 기존 SQL만으로 이를 구현하는 것은 다소 한계가 있습니다. 그래서 오라클 데이터베이스는 데이터 관리를 위해 별도의 프로그래밍 언어를 제공하는데 이를 PL/SQL(Procedural Language extension to SQL)이라고 합니다.
+- 오라클 데이터베이스 프로그래밍이라고 하면 SQL문과 PL/SQL을 사용하여 프로그램울 제작하는 것을 의미합
+- 변수, 조건문, 반복문 등을 사용할 수 있음.
+		   
+
+
+docker 설치
+   
+1. docker Desktop 설치 : GUI
+
+	docker 사이트 - docker Desktop - download for windows
+		설치중 옵션 
+		: recomandated setting 선택
+		: sign up 하지 않고,  continue wiithout sign up
+
+	참고) PC 에 가상화 설정 안되어 있으면 설치 잘 안될 수도 (PC BIOS)
+
+	설치 확인
+		C:\Users\admin>docker --version
+		 > Docker version 26.0.0, build 2ae903e
+
+
+2. 도커에서 오라클 검색
+
+	https://hub.docker.com/ 또는 docker desktop search 에서 oracle ee 11g  검색 
+
+	 - 이거 찾기 :  loliconneko/oracle-ee-11g
+
+	c:\> docker pull loliconneko/oracle-ee-11g 하거나 GUI 에서 찾아서 Pull 버튼으로 가져오기
+
+			-----------------------------------------------------------
+			--- loliconneko/oracle-ee-11g 에 있는 인스톨 과정-----------
+			-----------------------------------------------------------
+			Installation
+			docker pull loliconneko/oracle-ee-11g
+			Run with 8080 and 1521 ports opened:
+
+			docker run -d -p 8080:8080 -p 1521:1521 loliconneko/oracle-ee-11g
+			Run with data on host and reuse it:
+
+			docker run -d -p 8080:8080 -p 1521:1521 -v /my/oracle/data:/u01/app/oracle loliconneko/oracle-ee-11g
+			Run with Custom DBCA_TOTAL_MEMORY (in Mb):
+
+			docker run -d -p 8080:8080 -p 1521:1521 -v /my/oracle/data:/u01/app/oracle -e DBCA_TOTAL_MEMORY=1024 loliconneko/oracle-ee-11g
+			Connect database with following setting:
+
+			hostname: localhost
+			port: 1521
+			sid: EE
+			service name: EE.oracle.docker
+			username: system
+			password: oracle
+			To connect using sqlplus:
+
+			Password for SYS & SYSTEM:
+
+			oracle
+			Apex install up to v 5.*
+
+			docker run -it --rm --volumes-from ${DB_CONTAINER_NAME} --link ${DB_CONTAINER_NAME}:oracle-database -e PASS=YourSYSPASS sath89/apex install
+			Details could be found here: https://github.com/MaksymBilenko/docker-oracle-apex
+
+			Connect to Oracle Enterprise Management console with following settings:
+
+			http://localhost:8080/em
+			user: sys
+			password: oracle
+			connect as sysdba: true
+			By Default web management console is enabled. To disable add env variable:
+
+			docker run -d -e WEB_CONSOLE=false -p 1521:1521 -v /my/oracle/data:/u01/app/oracle loliconneko/oracle-ee-11g
+			#You can Enable/Disable it on any time
+			Start with additional init scripts or dumps:
+
+			docker run -d -p 1521:1521 -v /my/oracle/data:/u01/app/oracle -v /my/oracle/init/SCRIPTSorSQL:/etc/entrypoint-initdb.d loliconneko/oracle-ee-11g
+			By default Import from /etc/entrypoint-initdb.d enabled only if you are initializing database(1st run). If you need to run import at any case - add -e IMPORT_FROM_VOLUME=true In case of using DMP imports dump file should be named like ${IMPORT_SCHEME_NAME}.dmp User credentials for imports are ${IMPORT_SCHEME_NAME}/${IMPORT_SCHEME_NAME}
+
+			Forked from https://github.com/MaksymBilenko/docker-oracle-ee-11g
+
+			---------------------------------------
+
+	C:\Users\admin>docker images
+	
+	REPOSITORY                  TAG       IMAGE ID       CREATED       SIZE
+	loliconneko/oracle-ee-11g   latest    b1ed15c38b8c   5 years ago   5GB
+	
+	도커 명령어
+	docker run -d -name oracle11g -p 1521:1521 loliconneko/oracle-ee-11g:latest     -> 후에 허용버튼
+	
+	-d : 백그라운드에서 실행 (콘솔 닫혀도..)
+	-p : 로컬 PC 포트 : 컨테이너 포트  (ex: -p 1522:1521 가능, 도커 포트1521 을 내PC 포트 1522 로 포트 바꾼다면 )
+	--name : 별칭
+	:latest :  
+	
+	1521 : 오라클 기본 포트, 컨테이너가 제공하는 포트
+	
+	
+	C:\Users\admin>docker ps
+		CONTAINER ID   IMAGE                              COMMAND             CREATED              STATUS          PORTS                              NAMES
+		e2a916443151   loliconneko/oracle-ee-11g:latest   "/entrypoint.sh "   About a minute ago   Up 59 seconds   0.0.0.0:1521->1521/tcp, 8080/tcp   oracle11g
+		
+	C:\Users\admin>docker ps -a ( 실행중인것과 실행중이지 않은것도 다 보임)
+	
+	docker exec -it 컨테이너이름 /bin/bash    : 컨테이너 내부 터미널 접속 명령 i : 입력, t: 터미널
+	
+	C:\Users\admin>docker exec -it oracle11g /bin/bash	 
+		
+	sqlplus 사용자명/비밀번호
+	
+	최고관리자 : system  (대소문자 구분 없음) system/oracle 
+	
+	
+	C:\Users\admin>docker exec -it oracle11g /bin/bash
+	[root@e2a916443151 /]# sqlplus system/oracle
+	SQL> exit
+	[root@e2a916443151 /]# exit
+	
+	
+	SQL Developer 툴 / 자바 빌드 버전 JDK 11
+	
+	dbeaver 다운로드 : Windows (zip) 포터블
+	
+	
+	
+	dbeaver 윈도우 - 환경설정 
+	- 연결 - 연결유형 - Auto-Commit by default 해제
+	- user interface - 모양 - 색상 및 글꼴 - Dbeaver Fonts - Monospace font
+	
+	host : localhost
+	database : EE.oracle.docker
+	Driver settings 버튼 - 라이브러리 탭 - download/update 버튼
+	
+
+	scott 계정 잠금해제
+	
+	sql> alter user scott identified by "tiger" account unlock;
+			
+	SQL> conn scott/tiger
+	
+	
