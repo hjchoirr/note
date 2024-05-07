@@ -207,13 +207,14 @@ docker 설치
 
 			---------------------------------------
 
-	C:\Users\admin>docker images
+	C:\Users\admin> docker pull loliconneko/oracle-ee-11g
+	C:\Users\admin> docker images
 	
 	REPOSITORY                  TAG       IMAGE ID       CREATED       SIZE
 	loliconneko/oracle-ee-11g   latest    b1ed15c38b8c   5 years ago   5GB
 	
 	도커 명령어
-	docker run -d -name oracle11g -p 1521:1521 loliconneko/oracle-ee-11g:latest     -> 후에 허용버튼
+	docker run -d --name oracle11g -p 1521:1521 loliconneko/oracle-ee-11g:latest     -> 후에 허용버튼
 	
 	-d : 백그라운드에서 실행 (콘솔 닫혀도..)
 	-p : 로컬 PC 포트 : 컨테이너 포트  (ex: -p 1522:1521 가능, 도커 포트1521 을 내PC 포트 1522 로 포트 바꾼다면 )

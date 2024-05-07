@@ -164,39 +164,92 @@
 	@FunctionalInterface			// 람다식으로 쓰기 위함 Consumer 인터페이스는 함수형인터페이스이므로 
 	public interface Consumer<T>	// 메서드 1개만 있다 -> accept
 	------------------------------
+		package lambda.func;
+		import java.util.function.Consumer;
+
+		public class Ex01
+		{
+			public static void main(String[] args) {
+
+				String str = "ABC";
+				
+				// Consummer 인터페이스, accept 메서드  
+				Consumer c2 = new Consumer() {
+					@Override
+					public void accept(Object o) {
+						System.out.println(o);
+					}
+				};
+				c2.accept(str);
+
+				// Consummer 인터페이스, accept 메서드 사용 람다식
+				Consumer<String> c = s -> System.out.println(s);
+				c.accept(str);
+			}
+		}
+
 
 
 6. java.util.function패키지
 
-1) 매개변수가 X, 반환값 1개     - 제공자
-	Supplier<T>
-			: T get()
+	1) 매개변수가 X, 반환값 1개     - 제공자
+		Supplier<T>
+				: T get()
 
-2) 매개변수가 1개, 반환값 0개    - 소비자
-	Consumer<T>
-			: void accept(T t)
-			
-3) 매개변수가 1개 반환값도 1개    - 함수 
-	Function<T,R>
-			: R apply(T t)
+	2) 매개변수가 1개, 반환값 0개    - 소비자
+		Consumer<T>
+				: void accept(T t)
+				
+	3) 매개변수가 1개 반환값도 1개    - 함수 
+		Function<T,R>
+				: R apply(T t)
 
-4) 매개변수가 1개, 반환값은 boolean(논리값)  - 판별
-	Predicate<T>                        
-			: boolean test(T t)
-
+	4) 매개변수가 1개, 반환값은 boolean(논리값)  - 판별
+		Predicate<T>                        
+				: boolean test(T t)
+				
+				
+		-------------------------------------------------------------------
+		// Consummer 인터페이스, accept 메서드 사용 람다식
+		Consumer<String> c = s -> System.out.println(s);
+		Consumer<String> c = System.out::println; //위와 동일
+		c.accept(str);
+		-------------------------------------------------------------------
+        //공급자 Supplier<T> : 가져와 T get(); 람다식 예
+		
+        Supplier<String> s = () -> "Good Job!!";
+        str = s.get().toString();
+		
+		-------------------------------------------------------------------
+		// Function<T, R> :  R apply(T t);
+		
+        Function<String, Integer> f = a -> a.length();
+        Function<String, Integer> f = String::length; //위와 동일
+		
+        len = f.apply(str);
+		-------------------------------------------------------------------
+        // Predicate<T>  :  boolean test(T t); 람다식
+		
+        Predicate<String> p = s -> s.length() < 10;
+        b = p.test(str);
+		-------------------------------------------------------------------
+        Runnable r = () -> System.out.println("Running!!");
+        r.run();
+		
+		
 매개변수 2개
 
-1) 매개변수가 2개, 반환값 X
-	BiConsumer<T, U>
-		: void accept(T t, U u)
-		
-2) 매개변수가 2개,  반환값 1개 
-	BiFunction<T,U,R>
-		: R apply(T t, U u)
+	1) 매개변수가 2개, 반환값 X
+		BiConsumer<T, U>
+			: void accept(T t, U u)
+			
+	2) 매개변수가 2개,  반환값 1개 
+		BiFunction<T,U,R>
+			: R apply(T t, U u)
 
-3) 매개변수가 2개, 반환값 boolean
-	BiPredicate<T, U>
-		: boolean test(T t, U u)
+	3) 매개변수가 2개, 반환값 boolean
+		BiPredicate<T, U>
+			: boolean test(T t, U u)
 		
 		
 		
@@ -205,7 +258,8 @@
 
 		public class Ex02 {
 			public static void main(String[] args) {
-				BiFunction<Integer, Integer, Integer> calc = (a, b) -> a+b;
+				
+				BiFunction<Integer, Integer, Integer> calc = (a, b) -> a + b;
 				int result = calc.apply(10,20);
 				System.out.println(result);
 				/**
@@ -214,7 +268,8 @@
 				 * 1. 언박싱,오토박싱,언박싱 수행됨 : 성능저하, 연산은 기본형이 좋다
 				 * 2. 자료형 반복 정의
 				 */
-
+				 
+				//자료형 반복 정의 안하려면 BiFunction<Integer, Integer, Integer> 대신 BinaryOperator<Integer>
 				BinaryOperator<Integer> calc2 = (a, b) -> a + b;
 				int result2 = calc2.apply(10,20);
 				System.out.println(result2);
@@ -226,6 +281,8 @@
 
 		public class Ex04 {
 			public static void main(String[] args) {
+				
+				// 기본자료형이므로 BinaryOperator<Integer> 대신 IntBinaryOperator
 				IntBinaryOperator calc = (a, b) -> a + b;   // 기본자료형 함수형인터페이스 처리 하기
 				int result = calc.applyAsInt(10, 20);
 				System.out.println(result);
@@ -255,7 +312,7 @@
 	예)	IntConsumer  : 매개변수 int
 		IntToDoubleFunction : 매개변수 int, 반환값 double
 		ToIntFunction<T> : 매개변수 T, 반환값 int
-		IntFunction<R> : 매개변수 int, 반환값 R  
+		IntFunction<R> : 매개변수 int, 반환값 int  
 		IntBinaryOperator : 매개변수 2개 int, 반환값 int
 		
 		
