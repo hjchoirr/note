@@ -528,7 +528,7 @@ class Optional<T> {
 	
 	T orElseThrow(Supplier<T ... > ) : null이면 Supplier의 get()에 정의한 예외 발생
 	
-	(참고) 반환값이 Optional 인 메서드들은 반환값이 null일 수 있어서.. 그걸 처리하려고
+	(참고) 반환값이 Optional 인 메서드들은 반환값이 null일 가능성이 있는 메서드.. 그걸 처리하려고
 
 		package exam01;
 		import java.util.Optional;
@@ -572,32 +572,377 @@ class Optional<T> {
 - 기본형을 처리하는 Optional 클래스 
 - 오토박싱, 언박싱이 발생 X -> 성능상의 이점 
 
+(참고)
+	중간연산 flatMap : 중첩된 스트림을 일차원적스트림으로 변환
 
-3. 스트림의 최종 연산
+
+4. 스트림의 최종 연산
 - 최종 연산이 호출되어야 중간 연산도 수행, 스트림을 소비 
 
-1) forEach()
+	1) forEach(consumer<T>..)
+		- 반복 작업 수행
 
-2) allMatch(), anyMatch(), noneMatch(), findFirst(), findAny()
+	2) allMatch(), anyMatch(), noneMatch(), findFirst(), findAny()
 
-boolean allMatch(Predicate ... ) : 전부 참인 경우 참 
-boolean anyMatch(Predicate ...) : 어떤 것이든 하나라도 참이면 참 
-boolean noneMatch(Predicate ...) : 전부 거짓일때 참 
-T findFirst() : 가장 첫번째 스트림의 요소를 반환 
+		- boolean allMatch(Predicate ... ) : 전부 참인 경우 참 
+			(참고) js 배열객체 every와 비슷
+
+		- boolean anyMatch(Predicate ...) : 어떤 것이든 하나라도 참이면 참 
+			(참고) js 배열객체 some과 비슷
+
+		- boolean noneMatch(Predicate ...) : 전부 거짓일때 참 
+		
+		- T findFirst() : 가장 첫번째 스트림의 요소를 반환 
+			(참고) findAny() : 
 
 
-3) count(), sum(), average(), max(), min()
+			package exam01;
+			import java.lang.reflect.Array;
+			import java.util.Arrays;
 
-4) reduce()
+			public class Ex01 {
+				public static void main(String[] args) {
+					int nums[] = {1, 3, 5, 7, 9, 11, 13, 14};
+					/*
+					boolean result = true;
+					for(int num : nums) {
+						if (num % 2 == 0) {
+							result = false;
+							break;
+						}
+					}
+					*/
+					boolean isOdd = Arrays.stream(nums).allMatch(x -> x % 2 == 1);
+					System.out.println(isOdd);
 
-5) collect()
-	Collector
+					boolean isEven = Arrays.stream(nums).anyMatch(x -> x % 2 == 0);
+					System.out.println(isEven);
+
+					boolean notIncludedEvent = Arrays.stream(nums).noneMatch(x -> x % 2 == 0);
+					System.out.println(notIncludedEvent);
+				}
+			}
+
+			package exam01;
+			import java.util.Random;
+
+			public class Ex02 {
+				public static void main(String[] args) {
+					Random rand = new Random();
+					int firstOdd = rand.ints(100)
+									.filter(x -> x % 2 == 1 )
+									.findFirst()
+									.orElse(-1);
+					System.out.println(firstOdd);
+				}
+			}
+
+	3) count(), sum(), average(), max(), min()
 	
-	java.util.stream.Collectors 
-		6) toList(), toSet(), toMap(), toCollection(), toArray()
-			- toMap() : 
-			- toCollection() : List, Set의 하위 클래스 객체 
+		long count() : 요소의 갯수 - 일반 스트림(Stream<T>), 기본자료형 스트림(IntStream, LongStream, DoubleStream)
+		
+		기본자료형 스트림(IntStream, LongStream, DoubleStream))
+		
+			long sum() : 합계
+			OptionalDouble average() : 평균
 			
-		7)  joining()
+	4) reduce()
+		-------------------------------------------------------
+		package exam01;
+		import java.util.Arrays;
 
-8) groupingBy(), partitioningBy()
+		public class Ex03 {
+			public static void main(String[] args) {
+				int[] scores = { 67, 80, 98, 76, 56 };
+
+				System.out.println(Arrays.stream(scores).sum());
+
+				//int tot = Arrays.stream(scores).reduce(0, (n1, n2) -> n1 + n2);
+				int tot = Arrays.stream(scores).reduce(0, (n1, n2) -> {
+					System.out.printf("n1=%d n2=%d%n", n1, n2 );
+					n1 += n2;
+					return n1;
+				});
+				System.out.println(tot);
+
+			}
+		}
+		>>
+		377
+		n1=0 n2=67
+		n1=67 n2=80
+		n1=147 n2=98
+		n1=245 n2=76
+		n1=321 n2=56
+		377
+		-------------------------------------------------------------
+		package exam01;
+		import java.util.Arrays;
+
+		public class Ex04 {
+			public static void main(String[] args) {
+				int[] scores = { 67, 80, 100, 98, 76, 56 };
+
+				//int max = Arrays.stream(scores).reduce((a, b) -> a > b ? a : b).getAsInt();
+				int max = Arrays.stream(scores).reduce((a, b) -> {
+					System.out.printf("a=%d b=%d %n", a, b);
+					int m = a > b ? a : b;
+					return m;
+				}).getAsInt();
+
+				System.out.println(max);
+			}
+		}
+		>>
+		a=67 b=80 
+		a=80 b=100 
+		a=100 b=98 
+		a=100 b=76 
+		a=100 b=56 
+		100
+		-------------------------------------------------------------
+		
+	5) collect()
+		Collector
+		
+		java.util.stream.Collectors 
+			6) toList(), toSet(), toMap(), toCollection(), toArray()
+				- toMap() : 
+				- toCollection() : List, Set의 하위 클래스 객체 
+					만약 ArrayList 변환?, HashSet, TreeSet 변환 .. toCollectors(..)
+				
+			7)  joining()
+
+			package exam01;
+			import java.util.Arrays;
+			import java.util.List;
+			import java.util.Set;
+			import java.util.stream.Collectors;
+
+			public class Ex05 {
+				public static void main(String[] args) {
+					String[] names = {"이름1", "이름2","이름3","이름4","이름5","이름3"};
+
+					List<String> namesList = Arrays.stream(names).collect(Collectors.toList());
+					System.out.println(namesList);
+					
+					List<String> namesList2 = Arrays.stream(names).toList();
+					System.out.println(namesList2);
+
+					Set<String> namesSet = Arrays.stream(names).collect(Collectors.toSet());
+					System.out.println(namesSet);
+				}
+			}
+			
+			>>
+			[이름1, 이름2, 이름3, 이름4, 이름5, 이름3]
+			[이름1, 이름2, 이름3, 이름4, 이름5, 이름3]
+			[이름3, 이름2, 이름1, 이름5, 이름4]
+			
+			------------------------------------------------------------------------
+			package exam01;
+			import java.util.Arrays;
+			import java.util.List;
+			import java.util.stream.Collectors;
+
+			public class Ex06 {
+				public static void main(String[] args) {
+					List<String> fruits = Arrays.asList("Apple", "Orange","Mango","Grape");
+
+					String str = fruits.stream().collect(Collectors.joining(","));
+					System.out.println(str);
+
+					String str2 = fruits.stream().collect(Collectors.joining("#", "**", "^^"));
+					System.out.println(str2);
+				}
+			}
+			>>
+			Apple,Orange,Mango,Grape
+			**Apple#Orange#Mango#Grape^^
+			--------------------------------------------------------------------------
+			package exam01;
+			import java.util.ArrayList;
+			import java.util.Arrays;
+			import java.util.stream.Collectors;
+
+			public class Ex07 {
+				public static void main(String[] args) {
+					String[] names = {"이름1", "이름2","이름3","이름4","이름5","이름3"};
+
+					ArrayList<String> items = Arrays.stream(names).collect(Collectors.toCollection(() -> new ArrayList<>()));
+					ArrayList<String> items2 = Arrays.stream(names).collect(Collectors.toCollection(ArrayList::new));
+
+					System.out.println(items);
+					System.out.println(items2);
+				}
+			}
+
+
+	8) groupingBy(), partitioningBy()
+	
+		groupingBy()  : 특정값을 가지고 그룹핑
+		
+		partitioningBy() : 양분(참, 거짓)
+		
+			Map<Boolean, List<..>>
+			
+			--------------------------------------------------------
+			---	groupingBy 		
+			--------------------------------------------------------
+						
+			package exam01;
+			public class Student {
+				private int ban;
+				private String name;
+
+				public Student(int ban, String name) {
+					this.ban = ban;
+					this.name = name;
+				}
+
+				@Override
+				public String toString() {
+					return "Student{" +
+							"ban=" + ban +
+							", name='" + name + '\'' +
+							'}';
+				}
+
+				public int getBan() {
+					return ban;
+				}
+				public String getName() {
+					return name;
+				}
+			}
+						
+						
+			package exam01;
+			import javax.management.remote.rmi.RMIServerImpl_Stub;
+			import java.sql.SQLOutput;
+			import java.util.Arrays;
+			import java.util.List;
+			import java.util.Map;
+			import java.util.stream.Collectors;
+
+			import static java.util.stream.Collectors.toMap;
+
+			public class Ex08 {
+				public static void main(String[] args) {
+					Student[] students = {
+							new Student(1, "이이름"),
+							new Student(1, "김이름"),
+							new Student(1, "박이름"),
+
+							new Student(2, "이이름"),
+							new Student(2, "김이름"),
+							new Student(2, "박이름"),
+
+							new Student(3, "이이름"),
+							new Student(3, "김이름"),
+							new Student(3, "박이름")
+					};
+
+					//Map<Integer, String> data = Arrays.stream(students).collect(toMap(Student::getBan, Student::getName));
+					//System.out.println(data);
+
+					Map<Integer, List<Student>> data = Arrays.stream(students).collect(Collectors.groupingBy(s -> s.getBan()));
+					List<Student> students2 = data.get(2);
+					students2.forEach(System.out::println);
+				}
+			}
+			--------------------------------------------------------
+			---	partitioningBy 		
+			--------------------------------------------------------	
+			package exam01;
+			public class Student {
+				private int ban;
+				private String name;
+				private int score;
+
+				public Student(int ban, String name, int score) {
+					this.ban = ban;
+					this.name = name;
+					this.score = score;
+				}
+
+				@Override
+				public String toString() {
+					return "Student{" +
+							"ban=" + ban +
+							", name='" + name + '\'' +
+							'}';
+				}
+
+				public int getBan() {
+					return ban;
+				}
+				public String getName() {
+					return name;
+				}
+				public int getScore() {
+					return score;
+				}
+
+			}
+
+			package exam01;
+			import javax.management.remote.rmi.RMIServerImpl_Stub;
+			import java.sql.SQLOutput;
+			import java.util.Arrays;
+			import java.util.List;
+			import java.util.Map;
+			import java.util.stream.Collectors;
+
+			import static java.util.stream.Collectors.toMap;
+
+			public class Ex08 {
+				public static void main(String[] args) {
+					Student[] students = {
+							new Student(1, "이이름", 80),
+							new Student(1, "김이름", 100),
+							new Student(1, "박이름", 40),
+
+							new Student(2, "이이름", 80),
+							new Student(2, "김이름", 50),
+							new Student(2, "박이름", 70),
+
+							new Student(3, "이이름", 80),
+							new Student(3, "김이름", 100),
+							new Student(3, "박이름", 90)
+					};
+
+					Map<Boolean, List<Student>> data = Arrays.stream(students).collect(Collectors.partitioningBy(s -> s.getScore() >= 80));
+					List<Student> students1 = data.get(true);
+					students1.forEach(System.out::println);
+				}
+			}
+				
+	flatMap : 중간연산
+	
+			public class Ex10 {
+				public static void main(String[] args) {
+					List<String> names = Arrays.asList("이름1", "이름2","이름3");
+					List<String> fruits = Arrays.asList("Apple", "Mango","Melon");
+
+					Stream<Stream<String>> stm = Stream.of(names.stream(), fruits.stream());
+					//stm.forEach(System.out::println);
+					/*
+					stm.forEach(st -> {
+					   st.forEach(System.out::println);
+					});
+					*/
+					//stm.flatMap(s -> s).forEach(System.out::println);
+					String[] strs = stm.flatMap(s -> s).toArray(String[]::new);
+					System.out.println(Arrays.toString(strs));
+				}
+			}
+	
+	JS 
+		const nums = [[1,2,3], [4,5,6], [7,8,9]];
+		const nums2 = nums.flatMap(n => n);
+		nums2;
+		(9) [1, 2, 3, 4, 5, 6, 7, 8, 9]
+	
+	
+	
