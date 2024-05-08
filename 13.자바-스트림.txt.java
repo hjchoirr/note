@@ -141,6 +141,39 @@ java.util.Collections : 컬렉션의 편의 기능
 			}
 		}
 		
+		package hakwon03;
+		import java.util.*;
+		import java.util.stream.IntStream;
+		import java.util.stream.Stream;
+
+		public class Ex01 {
+			public static void main(String[] args) {
+				int[] arr = { 1,2,3,4,5,6};
+				IntStream iStm =  Arrays.stream(arr); // 배열 -> 스트림 기본자료 스트림
+				iStm.forEach(System.out::println);
+
+				String[] sArr = {"apple", "orange", "mango", "melon"};
+				Stream<String> sStm = Arrays.stream(sArr);  // 배열 -> 스트림 기본자료 스트림
+				sStm.forEach(System.out::println);
+
+				List<String> strList = Arrays.asList("apple", "orange", "mango", "melon");
+				Stream<String> stm = strList.stream();  // 컬렉션 -> 스트림
+				stm.forEach(System.out::println);
+
+				HashSet<String> strSet = new HashSet<>();
+				strSet.add("이름1");
+				strSet.add("이름2");
+				strSet.add("이름2");
+				strSet.add("이름3");
+				strSet.add("이름4");
+
+				Stream<String> sStm2 = strSet.stream(); // 컬렉션 -> 스트림
+				sStm2.forEach(System.out::println);
+
+				Stream<String> sStm3 = Stream.of("apple", "orange", "mango", "melon"); //Stream.of() 정적메서드로 스트림생성
+				sStm3.forEach(System.out::println);
+			}
+		}
 	
 	
 2. 스트림만들기
@@ -148,41 +181,42 @@ java.util.Collections : 컬렉션의 편의 기능
 	 ( 기본자료형 스트림 	: java.util.stream.IntStream,... )
 	 ( 일반 스트림 		: java.util.stream.Stream )
 
-1) 컬렉션 에서 생성하는 방법 
-	Collection클래스의 매서드
-		Stream<E> stream()    => 일반 스트림만 생성
-			
-			
-2) 배열 에서 생성하는 방법 
-	Arrays
-		static stream(....)
-		
-		Arrays.stream(..   => 기본자료형 스트림 생성 가능
-			static IntStream Arrays.stream(int[] array)
-			static LongStream Arrays.stream(int[] array)
-			static Stream<T> Arrays.stream(T[] array)   => 일반 스트림도 생성 가능
-			...
-			
-3)
-	Stream
-			.of(T... )
-	참고)
-		JDK8 부터 
-			of(...) : 객체 생성 메서드
-			
-		package exam02;
-		import java.util.stream.Stream;
+	1) 컬렉션 에서 생성하는 방법 
 
-		public class Ex09 {
-			public static void main(String[] args) {
-				long cnt = Stream.of("이름1","이름2","이름3").count();
-				System.out.println(cnt);
+		Collection클래스의 매서드
+			Stream<E> stream()    => 일반 스트림만 생성
+				
+				
+	2) 배열 에서 생성하는 방법 
+		Arrays
+			static stream(....)
+			
+			Arrays.stream(arr)   => 기본자료형 스트림 생성 가능
+				static IntStream Arrays.stream(int[] array)
+				static LongStream Arrays.stream(int[] array)
+				static Stream<T> Arrays.stream(T[] array)   => 일반 스트림도 생성 가능
+				...
+				
+	3)
+		Stream
+				.of(T... )
+		참고)
+			JDK8 부터 
+				of(...) : 객체 생성 메서드
+				
+			package exam02;
+			import java.util.stream.Stream;
+
+			public class Ex09 {
+				public static void main(String[] args) {
+					long cnt = Stream.of("이름1","이름2","이름3").count();
+					System.out.println(cnt);
+				}
 			}
-		}
 			
 	
 
-2. 스트림의 연산
+3. 스트림의 연산
 	1) 중간연산
 		- 스트림 중간 부분에 정의된 메서드
 		- 반환값이 Stream인 형태이면 중간연산  *** 중요 ***  메서드 체인 사용 가능 
@@ -224,12 +258,13 @@ java.util.Collections : 컬렉션의 편의 기능
 		}
 		
 
-3. 기본자료형을 다루는 스트림
+4. 기본자료형을 다루는 스트림
 
 	기본자료형 스트림
-	IntStream 
-	LongStream 
-	DoubleStream 
+		IntStream 
+		LongStream 
+		DoubleStream 
+	
 		-> 오토박싱, 언박싱이 발생 X -> 성능상 이점
 		-> 숫자 관련 편의 기능 추가(예 - 통계 관련 기능)
 	
@@ -276,7 +311,8 @@ java.util.Collections : 컬렉션의 편의 기능
 						int min = stat.getMin();
 						long sum = stat.getSum();
 
-						System.out.printf("평균 : %f, 총 갯수 : %d, 최대: %d, 최소: %d, 합계 : %d%n", avg, count, max, min, sum );
+						System.out.printf("평균 : %f, 총 갯수 : %d, 최대: %d, 최소: %d, 합계 : %d%n", 
+						avg, count, max, min, sum );
 					}
 				}
 			
@@ -851,6 +887,10 @@ class Optional<T> {
 					students2.forEach(System.out::println);
 				}
 			}
+			>>
+			Student{ban=2, name='이이름'}
+			Student{ban=2, name='김이름'}
+			Student{ban=2, name='박이름'}
 			--------------------------------------------------------
 			---	partitioningBy 		
 			--------------------------------------------------------	
@@ -912,12 +952,20 @@ class Optional<T> {
 							new Student(3, "박이름", 90)
 					};
 
-					Map<Boolean, List<Student>> data = Arrays.stream(students).collect(Collectors.partitioningBy(s -> s.getScore() >= 80));
+					Map<Boolean, List<Student>> data = Arrays.stream(students)
+							.collect(Collectors.partitioningBy(s -> s.getScore() >= 80));
+							
 					List<Student> students1 = data.get(true);
 					students1.forEach(System.out::println);
 				}
 			}
-				
+			>>
+			Student{ban=1, name='이이름'}
+			Student{ban=1, name='김이름'}
+			Student{ban=2, name='이이름'}
+			Student{ban=3, name='이이름'}
+			Student{ban=3, name='김이름'}
+			Student{ban=3, name='박이름'}			
 	flatMap : 중간연산
 	
 			public class Ex10 {
@@ -937,8 +985,11 @@ class Optional<T> {
 					System.out.println(Arrays.toString(strs));
 				}
 			}
+			>>
+			[이름1, 이름2, 이름3, Apple, Mango, Melon]
+			
 	
-	JS 
+	참고 JS) 
 		const nums = [[1,2,3], [4,5,6], [7,8,9]];
 		const nums2 = nums.flatMap(n => n);
 		nums2;
