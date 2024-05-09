@@ -209,14 +209,6 @@ java.time 패키지
 			ZonedDateTime atZone(ZoneId ...) : 날짜시간 + 시간대
 			OffsetDateTime atOffset(ZoneOffset ...) 
 		
-		ZonedDateTime : 날짜와 시간(LocalDateTime) + 시간대(ZoneId - Asia/Seoul)
-			- 섬머 타임제 고려 
-			
-		OffsetDateTime : 날짜와 시간(LocalDateTime) + 시간대(ZoneOffset - +9)
-		
-		Instant : EpochTime - 1970. 1. 1 자정부터(UTC+0) 1/1000 단위 카운트
-					참고) Timestamp  - 초 단위 카운팅
-				: Date 클래스로 만들어진 객체 변환할때 사용 : Date클래스에 toInstance()	
 					
 			package exam01;
 			import java.time.LocalDate;
@@ -404,7 +396,35 @@ java.time 패키지
 				}
 			}
 			
+
+		ZonedDateTime : 날짜와 시간(LocalDateTime) + 시간대(ZoneId - Asia/Seoul)
+			- 섬머 타임제 고려 
 			
+		OffsetDateTime : 날짜와 시간(LocalDateTime) + 시간대(ZoneOffset - +9)
+		
+		Instant : EpochTime - 1970. 1. 1 자정부터(UTC+0) 1/1000 단위 카운트
+					참고) Timestamp  - 초 단위 카운팅
+					
+				: Date 클래스로 만들어진 객체 변환할때 사용 : Date클래스에 toInstance()	
+
+			package exam01;
+			import java.time.Instant;
+			import java.time.Period;
+
+			public class Ex01 {
+				public static void main(String[] args) {
+					Instant today = Instant.now();
+					System.out.println(today);
+					long time1 = today.getEpochSecond(); //초단위 timestamp
+					long time2 = today.toEpochMilli(); //밀리세컨즈 EpochTime
+
+					System.out.printf("time1=%d time2=%d%n", time1, time2);
+				}
+			}
+			>>
+			2024-05-09T05:15:55.604190100Z
+			time1=1715231755 time2=1715231755604
+
 			
 	2. TemporalAmount 인터페이스
 		Duration : 시간의 차이 (초, 나노 초)
@@ -412,8 +432,57 @@ java.time 패키지
 			until
 			
 		Period : 날짜의 차이
-	
-	
+
+			package exam01;
+			import java.time.LocalDate;
+			import java.time.Period;
+
+			public class Ex02 {
+				public static void main(String[] args) {
+					LocalDate today = LocalDate.now();
+					LocalDate endDate = LocalDate.of(2024,9,30);
+					Period period = Period.between(today,endDate); // 날짜 간격
+
+					System.out.println(period);
+					int month = period.getMonths();
+					int day = period.getDays();
+
+					System.out.printf("남은 수업 %d개월 %d일", month, day);
+				}
+			}
+				
+			>>
+			P4M21D
+			남은 수업 4개월 21일	
+			
+			-----------------------------------------------------------------
+			package exam01;
+			import java.time.Duration;
+			import java.time.LocalTime;
+
+			public class Ex03 {
+				public static void main(String[] args) {
+					LocalTime now = LocalTime.now();
+					LocalTime endTime = LocalTime.of(17,50);
+
+					Duration duration = Duration.between(now, endTime);
+					System.out.println(duration);
+
+					long sec = duration.getSeconds();
+					LocalTime time = LocalTime.of(0,0,0);
+					LocalTime time2 = time.plusSeconds(sec);
+
+					int hours = time2.getHour();
+					int mins = time2.getMinute();
+					int secs = time2.getSecond();
+
+					System.out.printf("수업종료까지 %d시간 %d분 %d초 남음", hours, mins, secs);
+				}
+			}
+			>>
+			PT3H10M9.6439587S
+			수업종료까지 3시간 10분 9초 남음
+			
 	
 - java.time.format : 형식화 클래스 
 				DateTimeFomatter
@@ -426,30 +495,46 @@ java.time 패키지
 			- ChronoUnit
 			
 - java.time.zone : 시간대 관련 클래스 
-		ZoneId
+	ZonedDateTime
+		- ZoneId : Asisa/Seoul
+		- 썸머타임제
 		
-		ZoneOffset 
-
+	OffsetDateTime
+		- ZoneOffset : +9
+		  UTC :세계 표준 협정시
+		  
+	Instant
+	
 
 1. java.time 패키지의 핵심 클래스
 
-1) LocalDate와 LocalTime
-- 특정 필드의 값 가져오기 - get(), getXXX()
-	int get(필드 명);
-		ChronoField  : 날짜, 시간 필드
-		
-		
-- 필드의 값 변경하기 - with(), plus(), minus()
-	LocalDate with() : 날짜/시간 변경
-	LocalDate plus() : 날짜/시간 +
-	LocalDate minus() : 날짜/시간 -
+	1) LocalDate와 LocalTime
+	
+	- 특정 필드의 값 가져오기 - get(), getXXX()
+		int get(필드 명);
+			ChronoField  : 날짜, 시간 필드
+			
+			
+	- 필드의 값 변경하기 - with(), plus(), minus()
+		LocalDate with() : 날짜/시간 변경
+		LocalDate plus() : 날짜/시간 +
+		LocalDate minus() : 날짜/시간 -
 
-- 날짜와 시간의 비교 - isAfter(), isBefore(), isEqual()
-	- compareTo() : 음수 -  isBefore() 
-	- compareTo() : 0  - isEqual()
-	- compareTo() : 양수 - isAfter()
+	- 날짜와 시간의 비교 - isAfter(), isBefore(), isEqual()
+		- compareTo() : 음수 -  isBefore() 
+		- compareTo() : 0  - isEqual()
+		- compareTo() : 양수 - isAfter()
+		
+		
+		
+		
+		
 
 2. Period와 Duration
+
+
+
+
 
 3. 객체 생성하기 - now(), of()
 	now() : 현재 날짜,시간 
@@ -462,15 +547,253 @@ java.time 패키지
 
 
 파싱과 포맷
-java.time.format 
 
-1. parse()
-	형식화 문자열 -> 날짜/시간
-	- 핵심 클래스 (LocalDate, LocalTime, LocalDateTime ... )
+	java.time.format 
+
+	1. parse()
+		형식화된 문자열 -> 날짜/시간 자바객체로 변환
+		- 핵심 클래스 (LocalDate, LocalTime, LocalDateTime ... )
+		
+	2. format() : 날짜/시간 자바객체 -> 형식화된 문자열 로 변환
+		DateTimeFormatter 
+				DateTimeFormatter state ofPattern("패턴")
+						.format(TemporalAccessor ...)
+					
+
+			package exam01;
+			import java.time.LocalDateTime;
+			import java.time.format.DateTimeFormatter;
+
+			public class Ex04 {
+				public static void main(String[] args) {
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss E");
+					LocalDateTime startDate = LocalDateTime.of(2024, 3, 19, 9, 0);
+
+					String strDate = formatter.format(startDate);
+					System.out.println(strDate);
+				}
+			}
+			>>
+			2024.03.19 09:00:00 화	
+			-----------------------------------------------------------------
+			package exam01;
+			import java.time.LocalDateTime;
+			import java.time.format.DateTimeFormatter;
+
+			public class Ex05 {
+				public static void main(String[] args) {
+					String str = "05/09/24 15:16";
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy HH:mm");
+					LocalDateTime date = LocalDateTime.parse(str,formatter);
+					System.out.println(date);
+				}
+			}
+			>>
+			2024-05-09T15:16			
+			-----------------------------------------------------------------
+			
+
+형식화 클래스
+1. DecimalFormat
 	
-2. format() : 날짜/시간 -> 형식화 문자열 
-	DateTimeFormatter 
-			DateTimeFormatter state ofPattern("패턴")
-					.format(TemporalAccessor ...)
-					
-					
+	숫자 -> 형식화된 문자열
+	10000 -> 10,000
+	
+	format(..) : 숫자 -> 형식회된 문자열
+	parse(..) :  형식화된 문자열 -> 자바 클래스
+	
+	0패턴
+	#패턴
+
+		package exam03;
+		import java.text.DecimalFormat;
+
+		public class Ex01 {
+			public static void main(String[] args) {
+				double num1 = 10000000000.123;
+
+				DecimalFormat df = new DecimalFormat("0,000.0000");
+				String num1Str = df.format(num1);
+				System.out.println(num1Str);
+			}
+		}
+		>>
+		10,000,000,000.1230
+		--------------------------------------------------------------
+		package exam03;
+		import java.text.DecimalFormat;
+
+		public class Ex01 {
+			public static void main(String[] args) {
+				double num1 = 10000000000.123;
+				double num2 = 0.123;
+
+				DecimalFormat df = new DecimalFormat("0,000.0000");
+				String num1Str = df.format(num1); // 10,000,000,000.1230
+				System.out.println(num1Str);   
+
+				DecimalFormat df2 =  new DecimalFormat("#,###.####");
+				String num1Str2 = df2.format(num1);  // 10,000,000,000.123
+				String num1Str3 = df2.format(num2);  // 0.123
+				System.out.println(num1Str2);
+				System.out.println(num1Str3);
+			}
+		}
+		----------------------------------------------------------
+		package exam03;
+		import java.text.DecimalFormat;
+		import java.text.ParseException;
+
+		public class Ex02 {
+			public static void main(String[] args) throws ParseException {
+				String price = "1,000,000원";
+
+				DecimalFormat df = new DecimalFormat("#,###원");
+				Number number = df.parse(price);
+				long num = number.longValue();
+				System.out.println(num); //1000000
+			}
+		}
+		
+
+2. SimpleDateFormat
+
+	- 날짜 형식화 :java.util.Date 객체
+	String format(..) :날짜 Date 객체를 형식화된 문자열로 변환
+	Date parse(..) : 형식화된 문자열을 날짜 Date 객체로 변환
+	
+		package exam03;
+		import java.text.SimpleDateFormat;
+		import java.util.Date;
+
+		public class Ex03 {
+			public static void main(String[] args) {
+				Date date = new Date();
+
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd a hh:mm");
+				String strDate = sdf.format(date);
+				System.out.println(strDate);  // 2024.05.09 오후 04:29
+			}
+		}
+		--------------------------------------------------------------	
+		package exam03;
+		import java.text.ParseException;
+		import java.text.SimpleDateFormat;
+		import java.util.Date;
+
+		public class Ex04 {
+			public static void main(String[] args) throws ParseException {
+				String strDate = "31/05/23 00:00";
+
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy hh:mm");
+				Date dt = sdf.parse(strDate);
+
+				System.out.println(dt); //Wed May 31 00:00:00 KST 2023
+			}
+		}
+	
+3. ChoiceFormat
+			package exam03;
+			import java.text.ChoiceFormat;
+
+			public class Ex05 {
+				public static void main(String[] args) {
+					double[] limits = {50, 70, 80, 90};
+					String[] grades = {"D", "C", "B", "A"};
+
+					ChoiceFormat cf = new ChoiceFormat(limits, grades);
+					int[] scores = { 100, 70, 55, 80, 95, 87};
+
+					for(int score : scores) {
+						String grade = cf.format(score);
+						System.out.printf("점수:%d  학점:%s  %n", score, grade);
+					}
+				}
+			}
+			>>
+			점수:100  학점:A  
+			점수:70  학점:C  
+			점수:55  학점:D  
+			점수:80  학점:B  
+			점수:95  학점:A  
+			점수:87  학점:B  
+			--------------------------------------------------
+			package exam03;
+			import java.text.ChoiceFormat;
+
+			public class Ex05 {
+				public static void main(String[] args) {
+					/*
+					double[] limits = {50, 70, 80, 90};
+					String[] grades = {"D", "C", "B", "A"};
+					ChoiceFormat cf = new ChoiceFormat(limits, grades);
+					 */
+					String pattern = "60#D|70#C|80<B|90#A";  // # : 크거나 같다  < 크다
+					ChoiceFormat cf = new ChoiceFormat(pattern);
+					int[] scores = { 100, 70, 55, 80, 95, 87};
+
+					for(int score : scores) {
+						String grade = cf.format(score);
+						System.out.printf("점수:%d  학점:%s  %n", score, grade);
+					}
+				}
+			}
+			>>
+			점수:100  학점:A  
+			점수:70  학점:C  
+			점수:55  학점:D  
+			점수:80  학점:C   // <-- # : 크거나 같다  < 크다
+			점수:95  학점:A  
+			점수:87  학점:B  
+
+
+
+4. MessageFormat
+
+	String format(..) : 형식화된 문자열로 
+	Object[] parse(..) : 형식화된 문자열 -> 원래 데이터의 객체로 변환
+	
+		package exam03;
+		import java.text.MessageFormat;
+
+		public class Ex06 {
+			public static void main(String[] args) {
+				String pattern = "이름:{0}, 전화번호:{1}";
+				String[] names = {"이이름", "김이름", "최이름"};
+				String[] mobiles = {"010-000-0000", "010-1000-0000", "010-2000-20000"};
+
+				for(int i = 0; i < names.length; i ++) {
+					String str = MessageFormat.format(pattern, names[i], mobiles[i]);
+					System.out.println(str);
+				}
+			}
+		}
+		>>
+		이름:이이름, 전화번호:010-000-0000
+		이름:김이름, 전화번호:010-1000-0000
+		이름:최이름, 전화번호:010-2000-20000
+		-------------------------------------------
+		package exam03;
+		import java.text.MessageFormat;
+		import java.text.ParseException;
+
+		public class Ex07 {
+			public static void main(String[] args) throws ParseException {
+				String str = "이름: 이이름, 전화번호: 010-000-0000";
+				String pattern = "이름: {0}, 전화번호: {1}";
+
+				MessageFormat mf = new MessageFormat(pattern);
+				Object[] data = mf.parse(str);
+
+				String name = (String)data[0];
+				String mobile = (String)data[1];
+
+				System.out.println(name);
+				System.out.println(mobile);
+			}
+		}
+		>> 이이름
+		010-000-0000	
+	
+
+			

@@ -128,8 +128,8 @@ SQL의 기본 뼈대, SELECT절과 FROM 절
 			- 중복 X
 		2) UNION ALL
 		3) MINUS        ( 차집합 )  : MySQL 에는 없음
-		4) INSERSECT	( 교집합 )  : MySQL 에는 없음
-
+		4) INTERSECT	( 교집합 )  : MySQL 에는 없음
+		   
 
 데이터 처리와 가공을 위한 오라클 함수
 
@@ -193,16 +193,31 @@ SQL의 기본 뼈대, SELECT절과 FROM 절
 		LPAD(컬럼, 자리수, '채울문자')
 		RPAD(컬럼, 자리수, '채울문자')
 		SELECT  ENAME, LPAD( ENAME, 10, 'AA') AS aa  FROM EMP ;
+		SELECT sal, lpad(sal, 6, 0), ename, rpad(SUBSTR(ename,1,3), LENGTH(ename) , '*') FROM EMP ;
+		SELECT LPAD('100', 10, 0) FROM dual;
 		
 	7. 두 문자열 데이터를 합치는 CONCAT 함수
+		SELECT empno, ename, job, concat(ename, job) AS con FROM emp;
+		SELECT empno, ename, job, ename || job AS con FROM emp;
+		
 	8. 문자열 데이터를 연결하는 || 연산자
 	9. 특정 문자를 지우는 TRIM, LTRIM, RTRIM 함수
+	
+		SELECT '11' || trim( LEADING FROM '   abc   ') || '11' FROM dual;
+		SELECT '11' || trim( TRAILING FROM '   abc   ') || '11' FROM dual;
 
+		SELECT '11' || trim( LEADING '_' FROM '___abc___') || '11' FROM dual;
+		SELECT '11' || trim( TRAILING '_' FROM '___abc___') || '11' FROM dual;
 
+		SELECT '11' || ltrim('**abc**', '*') || '11' FROM dual;
+		
+		
 숫자 데이터를 연산하고 수치를 조정하는 숫자 함수
 	1. 특정 위치에서 반올림하는 ROUND
-	2. 특정 위치에서 버리는 TRUNC 함수
-	3. 지정한 숫자와 가까운 정수를 찾는 CEIL, FLOOR 함수
+		SELECT round(123.4567, 1) FROM dual;
+		
+	2. 특정 위치에서 버리는 TRUNC 함수 - 절사
+	3. 지정한 숫자와 가까운 정수를 찾는 CEIL, FLOOR 함수 - 올림, 버림
 	4. 숫자를 나눈 나머지 값을 구하는 MOD 함수
 
 
@@ -211,26 +226,201 @@ SQL의 기본 뼈대, SELECT절과 FROM 절
 		1) 날짜 데이터 + 숫자
 		2) 날짜 데이터 - 숫자
 		3) 날짜 데이터 - 날짜 데이터
-		4) 날짜 데이터 + 날짜 데이터
+		4) 날짜 데이터 + 날짜 데이터 -- 안됨
 
 	2. SYSDATE 함수를 사용하여 날짜 출력하기
+	
+		SELECT HIREDATE, 
+				HIREDATE + 100, 
+				HIREDATE - 100, 
+				SYSDATE  - HIREDATE   -- 날짜끼리 빼는 건 가능 : 경과일수, 더하는건 안됨
+		FROM emp;
+
 	3. 몇 개월 이후 날짜를 구하는 ADD_MONTHS 함수
+		- 월단위로 가감
+		SELECT ADD_MONTHS(SYSDATE, 5) "5개월 후", 
+		   ADD_MONTHS(SYSDATE, -5) "5개월전"  
+		FROM DUAL;
+		
 	4. 두 날짜 간의 개월 수 차이를 구하는 MONTHS_BETWEEN 함수
+		
+		SELECT HIREDATE, CEIL(MONTHS_BETWEEN(SYSDATE, HIREDATE)) FROM EMP; 
+		
 	5. 돌아오는 요일, 달의 마지막 날짜를 구하는 NEXT_DAY, LAST_DAY 함수
-
-
+	
+		SELECT NEXT_DAY(SYSDATE, '목요일') FROM dual;
+		SELECT NEXT_DAY(SYSDATE, '목') FROM dual;
+		
+		SELECT LAST_DAY(SYSDATE) FROM DUAL;  -- 이번달 마지막날짜
 
 자료형을 변환하는 형 변환 함수
-	1. 자동 형 변환, 암시적 형변ㅅ환
+	1. 자동 형 변환, 암시적 형변환
+		'2024-05-09' : 문자 -> DATE 형 변환
+		'1000' : 문자 -> 연산시 -> NUMBER 형으로 자동 변환
+		
+		SELECT '1000' + 200 FROM dual;   
+		--SELECT '1,000' + 200 FROM dual;   -- 이건 에러
+		-> 형식을 오라클이 충분히 파악 가능한 경우
+		
+		TO_CHAR(..)  : 숫자, 날짜 -> 형식화된 문자열
+		TO_NUMBER(..) : 문자로 되어 있는 형식화된 숫자
+		TO_DATE(..) : 문자로 형식화된 날짜 -> 날짜
+		
 	2. 형변환 함수 - TO_CHAR, TO_NUMBER, TO_DATE 
+	
+		SELECT TO_NUMBER('1,000', '999,999') + 200 FROM dual; -- 1200
+		SELECT empno, ename, SAL, TO_CHAR(SAL, '$999,999'), emp.* FROM emp;
+		
+		SELECT * FROM EMP WHERE HIREDATE BETWEEN '1981-01-01' AND '1981-12-31';
+		
+	
+
 	3. 날짜, 숫자 데이터를 문자 데이터로 변환하는 TO_CHAR 함수
 	4. 문자 데이터를 숫자 데이터로 변환하는 TO_NUMBER 함수
 	5. 문자 데이터를 날짜 데이터로 변환하는 TO_DATE 함수
+	
+		형식
+		
+		YYYY  
+		YY  : 90-05-09 => 2090-05-09  : 현재의 연도 앞자리 
+		
+		RRRR -> 4자리 연도
+		RR -> 2자리 연도 : 90-05-09 => 1990-05-09  : 가장 가까운 앞자리 연도
+		
+		MM : 월
+		DD : 일
+		
+		HH24 : 24시간 표기 시간
+		HH12 / HH : 12시간 표기 시간
+		
+		MI : 분
+		SS : 초
+		
+		SELECT * FROM emp 
+		WHERE HIREDATE BETWEEN TO_DATE('1981-01-01', 'YYYY-MM-DD') AND TO_DATE('1981-12-31', 'YYYY-MM-DD');
+
+		SELECT HIREDATE, TO_CHAR(HIREDATE, 'YYYY.MM.DD') FROM emp;
+		SELECT HIREDATE, TO_CHAR(SYSDATE, 'YYYY.MM.DD HH24:MI:SS') FROM emp;
+		
+		SELECT TO_DATE('90-05-08', 'RR-MM-DD') FROM DUAL; -- 1990-05-08
+		SELECT TO_DATE('90-05-08', 'YY-MM-DD') FROM DUAL; -- 2090-05-08
 
 NULL 처리 함수
 	1. NVL 함수
+		NVL(컬럼, 기본값)
+		
 	2. NVL2 함수
+		NVL2(컬럼, 널이아닐때, 널일때)
+		SELECT EMPNO, COMM, NVL2(COMM, 'O', 'X' ) FROM EMP;
 
 상황에 따라 다른 데이터를 반환하는 DECODE 함수와 CASE문
 	1. DECODE 함수
 	2. CASE 문
+	
+		SELECT EMPNO, ENAME, JOB, SAL, 
+		DECODE(JOB, 
+			'MANAGER', SAL * 1.1, 
+			'SALESMAN', SAL * 1.05, 
+			SAL * 1.03) "내년급여" 
+		FROM EMP;
+
+		SELECT EMPNO, ENAME, JOB, SAL, 
+			CASE JOB WHEN 'MANAGER' THEN SAL * 1.1
+					WHEN 'SALESMAN' THEN SAL * 1.05
+					ELSE SAL * 1.03
+			END AS "내년급여"
+			FROM EMP;
+			
+		SELECT EMPNO, ENAME, JOB, SAL,
+			CASE WHEN SAL >= 3000 THEN 'HIGH'
+				WHEN SAL >= 2000 THEN 'MID'
+				ELSE 'LOW'
+			END AS "급여등급"
+		FROM EMP;
+
+
+다중행 함수와 데이터 그룹화
+
+	하나의 열에 출력 결과를 담는 다중행 함수
+	-  여러 행을 바탕으로 하나의 결과 값을 도출해 내기 위해 사용하는 함수입니다.
+	- SUM 함수를 사용하여 급여 합계 출력하기
+	- SUM 함수를 사용하여 사원 이름과 급여 합계 출력하기(오류 발생)
+	- 자주 사용하는 다중행 함수
+
+	1. 합계를 구하는 SUM 함수
+	1) 데이터의 합을 구하는 함수
+	2) 추가 수당 합계 구하기
+
+	3) SUM 함수와 DISTINCT, ALL 함께 사용하기
+		SELECT sum(ALL sal), sum(DISTINCT sal) FROM emp;
+
+2. 데이터 개수를 구해 주는 COUNT 함수
+	SELECT count(*) FROM emp;
+	SELECT count(job) FROM emp;
+	SELECT count(DISTINCT job) FROM emp;
+	
+	SELECT count(COMM) FROM emp;  -- 집계함수에서 null은 제외되고 집계됨
+
+
+	1) 데이터 개수를 출력하는 데 사용
+	2)  NULL이 데이터로 포함되어 있을 경우, NULL 데이터는 반환 갯수에서 제외
+
+3. 최댓값과 최솟값을 구하는 MAX, MIN 함수
+	SELECT min(sal), max(sal), avg(sal), max(HIREDATE), min(HIREDATE) FROM EMP;
+	1) 부서 번호가 10번인 사원들의 최대 급여 출력하기
+	2) 부서 번호가 10번인 사원들의 최소 급여 출력하기
+	3) 부서 번호가 20인 사원의 입사일 중 제일 최근 입사일 출력하기
+	4) 부서 번호가 20인 사원의 일사일 중 제일 오래된 입사일 출력하기
+
+4. 평균 값을 구하는 AVG 함수
+	1) 부서 번호가 30인 사원들의 평균 급여 출력하기
+	2) DISTINCT로 중복을 제거한 급여 열의 평균 급여 구하기
+
+
+결과 값을 원하는 열로 묶어 출력하는 GROUP BY절
+	- 집합 연산자를 사용하여 각 부서별 평균 급여 출력하기
+
+1. GROUP BY 절의 기본 사용법
+	1) 여러 데이터에서 의미 있는 하나의 결과를 특정 열 값으로 묶어서 출력할 때 데이터를 '그룹화' 한다고 표현
+	2) 문법 
+	3) GROUP BY절에 명시하는 열은 여러 개 지정할 수 있습니다. 
+	4) GROUP BY를 사용하여 부서별 평균 급여 출력하기 
+	5) 부서 번호 및 직책별 평균 급여로 정렬하기
+
+2. GROUP BY절을 사용할 떄 유의점
+	1) 다중행 함수를 사용하지 않은 일반 열은 GROUP BY절에 명시하지 않으면 SELECT 절에서 사용할 수 없다는 것 
+	2) GROUP BY절에 없는 열을 SELECT절에 포함했을 경우
+
+
+	GROUP BY절에 조건을 줄 때 사용하는 HAVING절
+	1) HAVING 절은 SELECT문에 GROUP BY절이 존재할 때만 사용할 수 있습니다. 
+	2) GROUP BY절을 통해 그룹화된 결과 값의 범위를 제한하는 데 사용
+	3) GROUP BY 절과 HAVING절을 사용하여 출력하기
+
+1. HAVING절의 기본 사용법
+	
+	SELECT deptno, job, ROUND(avg(sal)) 
+	FROM emp 
+	GROUP BY deptno, job
+	HAVING avg(sal) > 900 ;
+
+2. HAVING절을 사용할 때 유의점
+	1)  WHERE절은 출력 대상 행을 제한하고, HAVING절은 그룹화된 대상을 출력에서 제한 
+		- HAVING 절은 집계 함수만 사용 가능 
+	2) HAVING절 대신 WHERE절을 잘못 사용했을 경우
+
+
+그룹화와 관련된 여러 함수
+1. ROLLUP 함수를 적용한 그룹화
+
+	SELECT deptno, job, ROUND(avg(sal)), MAX(SAL), MIN(SAL), COUNT(*) 
+	FROM emp 
+	GROUP BY ROLLUP (deptno, job)  -- 그룹 계
+	ORDER BY DEPTNO  ;
+
+2. CUBE 함수를 적용한 그룹화			
+
+	SELECT deptno, job, ROUND(avg(sal)), MAX(SAL), MIN(SAL), COUNT(*) 
+	FROM emp 
+	GROUP BY CUBE (deptno, job)
+	ORDER BY DEPTNO  ;
