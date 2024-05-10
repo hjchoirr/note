@@ -424,3 +424,131 @@ NULL 처리 함수
 	FROM emp 
 	GROUP BY CUBE (deptno, job)
 	ORDER BY DEPTNO  ;
+	
+
+여러 테이블을 하나의 테이블처럼 사용하는 조인
+
+	 - 카티전 프로덕트, 데카르트 곱 : 무작위 순서쌍
+		SELECT * FROM EMP, DEPT;
+
+
+조인
+	1. 집합 연산자와 조인의 차이점
+	2. 여러 테이블을 사용할 때의 FROM절
+
+	3. 테이블의 별칭 설정
+
+		From 테이블명 "별칭"  -- 별칭에 띄어쓰기 있으면 따옴표 사용 꼭
+		From 테이블명 별칭
+
+		 SELECT e.EMPNO , e.ENAME , e.JOB , d.DEPTNO , d.DNAME , d.LOC  
+		FROM emp e, dept d
+		WHERE e.deptno = d.deptno ;
+
+
+조인 종류
+
+	1. 등가 조인
+		- 공통적인 값의 일치 조건을 가지고 테이블을 결합하는 방식
+		- 동등조인, 내부(inner)조인
+
+			SELECT * FROM emp_join e, DEPT_JOIN d
+			WHERE e.DEPTNO = d.DEPTNO(+) ;	
+		
+	2. 비등가 조인
+		- 등가조인이 아닌 조인
+		- 암묵적 조인
+		- 범위에 대한 조인
+		
+		SELECT e.empno, e.ENAME, e.SAL,  s.GRADE , s.LOSAL, s.HISAL  
+		FROM emp e, SALGRADE s 
+		WHERE e.SAL  BETWEEN s.LOSAL AND s.HISAL ;		
+		
+	3. 자체 조인
+		SELECT e.empno, e.ename, e.job, e.mgr, m.ename, m.job  
+		FROM emp e, emp m
+		WHERE e.mgr = m.empno;
+	
+	4. 외부 조인
+		--왼쪽 외부 조인 : 왼쪽 테이블은 오른쪽이 있던 없던 전체 다 나옴
+		SELECT * FROM emp_join e, DEPT_JOIN d
+		WHERE e.DEPTNO = d.DEPTNO(+) ;	  -- left outer join : left Main정보
+
+		--오른쪽 외부 조인 : 오른쪽 테이블은 왼쪽이 있던 없던 전체 다 나옴
+		SELECT * FROM emp_join e, DEPT_JOIN d
+		WHERE e.DEPTNO(+) = d.DEPTNO ;	  -- right outer join : right Main정보
+
+	5. Full OUTER JOIN
+	
+		SELECT * FROM EMP_JOIN e, DEPT_JOIN D
+		WHERE e.deptno(+) = D.deptno
+		union
+		SELECT * FROM EMP_JOIN e, DEPT_JOIN D
+		WHERE e.deptno = D.deptno(+);
+
+
+	SQL-99 표준 문법으로 배우는 조인
+	
+	  - 등가조인(INNER JOIN)	
+		
+		1. NATUAL JOIN
+			-- DEPTNO 동일컬럼
+			SELECT e.EMPNO , e.ENAME , e.JOB, DEPTNO, d.DNAME , d.LOC 
+				FROM EMP e NATURAL JOIN DEPT d ; -- DEPTNO 동일컬럼 FROM 절에 사용		
+		
+		2. JOIN ~ USING
+			공통이름의 컬럼이 2개 이상일때 
+			SELECT * FROM EMP JOIN DEPT USING(DEPTNO); -- JOIN 앞에 INNER 생략되어 있음
+		
+		3. JOIN ~ ON
+		
+		4. OUTER JOIN
+		
+		5. 세 개 이상의 테이블을 조인할 때	
+
+
+트랜잭션 제어와 세션
+
+하나의 단위로 데이터를 처리하는 트랜잭션
+1. 트랜잭션이란?
+	1) 관계형 데이터베이스에서 하나의 작업 또는 밀접하게 연관되어 있는 작업 수행을 위해 나눌 수 없는 최소 수행 단위
+	2) SQL 문법 중 이러한 트랜잭션을 제어하는 데 사용하는 명령어를 TCL 이라고 합니다.
+	
+	
+
+트랜잭션을 제어하는 명령어
+
+	1. COMMIT : DB에 영구반영
+
+	2. ROLLBACK : Commit 전에 실행하면 복구됨
+
+
+
+세션과 읽기 일관성의 의미
+	1. 세션이란?
+	- 데이터베이스 접속을 시작으로 여러 데이터베이스에서 관련 작업을 수행한 후 접속을 종료하기까지 전체 기간
+
+	2. 읽기 일관성의 중요성
+
+수정 중인 데이터 접근을 막는 LOCK
+	1. LOCK 이란?
+	- 특정 세션에서 조작중인 데이터는 트랜잭션이 완료(COMMIT, ROLLBACK)되기 전까지 다른 세션에서 조작할 수 없는 상태
+
+	2. LOCK 개념 살펴보기
+
+
+SQL
+	- DDL : Data Definition Language
+		데이터의 구조 정의하는 언어
+		실행하자마자 COMMIT 바로 실행 -> 바로 영구 반영
+		TRUNCATE 도 DDL
+		
+	- DML : Data Manipulation Language
+		INSERT, UPDATE, DELETE, SELECT - DQL
+		COMMIT ROLLBACK 이 적용될 수 있음
+		
+	- DCL : Data Control Language
+		GRANT, REVOKE
+		COMMIT, ROLLBACK - TCL
+		
+세션 : 연결 시작, 종료 
