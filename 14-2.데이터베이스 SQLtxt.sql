@@ -462,7 +462,7 @@ NULL 처리 함수
 		
 		SELECT e.empno, e.ENAME, e.SAL,  s.GRADE , s.LOSAL, s.HISAL  
 		FROM emp e, SALGRADE s 
-		WHERE e.SAL  BETWEEN s.LOSAL AND s.HISAL ;		
+		WHERE e.SAL  BETWEEN s.LOSAL AND s.HISAL ;	--  e.SAL >= s.LOSA AND e.SAL<= s.HISAL
 		
 	3. 자체 조인
 		SELECT e.empno, e.ename, e.job, e.mgr, m.ename, m.job  
@@ -497,44 +497,56 @@ NULL 처리 함수
 				FROM EMP e NATURAL JOIN DEPT d ; -- DEPTNO 동일컬럼 FROM 절에 사용		
 		
 		2. JOIN ~ USING
-			공통이름의 컬럼이 2개 이상일때 
+			공통이름의 컬럼이 1개 이상일때 
 			SELECT * FROM EMP JOIN DEPT USING(DEPTNO); -- JOIN 앞에 INNER 생략되어 있음
 		
 		3. JOIN ~ ON
+			공통컬럼의 이름이 동일하지 않은 경우
+			SELECT * FROM emp e JOIN dept d ON e.DEPTNO = d.DEPTNO ; 
 		
 		4. OUTER JOIN
 		
+			왼쪽 외부조인 Left Outer Join
+			오른쪽 외부조인 Right Outer Join
+			
+				SELECT * FROM emp_join e LEFT OUTER JOIN dept_join d ON e.deptno = d.deptno;
+				SELECT * FROM emp_join e RIGHT OUTER JOIN dept_join d ON e.deptno = d.deptno;
+			
+			FULL OUTER JOIN
+			
+				SELECT * FROM EMP_JOIN E FULL JOIN dept_join d ON e.deptno = d.deptno;
+			
 		5. 세 개 이상의 테이블을 조인할 때	
 
 
 트랜잭션 제어와 세션
 
-하나의 단위로 데이터를 처리하는 트랜잭션
-1. 트랜잭션이란?
-	1) 관계형 데이터베이스에서 하나의 작업 또는 밀접하게 연관되어 있는 작업 수행을 위해 나눌 수 없는 최소 수행 단위
-	2) SQL 문법 중 이러한 트랜잭션을 제어하는 데 사용하는 명령어를 TCL 이라고 합니다.
-	
-	
+	하나의 단위로 데이터를 처리하는 트랜잭션
+	1. 트랜잭션이란?
+		1) 관계형 데이터베이스에서 하나의 작업 또는 밀접하게 연관되어 있는 작업 수행을 위해 나눌 수 없는 최소 수행 단위
+		2) SQL 문법 중 이러한 트랜잭션을 제어하는 데 사용하는 명령어를 TCL 이라고 합니다.
+		
+		
 
-트랜잭션을 제어하는 명령어
+	트랜잭션을 제어하는 명령어
 
-	1. COMMIT : DB에 영구반영
+		1. COMMIT : DB에 영구반영
 
-	2. ROLLBACK : Commit 전에 실행하면 복구됨
+		2. ROLLBACK : Commit 전에 실행하면 복구됨
 
 
 
-세션과 읽기 일관성의 의미
-	1. 세션이란?
-	- 데이터베이스 접속을 시작으로 여러 데이터베이스에서 관련 작업을 수행한 후 접속을 종료하기까지 전체 기간
+	세션과 읽기 일관성의 의미
+		1. 세션이란?
+		- 데이터베이스 접속을 시작으로 여러 데이터베이스에서 관련 작업을 수행한 후 접속을 종료하기까지 전체 기간
 
-	2. 읽기 일관성의 중요성
+		2. 읽기 일관성의 중요성
 
-수정 중인 데이터 접근을 막는 LOCK
-	1. LOCK 이란?
-	- 특정 세션에서 조작중인 데이터는 트랜잭션이 완료(COMMIT, ROLLBACK)되기 전까지 다른 세션에서 조작할 수 없는 상태
+	수정 중인 데이터 접근을 막는 LOCK
+		1. LOCK 이란?
+		- 특정 세션에서 조작중인 데이터는 트랜잭션이 완료(COMMIT, ROLLBACK)되기 전까지 다른 세션에서 조작할 수 없는 상태
 
-	2. LOCK 개념 살펴보기
+		2. LOCK 개념 살펴보기
 
 
 SQL
@@ -552,3 +564,164 @@ SQL
 		COMMIT, ROLLBACK - TCL
 		
 세션 : 연결 시작, 종료 
+
+
+
+SQL문 속 또 다른 SQL문, 서브 쿼리
+
+
+서브 쿼리
+	SELECT (1) FROM (2) WHERE (3);
+	
+	(1) 스칼라 서브쿼리 (스칼라: 단일값)
+	(2) 인라인뷰 : 가상의 테이블
+	(3) 상관부속 질의
+
+	1. 특징 
+		1) 서브 쿼리는 연산자와 같은 비교 또는 조회 대상의 오른쪽에 놓이며 괄호 ( )로 묶어서 사용합니다.
+		2) 특수한 몇몇 경우를 제외한 대부분의 서브쿼리에서는 ORDER BY 절을 사용할 수 없습니다.
+		3) 서브쿼리의 SELECT절에 명시한 열은 메인쿼리의 비교 대상과 같은 자료형과 같은 개수로 지정해야 합니다. 즉 메인쿼리의 비교 대상 데이터가 하나라면 서브쿼리의 SELECT절 역시 같은 자료형인 열을 하나 지정해야 합니다.
+		4) 서브쿼리에 있는 SELECT문의 결과 행 수는 함께 사용하는 메인쿼리의 연산자 종류와 호환 가능해야 합니다. 예를 들어 메인쿼리에 사용한 연산자가 단 하나의 데이터로만 연산이 가능한 연산자라면 서브쿼리의 결과 행 수는 반드시 하나여야 합니다.
+
+
+	실행 결과가 하나인 단일행 서브 쿼리
+
+		SELECT * FROM EMP 
+		WHERE SAL < (SELECT MIN(SAL) FROM EMP WHERE DEPTNO = 30);  --단일행 서브쿼리 = 스칼라 서브쿼리
+
+		1. 단일행 서브 쿼리(single-row subquery)는 실행 결과가 단 하나의 행으로 나오는 서브쿼리를 뜻합니다.
+		2. 서브쿼리에서 출력되는 결과가 하나이므로 메인쿼리와 서브쿼리 결과는 다음과 같이 단일행 연산자를 사용하여 비교
+		3. 단일행 서브쿼리와 날짜형 데이터
+		4. 단일행 서브쿼리와 함수
+
+
+	실행 결과가 여러 개인 다중행 서브 쿼리
+	
+		SELECT * FROM EMP WHERE SAL IN ( SELECT MAX(SAL) FROM EMP GROUP BY DEPTNO);
+		
+		1. 다중행 서브쿼리(multiple-row subquery)는 실행 결과 행이 여러 개로 나오는 서브쿼리를 가리킵니다.
+		2. 단일행 서브쿼리와 달리 서브쿼리 결과가 여러 개이므로 단일행 연산자는 사용할 수 없고 다중행 연산자를 사용해야 메인쿼리와 비교할 수 있습니다.
+		3. IN 연산자
+		4. ANY, SOME 연산자
+		
+			: 쿼리 결과값이 하나라도 참이면 참
+			: ANY, SOME 동일
+								
+				SELECT * FROM EMP WHERE SAL < ( SELECT MAX(SAL) FROM EMP WHERE DEPTNO = 30 );
+				SELECT * FROM EMP WHERE SAL < ANY (SELECT SAL FROM EMP WHERE DEPTNO = 30 ); -- 위와 동일
+
+				SELECT * FROM EMP WHERE SAL > ( SELECT MIN(SAL) FROM EMP WHERE DEPTNO = 30);
+				SELECT * FROM EMP WHERE SAL > ANY (SELECT SAL FROM EMP WHERE DEPTNO = 30); -- 위와 동일
+				
+		5. ALL 연산자
+		
+			- 쿼리 결과값이 모두 참이어야 참
+			
+				SELECT * FROM EMP WHERE SAL > ( SELECT MAX(SAL) FROM EMP WHERE DEPTNO = 30); 
+				SELECT * FROM EMP WHERE SAL > ALL (SELECT SAL FROM EMP WHERE DEPTNO = 30); --위와 동일
+			
+		6. EXISTS 연산자
+		
+			- 서브쿼리의 레코드가 있으면 참
+				SELECT * FROM EMP WHERE EXISTS ( SELECT * FROM DEPT WHERE DEPTNO = 30 );
+				SELECT * FROM EMP WHERE NOT EXISTS ( SELECT * FROM DEPT WHERE DEPTNO = 50 );
+				
+	비교할 열이 여러 개인 다중열 서브쿼리
+		1. 서브쿼리의 SELECT절에 비교할 데이터를 여러 개 지정하는 방식
+		2. 다중열 서브쿼리 사용하기
+
+	FROM절에 사용하는 서브쿼리와 WITH절
+	
+		1. 인라인 뷰(inline view)
+			SELECT * FROM (SELECT * FROM EMP WHERE DEPTNO IN (10,20));
+			
+		2. WITH절 사용하기 : only Oracle
+			
+			WITH
+			E AS (SELECT EMPNO, ENAME, JOB, SAL, DEPTNO 
+					FROM EMP WHERE DEPTNO IN (10, 20)),
+			D AS (SELECT * FROM DEPT)
+			SELECT E.EMPNO, E.ENAME, D.DNAME
+			FROM E,D
+			WHERE E.DEPTNO = D.DEPTNO AND E.SAL >= 2000; 
+			
+			-- 동일함
+			SELECT E.EMPNO, E.ENAME, D.DNAME
+			FROM
+			(SELECT EMPNO, ENAME, JOB, SAL, DEPTNO 
+					FROM EMP WHERE DEPTNO IN (10, 20)) E,
+			(SELECT * FROM DEPT) D
+			WHERE E.DEPTNO = D.DEPTNO AND E.SAL >= 2000;
+		
+		3. 상호 연관 서브쿼리
+		
+			SELECT * FROM EMP e WHERE SAL > ( SELECT MIN(SAL) FROM EMP WHERE DEPTNO = e.DEPTNO);
+
+	SELECT 절에 사용하는 서브쿼리
+		1. 스칼라 서브쿼리(scalar subquery)
+			스칼라 : 단일값 - 단일행 서브쿼리
+			
+			SELECT EMPNO, ENAME, ( SELECT DNAME FROM DEPT WHERE DEPTNO = e.DEPTNO ) 
+			FROM EMP e ;
+			
+		2. SELECT절에 서브쿼리 사용하기
+		3. SELECT 절에 명시하는 서브쿼리는 반드시 하나의 결과만 반환하도록 작성
+		
+
+데이터를 추가, 수정, 삭제하는 데이터 조작어 (DML - Data Manipulation Language )
+
+	테이블에 데이터 추가하기
+	
+		1. 실습 - 테이블 생성하기
+		
+			CREATE TABLE DEPT_TEMP AS SELECT * FROM DEPT
+			
+		2. INSERT문 실습 전 유의점
+		3. 문법 
+		4. 실습
+			1) DEPT_TEMP 테이블에 데이터 추가하기
+			2) INSERT문으로 데이터 입력하기(열 지정을 생략할 때)
+
+		5.  테이블에 NULL 테이터 입력하기
+			1) NULL을 지정하여 입력하기
+			2) 빈 공백 문자열로 NULL을 입력하기
+			3) 열 데이터를 넣지 않는 방식으로 NULL 데이터 입력하기
+
+		6. 테이블에 날짜 데이터 입력하기
+			1) INSERT문으로 날짜 데이터 입력하기(날짜 사이에 / 입력)
+			2) INSERT문으로 날짜 데이터 입력하기(날짜 사이에 - 입력)
+			
+			3) TO_DATE 함수를 사용하여 날짜 데이터 입력하기
+				
+			
+				(참고)
+				TO_NUMBER(..)
+				TO_CHAR(..)
+			4) SYSDATE를 사용하여 날짜 데이터 입력하기
+
+		7. 서브 쿼리를 사용하여 한 번에 여러 데이터 추가하기
+			1) 서브 쿼리로 여러 데이터 추가하기
+			2) INSERT문에서 서브쿼리를 사용할 때 유의할 점
+				- VALUES 절은 사용하지 않는다.
+				- 데이터가 추가되는 테이블의 열 개수와 서브쿼리의 열 개수가 일치해야 한다.
+				- 데이터가 추가되는 테이블의 자료형과 서브쿼리의 자료형이 일치해야 한다.
+		
+	테이블에 있는 데이터 수정하기
+		- UPDATE문을 사용
+
+		1. UPDATE 문의 기본 사용법
+		2. 데이터 전체 수정하기
+			참고) ROLLBACK
+		3. 데이터 일부분 수정하기
+
+
+	서브쿼리를 사용하여 데이터 수정하기
+		1. 서브쿼리로 데이터 일부분 수정하기
+		2. 열 하나하나를 수정하는 경우
+		3. UPDATE문의 WHERE절에 서브쿼리 사용하기
+
+
+	테이블에 있는 데이터 삭제하기
+		1. DELETE문의 기본 형식
+		2. WHERE절을 사용하여 데이터 일부분만 삭제하기
+		3. 테이블에 있는 전체 데이터 삭제하기		

@@ -4,16 +4,103 @@
 
 교재 4장 부터 12장 연습문제
 
-- 챕터마다 1문제씩 연습문제
+- 챕터마다 1문제씩 연습문제, 조인은 2문제씩
 
 
 5/20일 부터 오후 6 - 7 시 js 보강
 
 
+ 11장 
+	 읽기의 일관성
+	 트랜잭션
+	 commit
+	 rollback
+	 세션
+	 lock
+	 
+	 세션과 읽기 일관성의 의미
+		1. 세션이란?
+		- 데이터베이스 접속을 시작으로 여러 데이터베이스에서 관련 작업을 수행한 후 접속을 종료하기까지 전체 기간
+
+		2. 읽기 일관성의 중요성
+
+	수정 중인 데이터 접근을 막는 LOCK
+		1. LOCK 이란?
+		- 특정 세션에서 조작중인 데이터는 트랜잭션이 완료(COMMIT, ROLLBACK)되기 전까지 다른 세션에서 조작할 수 없는 상태
+
+		2. LOCK 개념 살펴보기
  
- 읽기의 일관성
- 트랜잭션
- commit
- rollback
- 세션
- lock
+ 
+------------
+-- 5-3
+-- 집합연산자를 사용하지 않은 방식
+SELECT EMPNO, ENAME, JOB, SAL, DEPTNO
+  FROM EMP
+ WHERE DEPTNO IN (20, 30) 
+   AND SAL > 2000;
+
+-- 집합연산자를 사용한 방식
+SELECT EMPNO, ENAME, JOB, SAL, DEPTNO
+  FROM EMP
+ WHERE DEPTNO = 20
+   AND SAL > 2000
+UNION
+SELECT EMPNO, ENAME, JOB, SAL, DEPTNO
+  FROM EMP
+ WHERE DEPTNO = 30
+   AND SAL > 2000;
+
+------------
+
+-- 6-3
+SELECT EMPNO, ENAME, HIREDATE,
+       TO_CHAR(NEXT_DAY(ADD_MONTHS(HIREDATE, 3), '월요일'), 'YYYY-MM-DD') AS R_JOB,
+       NVL(TO_CHAR(COMM), 'N/A') AS COMM
+  FROM EMP; 
+
+		
+		SELECT NEXT_DAY(SYSDATE, '목요일') FROM dual;
+		SELECT NEXT_DAY(SYSDATE, '목') FROM dual;
+
+		
+-- 6-4
+SELECT EMPNO, ENAME, MGR,
+       CASE
+          WHEN MGR IS NULL THEN '0000'
+          WHEN SUBSTR(MGR, 1, 2) = '78' THEN '8888'
+          WHEN SUBSTR(MGR, 1, 2) = '77' THEN '7777'
+          WHEN SUBSTR(MGR, 1, 2) = '76' THEN '6666'
+          WHEN SUBSTR(MGR, 1, 2) = '75' THEN '5555'
+          ELSE TO_CHAR(MGR)
+       END AS CHG_MGR
+  FROM EMP;
+  
+---7-4
+SELECT nvl2(comm, 'X', 'O'), count(*)
+FROM EMP 
+GROUP BY nvl2(comm, 'X', 'O');
+
+-- 8-4 ***
+--SQL-99 이전 방식
+SELECT D.DEPTNO, D.DNAME,
+       E.EMPNO, E.ENAME, E.MGR, E.SAL, E.DEPTNO,
+       S.LOSAL, S.HISAL, S.GRADE,
+       E2.EMPNO AS MGR_EMPNO, E2.ENAME AS MGR_ENAME
+  FROM EMP E, DEPT D, SALGRADE S, EMP E2
+ WHERE E.DEPTNO(+) = D.DEPTNO
+   AND E.SAL BETWEEN S.LOSAL(+) AND S.HISAL(+)
+   AND E.MGR = E2.EMPNO(+)
+ORDER BY D.DEPTNO, E.EMPNO; 
+
+--SQL-99방식
+SELECT D.DEPTNO, D.DNAME,
+       E.EMPNO, E.ENAME, E.MGR, E.SAL, E.DEPTNO,
+       S.LOSAL, S.HISAL, S.GRADE,
+       E2.EMPNO AS MGR_EMPNO, E2.ENAME AS MGR_ENAME
+  FROM EMP E RIGHT OUTER JOIN DEPT D
+                ON (E.DEPTNO = D.DEPTNO)
+              LEFT OUTER JOIN SALGRADE S
+                ON (E.SAL BETWEEN S.LOSAL AND S.HISAL)
+              LEFT OUTER JOIN EMP E2
+                ON (E.MGR = E2.EMPNO)
+ORDER BY D.DEPTNO, E.EMPNO; 
