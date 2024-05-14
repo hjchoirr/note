@@ -432,3 +432,294 @@ VALUES (SEQ_DEPTSEQ.NEXTVAL, 'WEB', 'BUSAN');
 
 INSERT INTO DEPTSEQ (DEPTNO, DNAME, LOC) 
 VALUES (SEQ_DEPTSEQ.NEXTVAL, 'MOBILE', 'ILSAN');
+
+-- 잊기 전에 한 번 더 정답
+
+-- 14-1
+--① 
+CREATE TABLE DEPT_CONST ( 
+   DEPTNO NUMBER(2)    CONSTRAINT DEPTCONST_DEPTNO_PK PRIMARY KEY, 
+   DNAME  VARCHAR2(14) CONSTRAINT DEPTCONST_DNAME_UNQ UNIQUE, 
+   LOC    VARCHAR2(13) CONSTRAINT DEPTCONST_LOC_NN NOT NULL 
+);
+
+--② 
+CREATE TABLE EMP_CONST ( 
+   EMPNO    NUMBER(4) CONSTRAINT EMPCONST_EMPNO_PK PRIMARY KEY, 
+   ENAME    VARCHAR2(10) CONSTRAINT EMPCONST_ENAME_NN NOT NULL, 
+   JOB      VARCHAR2(9), 
+   TEL      VARCHAR2(20) CONSTRAINT EMPCONST_TEL_UNQ UNIQUE, 
+   HIREDATE DATE, 
+   SAL      NUMBER(7, 2) CONSTRAINT EMPCONST_SAL_CHK CHECK (SAL BETWEEN 1000 AND 9999), 
+   COMM     NUMBER(7, 2), 
+   DEPTNO   NUMBER(2) CONSTRAINT EMPCONST_DEPTNO_FK REFERENCES DEPT_CONST (DEPTNO) 
+); 
+	     
+--③
+SELECT TABLE_NAME, CONSTRAINT_NAME, CONSTRAINT_TYPE 
+  FROM USER_CONSTRAINTS 
+ WHERE TABLE_NAME IN ( 'EMP_CONST', 'DEPT_CONST' ) 
+ORDER BY CONSTRAINT_NAME; 
+
+-- 잊기 전에 한 번 더 정답
+
+-- 15-1
+--① 
+CREATE USER PREV_HW
+IDENTIFIED BY ORCL;
+
+--② 
+GRANT CREATE SESSION TO PREV_HW;
+
+-- 15-2
+GRANT SELECT ON EMP TO PREV_HW; 
+
+GRANT SELECT ON DEPT TO PREV_HW; 
+
+GRANT SELECT ON SALGRADE TO PREV_HW; 
+
+-- 15-3
+REVOKE SELECT ON SALGRADE FROM PREV_HW; 
+
+-- 잊기 전에 한 번 더 정답
+
+-- 16-1
+BEGIN
+   FOR i IN 1..10 LOOP
+      CONTINUE WHEN MOD(i, 2) = 0;
+      DBMS_OUTPUT.PUT_LINE('현재 i의 값 : ' || i);
+      END LOOP;
+END;
+/
+
+-- 16-2
+DECLARE
+   V_DEPTNO DEPT.DEPTNO%TYPE := 10;
+BEGIN
+   CASE V_DEPTNO
+      WHEN 10 THEN DBMS_OUTPUT.PUT_LINE('DNAME : ACCOUNTING');
+      WHEN 20 THEN DBMS_OUTPUT.PUT_LINE('DNAME : RESEARCH');
+      WHEN 30 THEN DBMS_OUTPUT.PUT_LINE('DNAME : SALES');
+      WHEN 40 THEN DBMS_OUTPUT.PUT_LINE('DNAME : OPERATIONS');
+      ELSE         DBMS_OUTPUT.PUT_LINE('DNAME : N/A');
+   END CASE;
+END;
+/
+
+-- 잊기 전에 한 번 더 정답
+
+-- 17-1
+--①
+CREATE TABLE EMP_RECORD
+    AS SELECT * 
+         FROM EMP
+        WHERE 1<>1;
+
+--②
+DECLARE
+   TYPE REC_EMP IS RECORD (
+      empno    EMP.EMPNO%TYPE NOT NULL := 9999,
+      ename    EMP.ENAME%TYPE,
+      job      EMP.JOB%TYPE,
+      mgr      EMP.MGR%TYPE,
+      hiredate EMP.HIREDATE%TYPE,
+      sal      EMP.SAL%TYPE,
+      comm     EMP.COMM%TYPE,
+      deptno   EMP.DEPTNO%TYPE
+   );
+   emp_rec REC_EMP;
+BEGIN
+   emp_rec.empno    := 1111;
+   emp_rec.ename    := 'TEST_USER';
+   emp_rec.job      := 'TEST_JOB';
+   emp_rec.mgr      := null;
+   emp_rec.hiredate := TO_DATE('20180301','YYYYMMDD');
+   emp_rec.sal      := 3000;
+   emp_rec.comm     := null;
+   emp_rec.deptno   := 40;
+
+   INSERT INTO EMP_RECORD
+   VALUES emp_rec;
+END;
+/
+
+-- 17-2
+DECLARE
+   TYPE ITAB_EMP IS TABLE OF EMP%ROWTYPE
+      INDEX BY PLS_INTEGER;
+   emp_arr ITAB_EMP;
+   idx PLS_INTEGER := 0;
+BEGIN
+   FOR i IN (SELECT * FROM EMP) LOOP
+      idx := idx + 1;
+      emp_arr(idx).empno    := i.EMPNO;
+      emp_arr(idx).ename    := i.ENAME;
+      emp_arr(idx).job      := i.JOB;
+      emp_arr(idx).mgr      := i.MGR;
+      emp_arr(idx).hiredate := i.HIREDATE;
+      emp_arr(idx).sal      := i.SAL;
+      emp_arr(idx).comm     := i.COMM;
+      emp_arr(idx).deptno   := i.DEPTNO;
+
+      DBMS_OUTPUT.PUT_LINE(
+         emp_arr(idx).empno     || ' : ' ||
+         emp_arr(idx).ename     || ' : ' ||
+         emp_arr(idx).job       || ' : ' ||
+         emp_arr(idx).mgr       || ' : ' ||
+         emp_arr(idx).hiredate  || ' : ' ||
+         emp_arr(idx).sal       || ' : ' ||
+         emp_arr(idx).comm      || ' : ' ||
+         emp_arr(idx).deptno);
+
+   END LOOP;
+END;
+/
+
+-- 잊기 전에 한 번 더 정답
+
+-- 18-1
+--①
+DECLARE
+   -- 커서 데이터가 입력될 변수 선언
+   V_EMP_ROW EMP%ROWTYPE;
+   -- 명시적 커서 선언(Declaration)
+   CURSOR c1 IS
+      SELECT *
+        FROM EMP;
+BEGIN
+   -- 커서 열기(Open)
+   OPEN c1;
+   LOOP
+       -- 커서로부터 읽어온 데이터 사용(Fetch)
+       FETCH c1 INTO V_EMP_ROW;
+       -- 커서의 모든 행을 읽어오기 위해 %NOTFOUND 속성지정
+       EXIT WHEN c1%NOTFOUND;
+       DBMS_OUTPUT.PUT_LINE('EMPNO : '    || V_EMP_ROW.EMPNO
+                       || ', ENAME : '    || V_EMP_ROW.ENAME
+                       || ', JOB : '      || V_EMP_ROW.JOB
+                       || ', SAL : '      || V_EMP_ROW.SAL
+                       || ', DEPTNO : '   || V_EMP_ROW.DEPTNO		
+		       );
+   END LOOP;
+   -- 커서 닫기(Close)
+   CLOSE c1;
+END;
+/
+
+--②
+DECLARE
+   -- 명시적 커서 선언(Declaration)
+   CURSOR c1 IS
+      SELECT *
+        FROM EMP;
+BEGIN
+   -- 커서 FOR LOOP 시작 (자동 Open, Fetch, Close)
+   FOR c1_rec IN c1 LOOP
+      DBMS_OUTPUT.PUT_LINE('EMPNO : '    || c1_rec.EMPNO
+                      || ', ENAME : '    || c1_rec.ENAME
+                      || ', JOB : '      || c1_rec.JOB
+                      || ', SAL : '      || c1_rec.SAL
+                      || ', DEPTNO : '   || c1_rec.DEPTNO);
+   END LOOP;
+END;
+/
+
+-- 18-2
+DECLARE
+   v_wrong DATE;
+BEGIN
+   SELECT ENAME INTO v_wrong
+     FROM EMP
+    WHERE EMPNO = 7369;
+
+    DBMS_OUTPUT.PUT_LINE('예외가 발생하면 다음 문장은 실행되지 않습니다');
+
+EXCEPTION
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('오류가 발생하였습니다.' 
+                        || TO_CHAR(SYSDATE, '[YYYY"년"MM"월"DD"일" HH24"시"mm"분"SS"초"]'));
+                
+      DBMS_OUTPUT.PUT_LINE('SQLCODE : ' || TO_CHAR(SQLCODE));
+      DBMS_OUTPUT.PUT_LINE('SQLERRM : ' || SQLERRM);
+END;
+/
+-- 잊기 전에 한 번 더 정답
+
+-- 19-1
+--①
+CREATE OR REPLACE PROCEDURE pro_dept_in
+(
+   inout_deptno IN OUT DEPT.DEPTNO%TYPE,
+   out_dname OUT DEPT.DNAME%TYPE,
+   out_loc OUT DEPT.LOC%TYPE
+)
+IS
+BEGIN
+   SELECT DEPTNO, DNAME, LOC INTO inout_deptno, out_dname, out_loc
+     FROM DEPT
+    WHERE DEPTNO = inout_deptno;
+END pro_dept_in;
+/
+
+--②
+DECLARE
+   v_deptno DEPT.DEPTNO%TYPE;
+   v_dname DEPT.DNAME%TYPE;
+   v_loc DEPT.LOC%TYPE;
+BEGIN
+   v_deptno := 10;
+   pro_dept_in(v_deptno, v_dname, v_loc);
+   DBMS_OUTPUT.PUT_LINE('부서번호 : ' || v_deptno);
+   DBMS_OUTPUT.PUT_LINE('부서명 : ' || v_dname);
+   DBMS_OUTPUT.PUT_LINE('지역 : ' || v_loc);
+END;
+/
+
+-- 19-2
+CREATE OR REPLACE FUNCTION func_date_kor(
+   in_date IN DATE
+)
+RETURN VARCHAR2
+IS   
+BEGIN
+   RETURN (TO_CHAR(in_date, 'YYYY"년"MM"월"DD"일"'));
+END func_date_kor;
+/
+
+-- 19-3
+--①
+CREATE TABLE DEPT_TRG
+    AS SELECT * FROM DEPT;
+
+--②
+CREATE TABLE DEPT_TRG_LOG(
+   TABLENAME   VARCHAR2(10), -- DML이 수행된 테이블 이름
+   DML_TYPE    VARCHAR2(10), -- DML 명령어의 종류
+   DEPTNO      NUMBER(2),    -- DML 대상이 된 부서번호
+   USER_NAME   VARCHAR2(30), -- DML을 수행한 USER 이름
+   CHANGE_DATE DATE          -- DML 이 수행된 날짜
+);
+
+--③
+CREATE OR REPLACE TRIGGER trg_dept_log
+AFTER
+INSERT OR UPDATE OR DELETE ON DEPT_TRG
+FOR EACH ROW
+BEGIN
+   IF INSERTING THEN
+     INSERT INTO DEPT_TRG_LOG
+     VALUES ('DEPT_TRG', 'INSERT', :new.deptno,
+             SYS_CONTEXT('USERENV', 'SESSION_USER'), sysdate);
+
+   ELSIF UPDATING THEN
+     INSERT INTO DEPT_TRG_LOG
+     VALUES ('DEPT_TRG', 'UPDATE', :old.deptno,
+             SYS_CONTEXT('USERENV', 'SESSION_USER'), sysdate);
+
+   ELSIF DELETING THEN
+     INSERT INTO DEPT_TRG_LOG
+     VALUES ('DEPT_TRG', 'DELETE', :old.deptno,
+             SYS_CONTEXT('USERENV', 'SESSION_USER'), sysdate);
+   END IF;
+END;
+/

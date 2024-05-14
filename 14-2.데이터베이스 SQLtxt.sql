@@ -693,14 +693,15 @@ SQL문 속 또 다른 SQL문, 서브 쿼리
 			
 			3) TO_DATE 함수를 사용하여 날짜 데이터 입력하기
 				
-			
+				TO_DATE('2024//05//13', 'YYYY//MM//DD')
+				
 				(참고)
 				TO_NUMBER(..)
 				TO_CHAR(..)
 			4) SYSDATE를 사용하여 날짜 데이터 입력하기
 
 		7. 서브 쿼리를 사용하여 한 번에 여러 데이터 추가하기
-			1) 서브 쿼리로 여러 데이터 추가하기
+			1) 서브 쿼리로 여러 데이터 추가하기 
 			2) INSERT문에서 서브쿼리를 사용할 때 유의할 점
 				- VALUES 절은 사용하지 않는다.
 				- 데이터가 추가되는 테이블의 열 개수와 서브쿼리의 열 개수가 일치해야 한다.
@@ -710,6 +711,13 @@ SQL문 속 또 다른 SQL문, 서브 쿼리
 		- UPDATE문을 사용
 
 		1. UPDATE 문의 기본 사용법
+			UPDATE 테이블명
+			SET
+			  컬럼명 = 값,
+			  컬럼명 = 값,
+			  컬럼명 = 값
+			WHERE 조건식;
+			  
 		2. 데이터 전체 수정하기
 			참고) ROLLBACK
 		3. 데이터 일부분 수정하기
@@ -717,6 +725,10 @@ SQL문 속 또 다른 SQL문, 서브 쿼리
 
 	서브쿼리를 사용하여 데이터 수정하기
 		1. 서브쿼리로 데이터 일부분 수정하기
+			UPDATE DEPT_TEMP3 
+				SET (dname, loc) = ( SELECT DNAME, LOC FROM DEPT WHERE DEPTNO = 40)
+			WHERE DEPTNO = 40;
+		
 		2. 열 하나하나를 수정하는 경우
 		3. UPDATE문의 WHERE절에 서브쿼리 사용하기
 
@@ -725,3 +737,255 @@ SQL문 속 또 다른 SQL문, 서브 쿼리
 		1. DELETE문의 기본 형식
 		2. WHERE절을 사용하여 데이터 일부분만 삭제하기
 		3. 테이블에 있는 전체 데이터 삭제하기		
+		
+
+데이터 정의어
+
+	객체를 생성, 변경, 삭제하는 데이터 정의어
+		1. 데이터 정의어(DDL - Data Definition Language)
+		2.  데이터베이스 데이터를 보관하고 관리하기 위해 제공되는 여러 객체(object)의 생성, 변경, 삭제 관련 기능을 수행
+		3. 데이터 정의어를 사용할 때 유의점
+			1) 데이터 정의어를 실행하면 자동으로 COMMIT되기 때문에 이전에 사용한 데이터 조작어는 영구히 데이터베이스에 반영
+			2) ROLLBACK을 통한 실행 취소가 불가
+
+	테이블을 생성하는 CREATE
+		
+		1. 오라클 데이터베이스 테이블 객체를 생성하는 데 사용하는 명령어
+		2. 작성방법
+		
+			CREATE TABLE 테이블명 (
+				컬럼명 자료형 [제약조건],
+				컬럼명 자료형 [제약조건],
+				컬럼명 자료형 [제약조건]
+			);
+			
+		3. 테이블 이릅 생성 규칙
+			- 알파벳, 숫자, 특수문자($,_,#)
+			- 숫자는 앞에 안됨
+			- 예약어 사용 안됨
+			
+		4. 열 이름 생성 규칙
+		
+			- 테이블과 열이름 대소문자 구분 없음, 단어와 단어사이 구분 _ 사용
+		
+		5. 실습1 
+		
+		
+		6. 실습2 - 기본 테이블 열 구조와 데이터를 복사하여 새 테이블 생성하기
+			1) 다른 테이블을 복사하여 테이블 생성하기
+			2) 다른 테이블의 일부를 복사하여 테이블 생성하기
+			3) 다른 테이블의 구조만 복사하여 테이블 생성하기
+
+
+	테이블을 변경하는 ALTER
+		1. 테이블에 열 추가하는 ADD
+			- ALTER 명령어로 HP 열 추가하기
+			  ALTER TABLE 테이블명 ADD 컬럼명 자료형 [제약조건]
+
+				ALTER TABLE EMP_DDL 
+				  ADD (HP VARCHAR2(20), MP VARCHAR2(20));
+
+			  
+		2. 열 이름을 변경하는 RENAME COLUMN 
+				
+			ALTER TABLE EMP_DDL RENAME COLUMN MP TO CP;			  
+				
+		3. 열의 자료형을 변경하는 MODIFY
+		
+			ALTER TABLE EMP_DDL MODIFY EMPNO NUMBER(5) ;
+		
+		4. 특정 열을 삭제할 때 사용하는 DROP
+		
+			ALTER TABLE EMP_DDL DROP COLUMN HP;
+			
+	테이블 이름을 변경하는 RENAME
+		RENAME EMP_DDL TO EMP_DDL2;
+		
+	테이블의 데이터를 삭제하는 TRUNCATE
+	
+		truncate table emp_ddl2;
+		
+	테이블을 삭제하는 DROP
+
+자료형		
+	문자
+		CHAR(길이) : 고정 길이 문자
+		VARCHAR2(길이) : 최대 길이 만큼 가변적인 문자형 / 한줄 텍스트
+		NVARCHAR2(길이)
+		
+		CLOB - Character Large Object : 최대 4GB 여러줄 텍스트
+		
+	숫자
+		NUMBER(전체자리수, 소수점 자리수)
+		
+	날짜
+		DATE
+		
+	기타
+	  BLOB - 최대 4GB 
+	  BFILE
+
+
+객체 종류
+
+데이터베이스를 위한 데이터를 저장한 데이터 사전
+	1. 데이터 사전이란?
+	
+		DICTIONARY 테이블
+		동의어 DICT
+		
+		SELECT * FROM DICTIONARY WHERE TABLE_NAME LIKE '%TABLES';
+		SELECT * FROM DICT;
+		SELECT * FROM USER_TABLES;
+		
+		1) 데이터베이스를 구상하고 운영하는 데 필요한 모든 정보를 저장하는 특수한 테이블
+		2) 데이터베이스가 생성되는 시점에 자동으로 만들어집니다.
+
+	2. 접두어
+		1) USER_XXXX - 현재 데이터베이스에 접속한 사용자가 소유한 객체 정보
+		2) ALL_XXXX -  사용 가능한 모든 객체 정보, 현재 사용자가 접근가능한 모든 정보
+		3) DBA_XXXX - 데이터베이스 관리를 위한 정보(데이터베이스 관리 권한을 가진 SYSTEM, SYS 사용자만 열람 가능)
+		4) V$_XXXX - 데이터베이스 성능 관련 정보(X$_XXXX 테이블의 뷰)
+
+	3. 요약
+		1) 데이터 사전은 오라클 데이터베이스를 구성하고 운영하는 데이터를 저장하는 특수한 테이블로서 오라클 사용자가 직접 접근할 수 없습니다.
+		2) SELECT문으로 데이터를 명령할 수 있도록 데이터 사전 뷰를 제공
+		3) 대표적인 데이터 사전 뷰 중 현재 접속한 사용자가 소유하는 테이블 목록을 보기 위해서는 USER_TABLES를 사용
+		4) 사용자가 소유하는 테이블을 포함해 다른 사용자가 소유한 테이블 중 현재 사용자에게 사용 허가가 되어 있는 테이블을 보기 위해서는 ALL_TABLES를 사용
+
+
+더 빠른 검색을 위한 인덱스
+	1. 인덱스란?
+		1) 색인이라는 뜻의 인덱스(index)
+			- 정렬이 필요한 항목
+		
+		2) 책 내용을 찾는 것과 마찬가지로 오라클 데이터베이스에서 데이터 검색 성능 향상을 위해 테이블 열에 사용하는 객체를 뜻
+		3) 인덱스 사용 여부에 따라 데이터 검색 방식을 Table Full Scan, Index Scan으로 구분합니다.
+			- Table Full Scan : 처음부터 끝까지 검색하여 원하는 데이터를 찾는 방식
+			- Index Scan : 인덱스를 통해 데이터를 찾는 방식
+			
+		4) SCOTT 계정이 소유한 인덱스 정보 알아보기(SCOTT 계정일 때)
+		5) SCOTT 계정이 소유한 인덱스 컬럼 정보 알아보기
+		6) 인덱스는 사용자가 직접 특정 테이블의 열에 지정할 수도 있지만 열이 기본키(primary key) 또는 고유키(unique key)일 경우에 자동으로 생성합니다.
+
+
+인덱스 생성
+	1. 사용법 
+	
+		CREATE INDEX 인덱스명 ON 테이블명(컬럼명 [ASC|DESC], 컬럼명..);
+		
+	2. EMP 테이블의 SAL열에 인덱스를 생성하기
+		CREATE INDEX IDX_EMP_SAL ON EMP (SAL);
+
+	3. 생성된 인덱스 살펴보기(USER_INDEXES, USER_IND_COLUMNS 사용)
+	
+		SELECT * FROM USER_INDEXES;
+		SELECT * FROM USER_IND_COLUMNS;
+
+인덱스 삭제
+	1. 사용법 
+		
+		DROP INDEX IDX_EMP_SAL;
+
+	참고)
+		1) 인덱스 생성이 항상 좋은 결과로 이어지지는 않습니다. 정확한 데이터 분석에 기반을 두지 않는 인덱스의 무분별한 생성은 오히려 성능을 떨어트리는 원인이 되기도 합니다. 
+		2) 인덱스는 데이터 종류, 분포도, 조회하는 SQL의 구성, 데이터 조작 관련 SQL문의 작업 빈도, 검색 결과가 전체 데이터에서 차지하는 비중 등 많은 요소를 고려하여 생성합니다.
+		3) 선택도가 낮을 수록 인덱스 적용이 좋고 선택도가 높을 수록 인덱스는 불리하다
+
+
+테이블처럼 사용하는 뷰
+	1. 뷰란?
+	- 가상테이블(virtual table)로 부르는 뷰(view)는 하나 이상의 테이블을 조회하는 SELECT 문을 저장한 객체를 뜻
+	2. 뷰의 사용 목적(편리성)
+		1) 편리성 : SELECT문의 복잡도를 완화하기 위해
+		2) 보안성 : 테이블의 특정 열을 노출하고 싶지 않을 경우
+
+	3. 뷰 생성
+		
+		CREATE VIEW 뷰이름 AS SELECT 문;
+		
+		1) 권한부여
+			CREATE VIEW
+			SYSTEM 계정
+			GRANT CREATE VIEW TO SCOTT;
+			
+		2) 뷰 생성하기
+			CREATE VIEW vw_emp
+			AS ( SELECT e.empno, e.ename, e.job, e.sal, d.*, g.*
+					FROM emp e LEFT OUTER JOIN DEPT d ON e.deptno = d.deptno
+								LEFT OUTER JOIN SALGRADE g ON e.sal BETWEEN g.losal AND g.hisal
+				)		
+		3) 생성한 뷰 확인하기
+		
+			SELECT * FROM USER_VIEWS ;
+			
+			뷰 변경하기 
+			CREATE OR REPLACE VIEW vw_emp AS (
+				SELECT e.empno, e.ename, e.job, e.sal, d.*, g.*
+					FROM emp e LEFT OUTER JOIN DEPT d ON e.deptno = d.deptno
+								LEFT OUTER JOIN SALGRADE g ON e.sal BETWEEN g.losal AND g.hisal
+			);
+			
+		4) 생성한 뷰 조회하기
+		5) 뷰 삭제
+			DROP VIEW 뷰이름;
+		
+	- 뷰는 실제 데이터가 아닌 데이터가 아닌 SELECT문만 저장하므로 뷰를 삭제해도 테이블이나 데이터가 삭제되는 것은 아닙니다.
+
+
+인라인 뷰를 사용한 TOP-N SQL문
+	1. 인라인 뷰(서브쿼리 사용)
+	2. 인라인 뷰(WITH절 사용
+
+	ROWNUM : 레코드 순번 ( 오라클 only ) 
+	
+	SELECT ROWNUM, e.* FROM EMP e;
+	SELECT ROWNUM, e.* FROM EMP e ORDER BY sal DESC; -- ROWNUM 뒤죽박죽
+	
+	SELECT ROWNUM, e.* FROM ( SELECT * FROM emp ORDER BY sal DESC) e; -- ROWNUM 정돈됨
+	
+	--ROWNUM 이용하여 3개 레코드만 가져오기 
+	SELECT ROWNUM, e.* FROM ( SELECT * FROM emp ORDER BY sal DESC) e WHERE ROWNUM <= 3;
+
+	SELECT ROWNUM, e.* 
+		FROM ( SELECT * FROM emp ORDER BY sal DESC) e 
+	 WHERE ROWNUM >= 3 AND ROWNUM < 10;   --  보다 작은 조건 가능하나 보다 큰 조건은 불가능
+	 
+	-- 범위 검색 가능하려면 이렇게 하기 
+	SELECT * FROM 
+		(SELECT ROWNUM num, e1.* 
+	FROM ( SELECT * FROM emp ORDER BY sal DESC) e1) e 
+	WHERE E.num >= 3 AND e.num < 10;
+	
+	
+
+
+규칙에 따라 순번을 생성하는 시퀀스
+	1. 시퀀스란?
+		1) 오라클 데이터베이스에서 특정 규칙에 맞는 연속 숫자를 생성하는 객체
+
+	2. 시퀀스 생성
+		1) 사용법 
+		2) DEPT 테이블을 사용하여 DEPT_SEQUENCE 테이블 생성하기
+		3) DEPT_SEQUENCE 테이블에 DEPTNO가 10씩 증가할 수 있는 시퀀스 생성
+		4) 시퀀스 생성을 확인
+
+	3. 시퀀스 사용
+		1) [시퀀스 이름.CURRVAL]과 [시퀀스 이름.NEXTVAL]을 사용
+		2) CURRVAL은 시퀀스에서 마지막으로 생성한 번호를 반환
+		3) NEXTVAL는 다음 번호를 생성
+
+
+	4. 시퀀스 수정
+	5. 시퀀스 삭제
+
+
+공식 별칭을 지정하는 동의어
+	1. 동의어란?
+		1) 테이블-뷰-시퀀스 등 객체 이름 대신 사용할 수 있는 다른 이름을 부여하는 객체
+		2) 테이블 이름이 너무 길어 사용이 불편할 때 좀 더 간단하고 짧은 이름을 하나 더 만들어 주기 위해 사용합
+
+	2. 사용법
+	3. 권한 부여하기(SQL*PLUS)
+	4. 동의어 생성
+	5. 동의어 삭제

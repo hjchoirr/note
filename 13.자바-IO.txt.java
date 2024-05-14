@@ -29,8 +29,12 @@ java.io 패키지
 		
 		   생성자 매개변수 : InputStream  ( 보조스트림은 생성자매개변수 InputStream 를 갖는다 )
 		    - FilterInputStream : 보조스트림의 체계를 정리하기 위한 클래스
-			   : BufferedInputStream : 버퍼 기증 추가
-			   : DataInputStream : 기본자료형으로 데이터를 읽을 수 있는 기능 추가
+			
+			   : BufferedInputStream : 버퍼 기능 추가
+			   : DataInputStream : 기본자료형으로 데이터를 읽을 수 있는 기능 추가 
+					- 한가지 자료형으로 사용하는게 좋다
+					- 끝까지 다 읽은 후에 또 읽으면 EOFException 발생
+					
 		    - ObjectInputStream : 객체형태로 변환하여 읽어오는 기능 추가
 			- InputStreamReader : 바이트단위 스트림 -> 문자단위 스트림으로 변환 기능
 		  
@@ -46,9 +50,11 @@ java.io 패키지
 					 생성자 매개변수가 OutputStream
 
 		   - FilterOutputStream
+		   
 			  : BufferedOutputStream : 출력 스트림 + 버퍼기능
 			  : DataOutputStream : 기본자료형으로 쓰기기능 제공
-		 
+					- 한가지 자료형으로 사용하는게 좋다
+					
 		   - ObjectOutputStream : 객체 형태로 데이터를 출력하는 기능 추가
 		   - OutputStreamWriter : 바이트단위 스트림 -> 문자단위 스트림으로 변환 기능
 		 
@@ -331,7 +337,8 @@ java.io 패키지
 
 		
 	참고)
-		데코레이터 패턴
+		데코레이터 패턴 - 보조스트림은 데코레이터 패턴 사용됨
+		AOP(Aspect Oriented Programming) : 관점지향 프로그래밍
 	
 		Class BufferedInputStream extends InputStream {
 			
@@ -345,8 +352,11 @@ java.io 패키지
 			public read() {
 				
 				//버퍼 기능에 대한 코드 .. 추가기능
-				int byte = in.read();
+				
+				int byte = in.read();         // 핵심기능 
+				
 				//버퍼 기능에 대한 코드 .. 추가기능
+				
 				return byte;
 			}
 		}
@@ -431,11 +441,112 @@ java.io 패키지
 		}
 
 		
+	DataInputStream : 기본자료형으로 데이터를 읽을 수 있는 기능 추가 
+					- 한가지 자료형으로 사용하는게 좋다
+					- 끝까지 다 읽은 후에 또 읽으면 EOFException 발생
+	DataOutputStream : 기본자료형으로 쓰기기능 제공
+					- 한가지 자료형으로 사용하는게 좋다
+
+	
+		package exam01;
+		import java.io.DataOutputStream;
+		import java.io.FileOutputStream;
+		import java.io.IOException;
+
+		public class Ex01 {
+			public static void main(String[] args) {
+				try(FileOutputStream fos = new FileOutputStream("test1.txt");
+					DataOutputStream dos = new DataOutputStream(fos)) {
+					dos.writeByte(100);
+					dos.writeChar('A');
+					dos.writeUTF("안녕하세요.");
+
+				}catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		package exam01;
+		import java.io.DataInputStream;
+		import java.io.FileInputStream;
+		import java.io.IOException;
+
+		public class Ex02 {
+			public static void main(String[] args) {
+				try(FileInputStream fis = new FileInputStream("test1.txt");
+					DataInputStream dis = new DataInputStream(fis)) {
+					byte num = dis.readByte();
+					char ch = dis.readChar();
+					String str = dis.readUTF();
+
+					System.out.printf("num=%d ch=%c str=%s%n", num, ch, str);
+				}catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		-------------------------------------------------------------------------
+		package exam01;
+		import javax.xml.crypto.Data;
+		import java.io.DataOutputStream;
+		import java.io.FileOutputStream;
+		import java.io.IOException;
+
+		public class Ex03 {
+			public static void main(String[] args) {
+				int[] scores = { 90,88,65, 100, 78,98 };
+				try(FileOutputStream fos = new FileOutputStream("score.txt");
+					DataOutputStream dos = new DataOutputStream(fos)) {
+					for(int score : scores) {
+						dos.writeInt(score);
+					}
+
+				}catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
+			
+		package exam01;
+		import java.io.DataInputStream;
+		import java.io.EOFException;
+		import java.io.FileInputStream;
+		import java.io.IOException;
+
+		public class Ex04 {
+			public static void main(String[] args) {
+				try(FileInputStream fis = new FileInputStream("score.txt");
+					DataInputStream dis = new DataInputStream(fis)) {
+					int tot = 0;
+					int cnt = 0;
+					try {
+						while (true) {
+							int score = dis.readInt();
+							tot += score;
+							cnt ++;
+						}
+					} catch(EOFException e) { //파일 다 읽은 상태
+						System.out.printf("합계=%d 평균=%.1f%n", tot, tot / (double)cnt );
+					}
+				}catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+			
+	
+		
+		
 
 표준입출력 : 콘솔에 입력, 출력
 	1. System.in : InputStream 
 	2. System.out : PrintStream
 	3. System.err : PrintStream 
+	
+	PrintStream : 문자기반 스트림, 기반 스트림, 버퍼
+	  - print(), printf(), println() 편의 메서드 포함
+	  참고) printWrite
 
 File 
 

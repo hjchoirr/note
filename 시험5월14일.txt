@@ -104,3 +104,37 @@ SELECT D.DEPTNO, D.DNAME,
               LEFT OUTER JOIN EMP E2
                 ON (E.MGR = E2.EMPNO)
 ORDER BY D.DEPTNO, E.EMPNO; 
+
+----------------------------
+SELECT e.empno, e.ename, e.sal, s.grade  
+FROM emp e, salgrade s
+WHERE e.sal BETWEEN s.LOSAL AND s.HISAL AND  
+		e.sal > (SELECT max(sal) FROM emp WHERE job = 'SALESMAN');
+		
+SELECT e.empno, e.ename, e.sal, s.grade  
+FROM emp e, salgrade s
+WHERE e.sal BETWEEN s.LOSAL AND s.HISAL AND  
+		e.sal > ALL  (SELECT sal FROM emp WHERE job = 'SALESMAN');
+
+
+-- 10-3
+UPDATE CHAP10HW_EMP
+   SET DEPTNO = 70
+ WHERE SAL > (SELECT AVG(SAL)
+                FROM CHAP10HW_EMP
+               WHERE DEPTNO = 50);
+
+-- 10-4
+UPDATE CHAP10HW_EMP
+   SET SAL = SAL*1.1,
+       DEPTNO = 80
+ WHERE HIREDATE > (SELECT MIN(HIREDATE)
+                     FROM CHAP10HW_EMP
+                    WHERE DEPTNO = 60);
+
+-- 10-5
+DELETE FROM CHAP10HW_EMP
+ WHERE EMPNO IN (SELECT E.EMPNO
+                   FROM CHAP10HW_EMP E, CHAP10HW_SALGRADE S
+                  WHERE E.SAL BETWEEN S.LOSAL AND S.HISAL
+                    AND S.GRADE = 5);
