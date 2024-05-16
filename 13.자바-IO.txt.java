@@ -215,7 +215,7 @@ java.io 패키지
 					int ch = 0;
 					while ((ch = fr.read()) != -1){
 						System.out.print((char)ch);
-					}
+						}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -535,23 +535,474 @@ java.io 패키지
 			}
 		}
 			
-	
-		
-		
 
 표준입출력 : 콘솔에 입력, 출력
 	1. System.in : InputStream 
-	2. System.out : PrintStream
+	
+		터미널입력, 바이트단위 스트림, 문자단위 스트림으로 변환(InputStreamReader)
+		
+	2. System.out : PrintStream 
+	
+		문자단위 출력 스트림, print(..) , println(..), printf(..) + 버퍼(8kb)
+	
 	3. System.err : PrintStream 
 	
-	PrintStream : 문자기반 스트림, 기반 스트림, 버퍼
-	  - print(), printf(), println() 편의 메서드 포함
-	  참고) printWrite
+		표준에러 스트림, 글자색이 빨간색
+	
+			
+		참고)
+		printWrite : 문자기반 스트림, 기반 스트림, 버퍼  + 버퍼(8kb)
+		- print(), printf(), println() 편의 메서드 포함	
+	  
+			package exam01;
+			public class Ex01 {
+				public static void main(String[] args) {
+					System.err.println("Error!!!");
+				}
+			}
 
+			package exam01;
+			import java.io.IOException;
+			import java.io.PrintStream;
+			
+			public class Ex02 {
+				public static void main(String[] args) throws IOException {
+					PrintStream out = new PrintStream("20240516.log");
+					System.setErr(out);
+
+					String str = null;
+					str.toUpperCase();
+				}
+			}
 File 
 
+	- 파일, 디렉토리를 파일 객체로 생성하여 관리
+	- 파일, 디렉토리에 유용한 기능 ...
+	
+	java.io.file
+	 - fields 중 separator, pathSeperator 
+	 
+		- 윈도우 : \
+		- 유닉스, 맥 : /
+				
+		롼경변수 구분문자 
+		 - 윈도우 ;
+		 - 유닉스(맥) :
+		 
+			ackage exam01;
+			import java.io.File;
 
+			public class Ex03 {
+				public static void main(String[] args) {
+					System.out.println("File.seperator : " + File.separator);
+					System.out.println("File.pathSeperator : " + File.pathSeparator);
+				}
+			}
+			>>
+			File.seperator : \
+			File.pathSeperator : ;
+ 
+		읽기 쓰기 실행 권한
+			boolean canRead()
+			boolean canWrite()
+			boolean canExecute() 
+			
+			void setReadable(..)
+			void setWritable(..)
+			void setExecutable(..)
+			
+			void setReadOnly()
+			
+			getAbsolutePath(); 
+			getCanonicalPath(); //정규화된 파일경로 ( 상대경로 -> 절대경로 )
+			getName()
+			getPath()
+			
+				-----------------------------------------------
+				package exam01;
+				import java.io.File;
+				import java.io.IOException;
+
+				public class Ex04 {
+					public static void main(String[] args) throws IOException {
+						//File file = new File("D:/test1.text");
+						//file.createNewFile();
+						File dir = new File("D:/fstudy");
+						if(!dir.exists()) {
+							dir.mkdir();
+						}
+						File file = new File(dir, "text1.txt");
+						file.createNewFile();
+					}
+				}
+				
+				package exam01;
+				import java.io.File;
+				import java.io.IOException;
+
+				public class Ex05 {
+					public static void main(String[] args) throws IOException {
+						File dir = new File("D:/fstudy/sub1/sub2/sub3");
+						File file = new File(dir, "test1.txt");
+
+						if(!dir.exists()) {
+							dir.mkdirs(); //재귀적으로 폴더들 만들기
+						}
+						file.createNewFile();
+						
+						System.out.println("dir 디렉토리 ? " + dir.isDirectory());
+						System.out.println("dir 파일 ? " + dir.isFile());
+					}
+				}
+				>>
+				dir 디렉토리 ? true
+				dir 파일 ? false
+				------------------------------------------------------------------------------
+				package exam01;
+				import java.io.File;
+				import java.io.IOException;
+
+				public class Ex06 {
+					public static void main(String[] args) throws IOException {
+						File  tmpfile = File.createTempFile("tmp", ".log", new File("D:/fstudy"));
+					}
+				}
+
+				package exam01;
+				import java.io.File;
+				import java.io.IOException;
+
+				public class Ex06 {
+					public static void main(String[] args) throws IOException, InterruptedException {
+						File  tmpfile = File.createTempFile("tmp", ".log", new File("D:/fstudy"));
+						//tmpfile.delete();
+						tmpfile.deleteOnExit();  // 프로그램 끝나면 자동 삭제됨
+						Thread.sleep(5000);
+					}
+				}
+
+				package exam01;
+				import java.io.File;
+				import java.io.IOException;
+				------------------------------------------------------------------------------
+				public class Ex07 {
+					public static void main(String[] args) throws IOException {
+						File file = new File("D:/fstudy/sub1/sub2/sub3/test1.txt");
+						String absPath = file.getAbsolutePath();
+						System.out.println(absPath);
+
+						File file2 = new File("D:/fstudy/sub1/sub2/../sub2/sub3/test1.txt");
+						String absPath2 = file2.getAbsolutePath();
+						System.out.println(absPath2);
+
+						String canonPath = file2.getCanonicalPath();
+						System.out.println(canonPath);
+						
+						System.out.println("getName() : " + file.getName());
+						System.out.println("getPath() : " + file.getPath());						
+					}
+				}
+				>>
+				D:\fstudy\sub1\sub2\sub3\test1.txt
+				D:\fstudy\sub1\sub2\..\sub2\sub3\test1.txt
+				D:\fstudy\sub1\sub2\sub3\test1.txt
+				getName() : test1.txt
+				getPath() : D:\fstudy\sub1\sub2\sub3\test1.txt
+				
 직렬화(Serialization)
+
 	- 객체에 저장된 데이터를 스트림에 쓰기(write)위해 연속적인(serial) 데이터로 변환하는 것을 말한다.
+	- 직렬화 -> 데이터 노출 -> 위험한 작업 -> 의사표현 (Serializable 인터페이스 추가 -> 진행하겠음을 표현)
+	   Serializable : 마커인터페이스 
+	   
+	- Serialization 인터페이스 구현
+	 -> 변환값 : 다시 객체로 복구할때 필요한 항목만 직렬화
+	     -> 객체마다 변경할 수 있는 
+	
 	1. ObjectInputStream
+		: 객체 형태로 읽어오는 것
+		
 	2. ObjectOutputStream
+		: 객체 형태로 저장
+		
+		-------------------------------------------------------------
+		package exam01;
+		public class Book  {
+			private int isbn;
+			private String tile;
+			private String author;
+
+			public Book(int isbn, String tile, String author) {
+				this.isbn = isbn;
+				this.tile = tile;
+				this.author = author;
+			}
+
+			@Override
+			public String toString() {
+				return "Book{" +
+						"isbn=" + isbn +
+						", tile='" + tile + '\'' +
+						", author='" + author + '\'' +
+						'}';
+			}
+		}
+
+		package exam01;
+		import java.io.FileOutputStream;
+		import java.io.IOException;
+		import java.io.ObjectOutputStream;
+
+		public class Ex08 {
+			public static void main(String[] args) {
+				try(FileOutputStream fos = new FileOutputStream("Book.txt");
+					ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+					Book book1 = new Book(1000, "책1","저자1");
+					oos.writeObject(book1);
+					
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		>> 에러남
+		java.io.NotSerializableException: exam01.Book
+			at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1197)
+			at java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:354)
+			at exam01.Ex08.main(Ex08.java:13)
+
+
+		-----Serializable 인터페이스 상속받으면 에러 안남  -> 직렬화--------------------
+		package exam01;
+
+		import java.io.Serializable;
+
+		public class Book implements Serializable {   // Serializable : 마커 인터페이스
+			private int isbn;
+			private String tile;
+			private String author;
+
+			public Book(int isbn, String tile, String author) {
+				this.isbn = isbn;
+				this.tile = tile;
+				this.author = author;
+			}
+
+			@Override
+			public String toString() {
+				return "Book{" +
+						"isbn=" + isbn +
+						", tile='" + tile + '\'' +
+						", author='" + author + '\'' +
+						'}';
+			}
+		}
+		-----------------------------------------------------------------------
+		package exam01;
+		import java.io.FileInputStream;
+		import java.io.IOException;
+		import java.io.ObjectInputStream;
+
+		public class Ex09 {
+			public static void main(String[] args) {
+				try(FileInputStream fis = new FileInputStream("book.txt");
+					ObjectInputStream ois = new ObjectInputStream(fis)) {
+
+					Book book1 = (Book)ois.readObject();
+
+					System.out.println(book1.toString());
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
+		>>
+		Book{isbn=1000, tile='책1', author='저자1'}
+
+		---------------------------------------------------------
+		package exam01;
+		import java.io.FileOutputStream;
+		import java.io.IOException;
+		import java.io.ObjectOutputStream;
+
+		public class Ex08 {
+			public static void main(String[] args) {
+				try(FileOutputStream fos = new FileOutputStream("Book.txt");
+					ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+					Book book1 = new Book(1000, "책1","저자1");
+					Book book2 = new Book(1001, "책2", "저자2");
+					oos.writeObject(book1);
+					oos.writeObject(book2);
+					oos.writeObject("안녕하세요.");
+
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		package exam01;
+		import java.io.FileInputStream;
+		import java.io.IOException;
+		import java.io.ObjectInputStream;
+
+		public class Ex09 {
+			public static void main(String[] args) {
+				try(FileInputStream fis = new FileInputStream("book.txt");
+					ObjectInputStream ois = new ObjectInputStream(fis)) {
+
+					Book book1 = (Book)ois.readObject();
+					System.out.println(book1.toString());
+
+					Book book2 = (Book)ois.readObject();
+					System.out.println(book2.toString());
+
+					String str = (String)ois.readObject();
+					System.out.println(str);
+
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
+		Book{isbn=1000, title='책1', author='저자1'}
+		Book{isbn=1001, title='책2', author='저자2'}
+		안녕하세요.
+		----------------------------------
+		package exam01;
+		import java.io.FileOutputStream;
+		import java.io.IOException;
+		import java.io.ObjectOutputStream;
+		import java.util.Arrays;
+		import java.util.HashMap;
+		import java.util.List;
+
+		public class Ex10 {
+			public static void main(String[] args) {
+				try(FileOutputStream fos = new FileOutputStream("data.obj");
+					ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+					HashMap<String, Object> data = new HashMap<>();
+					Book book1 = new Book(1000,"책1", "저자1");
+					Book book2 = new Book(1001, "책2", "저자2");
+
+					List<Book> books = Arrays.asList( 
+							new Book(1002, "저자2","저자3"),
+							new Book(1003, "저자4","저자4"),
+							new Book(1004, "저자5","저자5")
+					);
+					data.put("book1", book1);
+					data.put("book2", book2);
+					data.put("books", books);
+					data.put("str", "안녕하세요.");
+					
+					oos.writeObject(data);
+				}catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		package exam01;
+		import java.io.FileInputStream;
+		import java.io.IOException;
+		import java.io.ObjectInputStream;
+		import java.util.HashMap;
+		import java.util.List;
+
+		public class Ex11 {
+			public static void main(String[] args) {
+				try(FileInputStream fis = new FileInputStream("data.obj");
+					ObjectInputStream ois = new ObjectInputStream(fis)) {
+					HashMap<String, Object> data = (HashMap<String, Object>) ois.readObject();
+
+					List<Book> books = (List<Book>) data.get("books");
+					String str = (String)data.get("str");
+					Book book1 = (Book)data.get("book1");
+					Book book2 = (Book)data.get("book2");
+
+					books.forEach(System.out::println);
+					System.out.println(str);
+					System.out.println(book1);
+					System.out.println(book2);
+
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		>>
+		Book{isbn=1002, title='저자2', author='저자3'}
+		Book{isbn=1003, title='저자4', author='저자4'}
+		Book{isbn=1004, title='저자5', author='저자5'}
+		안녕하세요.
+		Book{isbn=1000, title='책1', author='저자1'}
+		Book{isbn=1001, title='책2', author='저자2'}
+
+
+참고)
+Book class에서 transient 키워드 사용하면 직렬화에서 배제 됨
+private transient String author;  // transient :직렬화 배제
+
+
+
+쓰레드
+
+프로세스와 쓰레드
+	1. 개념 
+		1) 실행 중인 프로그램(program)
+		2) 프로그램을 수행하는 데 필요한 데이터와 메모리등의 자원 그리고 쓰레드로 구성
+		3) 프로세스의 자원을 이용해서 실제로 작업을 수행하는 것이 쓰레드이다
+		4) 모든 프로세스에는 최소한 하나 이상의 쓰레드가 존재하며, 둘 이상의 쓰레드를 가진 프로세스를 멀티쓰레드 프로세스(multi-threaded process)라고 한다.
+		5) 프로세스의 메모리 한계에 따라 생성할 수 있는 쓰레드의 수가 결정
+		
+	2. 멀티쓰레딩
+		- 하나의 프로세스내에서 여러 쓰레드가 동시에 작업을 수행하는 것
+
+	3. 멀티쓰테딩의 장점
+		1) CPU의 사용률을 향상시킨다.
+		2) 자원을 보다 효율적으로 사용할 수 있다.
+		3) 사용자에 대한 응답성이 향상된다.
+		4) 작업이 분리되어 코드가 간결해진다.
+
+	4. 멀티쓰레딩의 단점
+	여러 쓰레드가 같은 프로세스 내에서 자원을 공유하면서 작업을 하기 때문에 발생할 수 있는 동기화(synchronization), 교착상태(deadlock)와 같은 문제를 고려해서 신중하게 프로그래밍해야 한다.
+
+
+쓰레드의 구현과 실행
+	1. Thread클래스를 상속받는 방법과 Runnable인터페이스를 구현하는 방법
+	2. Thread클래스를 상속받으면 다른 클래스를 상속받을 수 없기 때문에 Runnable 인터페이스를 구현하는 방법이 일반적
+	3. 쓰레드의 실행 - start()
+		1) start()와 run()
+		2) 실행중인 사용자 쓰레드가 하나도 없을 때 프로그램은 종료된다.
+
+
+싱글쓰레드와 멀티쓰레드
+	1. 하나의 쓰레드로 두 작업을 처리하는 경우 한 작업을 마친 후에 다른 작업을 시작한다.
+	2. 두 개의 쓰레드로 작업하는 경우에는 짧은 시간동안 2개의 쓰레드가 번갈아 가면서 작업을 수행해서 동시에 두 작업이 처리되는 것과 같이 느끼게 한다.
+	3. 하나의 쓰레드로 두개의 작업을 수행한 시간과 두개의 쓰레드로 두 개의 작업을 수행한 시간은 거의 같다.
+	4. 오히려 두 개의 쓰레드로 작업한 시안이 싱글쓰레드로 작업한 시간보다 더 걸리게 되는데, 쓰레드간의 작업 전환(context switching)에 시간이 걸리기 때문이다.
+
+쓰레드의 우선순위
+	1. 쓰레드 우선순위 지정하기
+
+쓰레드 그룹(thread group)
+
+데몬 쓰레드(daemon thread)
+
+쓰레드의 실행제어
+	1. 쓰레드와 스케줄링과 관련된 메서드
+	2. 쓰레드의 상태
+	3. sleep(long millis)
+	4. interrupt()와 interrupted()
+	5. suspend(), resume(), stop()
+	6. yield()
+	7. join() 
+
+쓰레드의 동기화
+1. synchronized를 이용한 동기화
+	1) 메서드 전체를 임계영역으로 지정
+	2) 특정한 영역을 임계 영역으로 지정
+
+2. volatile
