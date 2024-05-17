@@ -227,5 +227,392 @@
 		1. 테이블을 생성할 때 DEFAULT 제약 조건 설정하기
 		2. DEFAULT로 지정한 기본 값이 입력되는 INSERT문 확인하기
 
-
+		(참고) DEFAULT 
 	제약 조건 비활성화, 활성화	
+		
+		CREATE TABLE MEMBER (
+			USER_NO NUMBER(10) PRIMARY KEY,
+			USER_ID VARCHAR2(30) UNIQUE NOT NULL,
+			USER_PW VARCHAR2(65) NOT NULL,
+			USER_NM VARCHAR2(40) NOT NULL,
+			AGE NUMBER(3) CONSTRAINT MEM_AGE_CK CHECK(AGE >= 14),
+			REG_DT DATE DEFAULT SYSDATE
+		);
+
+		ALTER TABLE MEMBER DISABLE CONSTRAINT MEM_AGE_CK;
+		ALTER TABLE MEMBER ENABLE CONSTRAINT MEM_AGE_CK;
+
+		CREATE SEQUENCE SEQ_MEMBER;
+
+		INSERT INTO MEMBER (USER_NO, USER_ID, USER_PW, USER_NM, AGE)
+			VALUES (SEQ_MEMBER.NEXTVAL, 'USER03', '1234', '사용자03', 13);
+
+		UPDATE MEMBER SET AGE = 15 WHERE USER_ID = 'USER02';	
+
+
+사용자, 권한, 롤 관리
+
+사용자 관리
+	1. 사용자란?
+		- 데이터베이스에 접속하여 데이터를 관리하는 계정
+
+	2. 데이터베이스 스키마란?
+		1) 데이터베이스에서 데이터 간 관계, 데이터 구조, 제약 조건 등 데이터를 저장 및 관리하기 위해 정의한 데이터베이스 구조의 범위
+		2) 오라클 데이터베이스에서는 스키마와 사용자를 구분하지 않고 사용하기도 합니다.
+		3) 사용자 : 데이터를 사용 및 관리하기 위해 오라클 데이터베이스에 접속하는 개체를 뜻
+		4) 스키마 : 오라클 데이터베이스에 접속한 사용자와 연결된 객체
+
+
+	3. 사용자 생성
+		 - 새로 생성한 사용자에 접속권한 부여해야 함 - GRANT / REVOKE
+			GRANT 권한 TO 사용자;
+			
+				SYSTEM 계정에서
+				SQL> create user DBSTUDY identified by oracle ;  -- 오라클 DBSTUDY 계정 추가
+				
+				SQL> conn DBSTUDY/oracle
+				ERROR:
+				ORA-01045: user DBSTUDY lacks CREATE SESSION privilege; logon denied
+				
+				SQL> grant create session to DBSTUDY; -- DBSTUDY 사용자에 세션 생성 권한 부여
+				Grant succeeded.
+
+				SQL> conn DBSTUDY/oracle
+				Connected.
+				
+				SQL> alter user DBSTUDY identified by oracle123; -- DBSTUDY 사용자 암호 변경
+				User altered.
+				
+				SQL> alter user DBSTUDY password expire;  -- DBSTUDY 사용자 암호 변경 강제화
+				User altered	
+				SQL> conn DBSTUDY/oracle123
+				ERROR:
+				ORA-28001: the password has expired
+				Changing password for DBSTUDY
+				New password:
+				Retype new password:
+				Password changed
+				Connected.
+				SQL>
+				
+				SQL> alter user DBSTUDY account lock;   -- DBSTUDY 사용자 잠그기
+				User altered. 
+				SQL> conn DBSTUDY/oracle
+				ERROR:
+				ORA-28000: the account is locked
+				Warning: You are no longer connected to ORACLE.
+				SQL> conn SYSTEM/oracle
+				Connected.
+				SQL> alter user DBSTUDY account unlock;   -- DBSTUDY 사용자 잠금 풀기
+
+				User altered.			
+
+
+	4. 사용자 정보 조회
+	5. 오라클 사용자의 변경과 삭제
+
+		SYSTEM 계정에서 drop user DBSTUDY CASCADE;   -- DBSTUDY 사용자와 사용자의 스키마 삭제
+
+권한 관리하기
+
+	1. 시스템 권한 
+		1) 사용자 생성과 정보 수정 및 삭제, 데이터베이스의 접근, 오라클 데이터베이스의 여러 자원과 객체 생성 및 관리 등의 권한을 포함
+		2) 데이터베이스의 관리 권한이 있는 사용자가 부여할 수 있는 권한
+		3) 소유자 ANY 키워드가 들어 있는 권한은 소유자에 상관없이 사용 가능한 권한
+
+	2. USER(사용자)
+		1) CREATE USER
+		2) ALTER USER 
+		3) DROP USER 
+
+	3. SESSION(사용자)
+		1) CREATE SESSION
+		2) ALTER SESSION
+
+	4. TABLE(테이블)
+		1) CREATE TABLE
+
+	5. INDEX(인덱스)
+	6. VIEW(뷰)
+	7. SEQUENCE(시퀀스)
+	8. SYNONYM(동의어)
+	9. PROFILE(프로파일)
+	10. ROLE(롤)
+
+	6. 시스텀 권한 부여
+	
+		GRANT 시스템권한(시스템롤) .. TO 사용자;
+		GRANT 시스템권한(시스템롤) .. TO 사용자 WITH ADMIN OPTION;
+		
+		: WITH ADMIN OPTION -> 사용자가 가지고 있는 권한을 다른 사용자에게 부여할 수 있도록
+		
+			SQL> conn SYSTEM/oracle
+			Connected.
+			SQL> grant create table to DBSTUDY ;
+			Grant succeeded.
+			
+			-- DBSTUDY에게 권한 부여하고, 권한 부여 권한도 함께 부여함
+			SQL> grant create session, create table, create user, alter user, drop user to DBSTUDY WITH ADMIN OPTION; 
+			Grant succeeded.
+		
+	7. 시스템 권한 취소
+		SQL> revoke create session, create table from DBSTUDY2;
+		
+		
+
+	객체 권한
+
+	1) 특정 사용자가 생성한 테이블,인덱스,뷰,시퀀스 등과 관련된 권한
+
+	1. 객체 권한 분류
+		1) TABLE(테이블)
+			ALTER, DELETE, INDEX, INSERT, REFERENCES, SELECT, UPDATE
+			
+		2) VIEW(뷰)
+		3) SEQUENCE(시퀀스)
+		4) PROCEDURE(프로시저)
+		5) FUNCTION(함수)
+		6) PACKAGE(패키지)
+
+	2. 객체 권한 부여
+	
+		- DML 관련 권한 : insert, update, delete, select 권한
+		grant [객체권한|ALL PRIVILEGES] on 스키마.객체이름 to [사용자|role|public] - 
+		grant [객체권한|ALL PRIVILEGES] on 스키마.객체이름 to [사용자|role|public] - with grant option 
+		
+		ALL PRIVILEGES : 모든 권한
+		
+		-- SYSTEM계정에서 :  DBSTUDY2 에게 SCOTT.EMP 테이블에 select 권한 부여, 권한 부여권한도 부여
+		SQL> grant select on SCOTT.EMP to DBSTUDY2 with grant option; 
+
+		-- DBSTUDY2 에서 DBSTUDY3에게 다시 권한 부여 가능
+		SQL> show user
+		USER is "DBSTUDY2"
+		SQL> select * from SCOTT.EMP;
+		SQL> grant select on SCOTT.EMP to DBSTUDY3;
+		Grant succeeded.
+		SQL> grant update on SCOTT.EMP to DBSTUDY3;
+		grant update on SCOTT.EMP to DBSTUDY3
+		ERROR at line 1:
+		ORA-01031: insufficient privileges		
+		
+		
+	3. 객체 권한 취소
+		SQL> revoke select on  SCOTT.EMP from DBSTUDY3;
+
+
+	롤 관리
+	1. 롤이란?
+		1) 여러 종류의 권한을 묶어 놓은 그룹
+		2) 오라클 데이터베이스를 설치할 때 기본으로 제공되는 사전 정의된 롤(predefined roles)과 사용자 정의 롤(user roles)로 나뉩니다.
+
+		CREATE ROLE 롤이름;
+		GRANT 시스템권한,.. TO 롤;
+		
+		SQL> show user
+		USER is "SYSTEM"
+		SQL> create role ROLE1;  -- ROLE1 이란 롤 만들기
+		Role created.
+		SQL> grant create session, create table, create sequence, create view to ROLE1; --ROLE1 에 권한들 추가
+		Grant succeeded.		
+		SQL> create user DBSTUDY3 identified by oracle;  -- DBSTUDY3 유저생성
+		User created.
+		SQL> grant ROLE1 to DBSTUDY3;  -- DBSTUDY3 에게 ROLE1 역할 부여
+		Grant succeeded.		
+		
+	2. 사전 정의된 롤
+		1) CONNECT롤 
+		2) RESOURCE 롤
+		3) 보통 새로운 사용자를 생성하면 CONNECT롤과 RESOURCE롤을 부여하는 경우가 많습니다
+		
+		SQL> create user DBSTUDY4 identified by oracle;
+		User created.
+		SQL> grant connect, resource to DBSTUDY4; -- 새로 만든 사용자 DBSTUDY4 에게 connect와 resource 역할 부여
+		Grant succeeded.		
+		
+
+	3. 사용자 정의 롤
+		1) 롤 생성
+		2) 부여된 롤과 권환 확인 
+		- USER_SYS_PRIVS;
+		- USER_ROLE_PRIVS;
+
+		3) 롤 취소
+			REVOKE ROL1 from DBSTUDY3;
+		3) 롤 삭제	
+			DROP role ROLE1;
+
+
+PL/SQL 기초
+	- Oracle Procedual Language extension to SQL
+
+	PL/SQL 구조
+		1. 블록이란?
+
+		데이터베이스 관련 특정 작업을 수행하는 명령어와 실행에 필요한 여러 요소를 정의하는 명령어 등으로 구성되며, 이러한 명령어를 모아 둔 PL/SQL 프로그램의 기본 단위
+
+	2. 기본 형식
+
+		DECLARE
+			[실행에 필요한 여러 요소 선언];  -- 변수, 상수, 커서
+		BEGIN
+			[작업을 위해 실제 실행하는 명령어];
+		EXCEPTION
+			[PL/SQL 수행 도중 발생하는 오류 처리];
+		END; 
+
+	3. Hello, PL/SQL 출력하기
+	
+		DECLARE 
+			GREETING VARCHAR2(30);
+		BEGIN
+			GREETING := 'Hello, PL/SQL!'; 	
+			DBMS_OUTPUT.PUT_LINE(GREETING);
+		END;	
+		
+		
+	4. PL/SQL 주석
+		--
+		/* */
+
+	변수와 상수
+	1. 변수 선언과 사용
+	1) 변수이름 자료형 := 값 또는 값이 도출되는 표현식 
+	2) 변수 선언 및 변수 값 출력하기
+
+	2. 상수 정의하기
+	1) 변수이름 CONSTANT 자료형 := 값 또는 값이 도출되는 표현식 
+	2) 상수에 값을 대입한 후 출력하기
+
+	3. 변수의 기본값 지정하기 
+	1) 변수이름 자료형 DEFAULT := 값 또는 값이 도출되는 표현식
+	2) 변수에 기본값을 설정한 후 출력하기
+
+
+	4. 변수에 NULL 값 저장 막기
+	1) 변수이름 자료형 NOT NULL := 값 또는 값이 도출되는 표현식
+	2) 변수에 NOT NULL을 설정하고 값을 대입한 수 출력하기
+
+	5. 변수 이름 정하기
+
+	변수의 자료형
+	
+	1. 스칼라 : 단일값 
+		1) 숫자 NUMBER 
+		2) 문자열 CHAAR, VARCHAR2 
+		3) 날짜 DATE 
+		4) 논리 데이터 BOOLEAN : true, false, NULL
+			-----------------------------------------------------
+			DECLARE
+				EMPNO NUMBER(4) NOT NULL := 1;
+				-- EMPNO NUMBER(4) NOT NULL DEFAULT 1;  -- 윗줄과 같음
+				ENAME VARCHAR2(10);
+			BEGIN
+				EMPNO := 1000;
+				ENAME := '이이름';
+				DBMS_OUTPUT.PUT_LINE(EMPNO || ' : ' || ENAME);
+			END;
+			-----------------------------------------------------
+
+	2. 참조형
+		1) %TYPE : 열을 참조 ( 특정 테이블의 컬럼(1개)의 자료형을 참조 )
+		2) %ROWTYPE : 행을 참조 ( 특정 테이블의 보든 컬럼들을 참조 )
+		3) 변수 이름 테이블이름.열이름%TYPE
+		4) 참조형(열)의 변수에 값을 대입한 후 출력하기
+
+		5) 특정 테이블에서 하나의 열이 아닌 행 구조 전체를 참조할 때 %ROWTYPE을 사용
+		6) 변수이름 테이블이름%ROWTYPE
+		7) 참조형(행)의 변수에 값을 대입한 후 출력하기
+			-----------------------------------------------------
+			DECLARE
+				EMPNO EMP.EMPNO%TYPE;
+				ENAME EMP.ENAME%TYPE;
+			BEGIN
+				EMPNO := 1000;
+				ENAME := '이이름';
+				DBMS_OUTPUT.PUT_LINE(EMPNO || ' : ' || ENAME);
+			END;
+
+			-----------------------------------------------------
+			DECLARE
+				EMP_ROW EMP%ROWTYPE;
+			BEGIN
+				EMP_ROW.EMPNO := 1000;
+				EMP_ROW.ENAME := '이이읆';
+				EMP_ROW.JOB := 'CLERK';
+				EMP_ROW.DEPTNO := 40;
+
+				DBMS_OUTPUT.PUT_LINE('EMPNO : ' || EMP_ROW.EMPNO);
+				DBMS_OUTPUT.PUT_LINE('ENAME : ' || EMP_ROW.ENAME);
+				DBMS_OUTPUT.PUT_LINE('JOB : ' || EMP_ROW.JOB);
+				DBMS_OUTPUT.PUT_LINE('DEPTNO : ' || EMP_ROW.DEPTNO);
+			END;
+			-----------------------------------------------------
+			DECLARE
+				EMP_ROW EMP%ROWTYPE;
+			BEGIN
+				SELECT * INTO EMP_ROW
+				FROM EMP WHERE ENAME = 'SCOTT';
+				
+				DBMS_OUTPUT.PUT_LINE('EMPNO : ' || EMP_ROW.EMPNO);
+				DBMS_OUTPUT.PUT_LINE('ENAME : ' || EMP_ROW.ENAME);
+				DBMS_OUTPUT.PUT_LINE('JOB : ' || EMP_ROW.JOB);
+				DBMS_OUTPUT.PUT_LINE('DEPTNO : ' || EMP_ROW.DEPTNO);
+			END;
+			>>
+			EMPNO : 7788
+			ENAME : SCOTT
+			JOB : ANALYST
+			DEPTNO : 20			
+			------------------------------------------------------
+			DECLARE
+				V_NUM CONSTANT NUMBER := 1000;
+			BEGIN
+				--V_NUM := 2000; -- 에러: 상수인데 변경 못함
+				DBMS_OUTPUT.PUT_LINE(V_NUM);
+			END;
+			------------------------------------------------------
+			
+	3. 복합형, LOB형
+		1) 컬렉션, TABLE 자료형 : 한 가지 자료형의 데이터를 여러 개 저장(테이블의 열과 유사) : 키-값 
+		2) 레코드, RECORD 자료형 : 여러 종류 자료형의 데이터를 저장(테이블의 행과 유사) 
+		3) BLOB, CLOB : Large OBJECT
+
+	조건 제어문
+	1. 조건문
+	1) IF-THEN
+	- 변수에 입력한 값이 홀수인지 알아보기(입력 값이 홀수일 때)
+
+	2) IF-THEN-ELSE
+	- 변수에 입력된 값이 홀수인지 짝수인지 알아보기(입력 값이 짝수일 때)
+
+	3) IF-THEN-ELSIF
+	- 입력한 점수가 어느 학점인지 출력하기
+
+
+
+	2. CASE 조건문
+	1) 단순 CASE
+	- 입력 점수에 따른 학점 출력하기(단순 CASE 사용)
+
+	2) 검색 CASE
+	- 입력 점수에 따른 학점 출력하기(검색 CASE 사용)
+
+	반복 제어문
+
+	1. 반복문 종류 
+	1) 기본 LOOP
+	2) WHILE LOOP
+	3) FOR LOOP
+	4) Cursor For LOOP
+
+	2. 반복 중단 명령어 종류
+	1) EXIT
+	2) EXIT-WHEN
+	3) CONTINUE
+	4) CONTINUE-WHEN
+
+	3. 기본 LOOP
+	4. WHILE LOOP
+	5. FOR LOOP
+	6. CONTINUE문, CONTINUE-WHEN문		

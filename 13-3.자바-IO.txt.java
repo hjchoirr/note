@@ -709,9 +709,9 @@ File
 				getName() : test1.txt
 				getPath() : D:\fstudy\sub1\sub2\sub3\test1.txt
 				
-직렬화(Serialization)
+직렬화(Serialization) 객체의 데이터를 외부로 보내기 위해 주로 사용함
 
-	- 객체에 저장된 데이터를 스트림에 쓰기(write)위해 연속적인(serial) 데이터로 변환하는 것을 말한다.
+	- 객체에 저장된 데이터를 스트림(파일등:FileOutputStream)에 쓰기(write)위해 연속적인(serial) 데이터로 변환하는 것을 말한다.
 	- 직렬화 -> 데이터 노출 -> 위험한 작업 -> 의사표현 (Serializable 인터페이스 추가 -> 진행하겠음을 표현)
 	   Serializable : 마커인터페이스 
 	   
@@ -719,11 +719,12 @@ File
 	 -> 변환값 : 다시 객체로 복구할때 필요한 항목만 직렬화
 	     -> 객체마다 변경할 수 있는 
 	
-	1. ObjectInputStream
-		: 객체 형태로 읽어오는 것
+	1. ObjectInputStream 
+		: 객체 형태로 읽어오는 것 (* serialVersionUID : 버전이 같아야 복구 가능함, 바뀌면 호환성에 문제 발생함)
 		
-	2. ObjectOutputStream
+	2. ObjectOutputStream 
 		: 객체 형태로 저장
+		
 		
 		-------------------------------------------------------------
 		package exam01;
@@ -941,13 +942,18 @@ File
 		Book{isbn=1001, title='책2', author='저자2'}
 
 
-참고)
-Book class에서 transient 키워드 사용하면 직렬화에서 배제 됨
-private transient String author;  // transient :직렬화 배제
+참고) transient 와 serialVersionUID 
 
+	위 예제 Book class에서 transient 키워드 사용하면 직렬화에서 배제 됨
+	private transient String author;  // transient :직렬화 배제
 
+	Book Class에 serialVersionUID 추가하여 class incompatible 체크할 수 있다
+	private static final long serialVersionUID = 2L;
 
 쓰레드
+
+	쓰레드 : 작업 메서드 + 호출 스택   (작업대) 
+	쓰레드들 중에서 메인쓰레드 : Main 메서드 + Main 호출 스택
 
 프로세스와 쓰레드
 	1. 개념 

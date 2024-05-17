@@ -7,6 +7,38 @@ SELECT * FROM USER_CONSTRAINTS WHERE TABLE_NAME IN ('EMP', 'DEPT') ;
 USER_CONSTRAINTS 찾아보기
 
 
+2. 사전 정의된 롤
+	1) CONNECT롤 
+	2) RESOURCE 롤
+	3) 보통 새로운 사용자를 생성하면 CONNECT롤과 RESOURCE롤을 부여하는 경우가 많습니다
+	
+	SQL> create user DBSTUDY4 identified by oracle;
+	User created.
+	SQL> grant connect, resource to DBSTUDY4; -- 새로 만든 사용자 DBSTUDY4 에게 connect와 resource 역할 부여
+	Grant succeeded.		
+
+
+PL/SQL 구조
+1. 블록이란?
+
+
+스칼라
+참조형
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 5/23 부터 포트폴리오 만드는 기간
 
 5/23 - 24 필요한거 강의
