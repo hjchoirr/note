@@ -176,3 +176,32 @@ CREATE TABLE emp_const (
 	deptno number(2),
 	CONSTRAINT empconst_deptno_fk FOREIGN KEY (NUMBER) REFERENCES dept_const(deptno) 
 );
+
+
+
+
+
+P416
+Q1.
+create user PREV_HW identified by ORCL ;
+grant create session to PREV_HW;
+
+*****
+grant select on SCOTT.EMP to DBSTUDY2 with grant option; 
+
+
+
+
+
+P444 Q1
+
+BEGIN 
+	FOR i IN 1..9 LOOP
+		IF mod(i,2) = 1 THEN
+			dbms_output.put_line('현재 i의 값 : ' || i);
+		END IF;
+	END LOOP;
+	
+END;
+
+
