@@ -902,7 +902,7 @@ SQL문 속 또 다른 SQL문, 서브 쿼리
 
 	3. 뷰 생성
 		
-		CREATE VIEW 뷰이름 AS SELECT 문;
+CREATE VIEW 뷰이름 AS SELECT 문;
 		
 		1) 권한부여
 			CREATE VIEW
