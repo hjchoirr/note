@@ -1,0 +1,251 @@
+maven
+- 빌드, 의존성(필요한 라이브러리 jar(Java Archive))관리, 배포, 테스트 툴 
+
+1. 설치
+ - apache maven 검색
+	Binary zip archive 
+	apache-maven-3.9.6-bin.zip 다운로드, 압축해제, 위치이동
+	환경변수 - 시스템변수 path에 추가 : D:\hjchoi\apache-maven-3.9.6\bin
+	확인 - 
+		C:\Users\admin>mvn -v
+		Apache Maven 3.9.6 (bc0240f3c744dd6b6ec2920b3cd08dcc295161ae)
+		Maven home: D:\hjchoi\apache-maven-3.9.6
+		Java version: 17.0.10, vendor: Oracle Corporation, runtime: C:\Program Files\Java\jdk-17
+		Default locale: ko_KR, platform encoding: MS949
+		OS name: "windows 11", version: "10.0", arch: "amd64", family: "windows"	
+	D:\
+	cd \hjchoi\7.SQL응용
+	D:\hjchoi\7.SQL응용>mvn archetype:generate           <--- 프로젝트 생성
+	
+	Define value for property 'groupId': org.choongang
+	Define value for property 'artifactId': exam01
+	Define value for property 'version' 1.0-SNAPSHOT: : 그냥앤터
+	Define value for property 'package' org.choongang: : 그냥앤터
+	Confirm properties configuration: ...... Y :  Y
+	
+2. 사용 
+1) maven 프로젝트 생성 
+	mvn archetype:generate
+		groupId : 소속된 그룹(도메인 방식)
+						예) org.project
+		artifactId : 프로젝트 구분 명칭 
+
+		프로젝트 디렉토리 구조 
+			클래스패스 : 클래스 파일을 인식할 수 있는 경로 
+			 
+			src/main/java : 작성하는 자바코드(.java)
+			src/main/resources : 정적 자원 
+											- 설정 파일(xml, properties)
+											- css, js, 이미지
+											
+			src/test/java : 테스트 자바 코드(.java)
+			src/test/resources : 테스트시 필요 정적 자원
+			
+		pom.xml : maven 설정 파일  ( pom : Project Object Manager ) (참고) node : package.json 처럼
+			<properties>
+				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> : 소스 인코딩 ***
+				<maven.compiler.source>17</maven.compiler.source> : 소스 컴파일 자바 버전 ***
+				<maven.compiler.target>17</maven.compiler.target> : 배포 파일(jar) 생성시 자바 버전 ***
+			  </properties>
+			  
+			   - 의존성 설정
+			  <dependencies>
+			  
+			  </dependencies>	
+
+					  <dependencies>
+						  <dependency>
+						  <groupId>junit</groupId>
+						  <artifactId>junit</artifactId>
+						  <version>4.11</version>
+						  <scope>test</scope>  <!--  -->
+						</dependency>
+					  </dependencies>
+
+				 사용자명/.m2  -> 메이븐 레포지토리 (공유)
+				 
+				 scope
+					- compile (기본값) : 빌드시 포함, 배포시 포함 
+					- runtime : 빌드시 포함 X, 실행할때는 필요한 라이브러리 ( 동적로딩 -> Class.forName(..) )
+					- provided : 개발시에만 필요, 빌드 및 배포시에는 미포함 -> 플랫폼 내에서 제공되는 라이브러리
+								예) servlet-api, servlet.jsp-api 
+					- test  : 테스트 시에만 필요한 라이브러리
+			
+		mvn compile  : java 파일 -> class 컴파일 (target 폴더)
+		
+		mvn clean : 컴파일 소스 전체 지우기(target 폴더 삭제)
+		
+			예) 기존 컴파일 소스 삭제 후 다시 컴파일 
+				mvn clean compile
+				
+		mvn test : 테스트 케이스를 실행(전체)
+		
+		mvn package : 배포 파일 생성(jar)
+				compile -> test -> package(jar)
+					-> 테스트 미통과시 배포 X
+				
+				mvn) 기존 컴파일 소스 삭제 후 배포 실행 
+					mvn clean package
+					
+				(참고)	
+					jar 파일 실행
+						- java -jar 파일명.jar
+					
+		CTRL + SHIFT + B
+		
+버전 표기법 
+1       .18.       30
+(Major)  (Minor)   (Patch)
+
+Major - 기존 버전과 호환되지 않는 버전
+Minor - 호환성에는 문제가 없는 기능추가, 수정
+Patch - 오류, 버그, 수정 있는 경우
+
+
+lombok.jar 설치방법
+
+maven central : 의존성 저장소
+
+mvnrepository : maven central 보다 더 많이 참고하게 됨
+	lombok 검색 
+	Lombok 1.18.32 찾아서 maven dependencies 부분 카피 해서 
+	내 pom.xml의 
+	<dependencies>
+	</dependencies>
+	사이에 붙이기
+	
+또는 
+
+인텔리J에서 파일 -> Settings -> plugins 에서 lombok install
+
+
+mvnrepository : Junit jupiter 검색
+
+	JUnit Jupiter (Aggregator)  5.10.2 선택 (5.11.0-M2, M1 등 비안정 버전)
+	 - dependency 카피해서 dependency 로 추가
+	Maven Surefire Plugin 
+	 - dependency 카피해서 plugin 으로 추가
+	 
+	인텔리J에서 sync 버튼 누르기
+
+lombok
+
+ - @Getter
+ - @Setter
+ - @ToString
+ - @EqualsAndHashCode
+ 
+ - @Data : 위의 4가지 모두 포함된 에너테이션
+ 
+ - @NoArgsConstructor : 기본생성자
+ - @AllArgsConstructor : 모든 멤버 변수로 초기화 생성자
+
+	@NoArgsConstructor(access = AccessLevel.PUBLIC) //기본생성자
+	@AllArgsConstructor
+	
+package member;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.time.LocalDateTime;
+
+//@Data 
+@EqualsAndHashCode
+@Getter @Setter @ToString
+public class Member {
+    private String userId;
+    private String userNm;
+    private String email;
+    private LocalDateTime regDt;
+}
+package exam01;
+import member.Member;
+import org.junit.jupiter.api.Test;
+import java.time.LocalDateTime;
+
+public class Ex01 {
+
+    @Test
+    void test1() {
+        Member member = new Member();
+        member.setUserId("user01");
+        member.setUserNm("사용자01");
+        member.setEmail("user01@test.org");
+        member.setRegDt(LocalDateTime.now());
+
+        System.out.println(member);
+    }
+
+    @Test
+    void test2() {
+        Member member1 = new Member();
+        member1.setUserId("user01");
+        member1.setUserNm("사용자01");
+        member1.setEmail("user01@test.org");
+        member1.setRegDt(LocalDateTime.now());
+
+        Member member2 = new Member();
+        member2.setUserId("user01");
+        member2.setUserNm("사용자01");
+        member2.setEmail("user01@test.org");
+        member2.setRegDt(LocalDateTime.now());
+
+        System.out.println(member1.equals(member2));
+        System.out.println(member1.hashCode());
+        System.out.println(member2.hashCode());
+    }
+
+}
+
+
+
+
+
+
+
+
+
+그레이들(Gradle) 사용법
+1. 설치 
+2. 그레이들 명령어
+1) 버전 확인 
+gradle --version
+
+2) 프로젝트 생성
+- gradle init [--type 타입명]
+- build.gradle : 프로젝트에 필요한 의존성과 빌드처리 내용을 작성하는 파일
+- settings.gradle : 프로젝트에 대한 설정정보를 작성하는 파일
+
+3) java-application 타입으로 생성 시 프로젝트 구조
+
+4) 프로젝트 빌드
+- gradle build
+- 프로젝트를 컴파일(빌드)한다.
+- build.gradle에 apply plugin: 'java'가 추가된 경우 .jar파일로 패키징까지 된다.
+- 컴파일된 파일들은 'app > build' 폴더 안에 생성되며, .jar파일은 'build > libs'에 패키징된다.
+
+5) 프로젝트 실행
+- gradle run 
+- 컴파일 후 메인클래스를 실행한다.
+- 스프링부트의 경우 gradle bootRun을 통해 앱을 구동할 수 있다.
+
+6) 프로젝트 패키징
+- gradle jar
+- 프로그램을 .jar로 패키징
+- 'build > libs'에 생성된다.
+- apply plugin: 'java'가 추가된 경우 build명령으로 해결가능
+
+7) 프로젝트 클린
+- gradle clean
+
+8) gradle-wrapper
+- gradle' 명령어로 프로젝트를 빌드할 수 있지만, gradle-wrapper의 실행명령으로도 task를 실행할 수 있다.
+- 새로운 환경에서 gradle을 설치하지 않고도 빌드가 가능
+	- gradle 명령어의 경우 기본적으로 gradle이 로컬에 설치가 되어있어야 한다.)
+	- 또한 gradle 명령어로 빌드를 할 경우 로컬에 설치된 gradle 버젼으로 빌드되기 때문에, 개발 당시 버젼과 다를경우 문제를 일으킬 수도 있다.
+- gradlew build를 사용하면 사용자가 프로젝트를 만든 사람과 동일한 버전으로 빌드를 할 수 있으며, 심지어 gradle이 설치되지 않아도 빌드가 가능하다.
+
+
+3. build.gradle

@@ -693,16 +693,6 @@ END;
 		END [프로시저 이름];
 
 		2) 프로시저 생성하기
-			CREATE OR REPLACE PROCEDURE PRO_NOPARAM
-			IS
-				V_DEPTNO DEPT.DEPTNO%TYPE;
-				V_DNAME DEPT.DNAME%TYPE;
-			BEGIN
-				SELECT DEPTNO, DNAME INTO V_DEPTNO, V_DNAME FROM DEPT WHERE DEPTNO = 20;
-				DBMS_OUTPUT.PUT_LINE('DEPTNO : ' || V_DEPTNO );
-				DBMS_OUTPUT.PUT_LINE('DNAME : ' || V_DNAME );
-			END PRO_NOPARAM;
-		
 
 		3) SQL*PLUS로 프로시저 실행하기
 		
@@ -758,8 +748,82 @@ END;
 
 	3. 프로시저 오류 정보 확인하기
 		1) SHOW ERRORS
-		2) USER_ERRORS 
+			sqlplus 에서
+		2) USER_ERRORS  
+		
+			------------------------------------------------------------
+			SELECT * FROM user_errors;
 
+			CREATE OR REPLACE PROCEDURE PRO_NOPARAM  -- 파라메터 없으므로 () 필요없음
+			IS
+				V_DEPTNO DEPT.DEPTNO%TYPE;
+				V_DNAME DEPT.DNAME%TYPE;
+			BEGIN
+				SELECT DEPTNO, DNAME INTO V_DEPTNO, V_DNAME FROM DEPT WHERE DEPTNO = 20;
+				DBMS_OUTPUT.PUT_LINE('DEPTNO : ' || V_DEPTNO );
+				DBMS_OUTPUT.PUT_LINE('DNAME : ' || V_DNAME );
+			END PRO_NOPARAM;
+			-----------매개변수 있을때---------------------
+			CREATE OR REPLACE PROCEDURE PRO_PARAM_IN(
+				P_DEPTNO IN NUMBER,  -- IN은 안써도 됨
+				P_JOB VARCHAR2
+			)
+			IS 	
+				CURSOR C1 IS
+					SELECT * FROM EMP 
+						WHERE DEPTNO = P_DEPTNO AND JOB = P_JOB;
+			BEGIN 
+				FOR d IN C1 LOOP
+					DBMS_OUTPUT.PUT_LINE('EMPNO : ' || d.EMPNO);
+					DBMS_OUTPUT.PUT_LINE('ENAME : ' || d.ENAME);
+					DBMS_OUTPUT.PUT_LINE('JOB : ' || d.JOB);
+					DBMS_OUTPUT.PUT_LINE('--------------------------');
+				END LOOP;
+			END PRO_PARAM_IN; 
+			-----PRO_PARAM_IN 프로시저 사용
+			CALL PRO_PARAM_IN(30,'MANAGER');
+			----------------------------------------------
+			
+			CREATE OR REPLACE PROCEDURE PRO_PARAM_OUT (
+				P_DEPTNO EMP.DEPTNO%TYPE,   -- 입력받을 변수
+				O_SUM OUT NUMBER,  -- 처리해서 내보낼 변수 선언
+				O_AVG OUT NUMBER
+			)
+			IS 
+			BEGIN
+				SELECT SUM(SAL), ROUND(AVG(SAL), 2) INTO O_SUM, O_AVG
+				FROM EMP WHERE DEPTNO = P_DEPTNO;
+			END PRO_PARAM_OUT;
+			
+			
+			------ PRO_PARAM_OUT 프로시저 사용하기
+				DECLARE
+					v_SUM NUMBER; -- 처리결과 받아올 변수 선언  
+					V_AVG NUMBER; -- 처리결과 받아올 변수 선언  
+				BEGIN
+					PRO_PARAM_OUT(20,v_SUM, V_AVG);
+					DBMS_OUTPUT.PUT_LINE('SUM : ' || V_SUM);
+					DBMS_OUTPUT.PUT_LINE('AVG : ' || V_AVG);
+				END;
+			----------------------------------
+			CREATE OR REPLACE PROCEDURE PRO_PARAM_INOUT(
+				P_NUM IN OUT NUMBER
+			)
+			IS
+
+			BEGIN
+				P_NUM := P_NUM * P_NUM;	
+			END PRO_PARAM_INOUT;
+
+			--- PRO_PARAM_INOUT 사용 
+				DECLARE
+					V_NUM NUMBER := 10;
+				BEGIN
+					PRO_PARAM_INOUT(V_NUM);
+					PRO_PARAM_INOUT(V_NUM);
+					DBMS_OUTPUT.PUT_LINE('V_NUM : ' || V_NUM);
+				END;			
+			--------------------------------------------------------------
 
 함수
 
@@ -787,7 +851,32 @@ END;
 		2) SQL문에서 함수 실행하기
 
 	4. 함수 삭제하기
-
+		SELECT * FROM user_source WHERE TYPE='FUNCTION';
+	
+		-----------------------------------------------
+		CREATE OR REPLACE FUNCTION FUNC_AFTERTAX(
+			P_SAL NUMBER 
+		) RETURN NUMBER 
+		IS 
+			TAX NUMBER := 0.05;
+			SAL NUMBER ;
+		BEGIN
+			SAL := ROUND(P_SAL - P_SAL * TAX);
+			RETURN SAL;
+		END FUNC_AFTERTAX;	
+		
+		-- 함수사용
+		DECLARE 
+			AFTERTAX NUMBER;
+		BEGIN
+			AFTERTAX := FUNC_AFTERTAX(2500);
+			DBMS_OUTPUT.PUT_LINE('세후급여:' || AFTERTAX);
+		END;
+		-- 또는
+		SELECT ename, sal, func_aftertax(sal) FROM emp;
+		-----------------------------------------------
+		DROP FUNCTION FUNC_AFTERTAX;
+		
 패키지
 	-  기능 면에서 연관성이 높은 프로시저, 함수 등 여러 개의 PL/SQL 서브프로그램을 하나의 논리 그룹으로 묶어 통합,관리하는 데 사용하는 객체
 
@@ -818,6 +907,47 @@ END;
 	2. 패키지 사용하기
 	3. 패키지 삭제하기
 
+		CREATE OR REPLACE PACKAGE BODY PKG_EMP
+		IS 
+			FUNCTION FUNC_AFTERTAX(P_SAL NUMBER) RETURN NUMBER
+				IS 
+					TAX NUMBER := 0.05;
+					SAL NUMBER;
+				BEGIN 
+					SAL := ROUND(P_SAL - P_SAL * TAX);
+					
+					RETURN SAL;
+				
+				END FUNC_AFTERTAX;
+			
+			PROCEDURE PRO_SEARCH_EMP(
+				P_DEPTNO EMP.DEPTNO%TYPE, 
+				P_JOB EMP.JOB%TYPE
+			)
+			IS 
+				
+			BEGIN 
+				FOR d IN (SELECT * FROM EMP WHERE DEPTNO = P_DEPTNO AND JOB = P_JOB) LOOP 
+					DBMS_OUTPUT.PUT_LINE('EMPNO : ' || d.EMPNO);
+					DBMS_OUTPUT.PUT_LINE('ENAME : ' || d.ENAME);
+					DBMS_OUTPUT.PUT_LINE('JOB : ' || d.JOB);
+					DBMS_OUTPUT.PUT_LINE('--------------------------');
+				END LOOP;
+				
+			END PRO_SEARCH_EMP;
+			
+			
+		END PKG_EMP; 
+
+		---- 패키지 사용
+		BEGIN
+			DBMS_OUTPUT.PUT_LINE('세후급여 : ' || PKG_EMP.FUNC_AFTERTAX(2500));
+			PKG_EMP.PRO_SEARCH_EMP(20, 'MANAGER');
+		END;
+
+		SELECT * FROM user_source WHERE TYPE = 'PACKAGE';
+
+
 트리거
 	1. 트리거란?
 		1) 데이터베이스 안의 특정 상황이나 동작, 즉 이벤트가 발생할 경우에 자동으로 실행되는 기능을 정의하는 PL/SQL 서브프로그램
@@ -845,10 +975,50 @@ END;
 	3. DML 트리거의 제작 및 사용(BEFORE)
 		1) EMP_TRG 테이블 생성하기
 		2) DML 실행 전에 수행할 트리거 생성하기
+		
+			INSERTING
+			UPDATING
+			DELETING
+			
+			raise_application_error(에러코드, 에러메세지);
+
+				CREATE TABLE EMP_TRG AS SELECT * FROM EMP;
+
+				CREATE OR REPLACE TRIGGER TRG_EMP_NODML
+				BEFORE 
+				INSERT OR UPDATE OR DELETE ON EMP_TRG
+				BEGIN
+					IF TO_CHAR(SYSDATE, 'DY') IN ('화', '수') THEN
+						IF INSERTING THEN
+							raise_application_error(-20000, '추가 불가');
+						ELSIF UPDATING THEN
+							raise_application_error(-2000, '수정 불가');
+						ELSIF DELETING THEN
+							raise_application_error(-2000, '삭제불가');
+						ELSE
+							raise_application_error(-2000, '작업불가');
+						END IF;
+							
+					END IF;
+				END;
+
+				SELECT * FROM user_errors;
+				SELECT * FROM user_triggers;
+
+				INSERT INTO EMP_TRG (empno, ename, job) VALUES (9999, 'hjchoi','CLERK'); --에러남
+
+				SELECT * FROM emp_trg WHERE ename = 'hjchoi';
+
+				ALTER TRIGGER TRG_EMP_NODML disable;
+				
+				DROP trigger TRG_EMP_NODML ;
+
 
 	4. DML 트리거의 제작 및 사용(AFTER)
 		1) EMP_TRG_LOG 테이블 생성하기
 		2) EMP_TRG_LOG 테이블에 EMP_TRG 테이블 데이터 변경 사항을 기록하는 트리거를 생성
+			: NEW - INSERT 시 추가된 레코드 참조
+			: OLD - UPDATE, DELETE 시 수정 전 레코드 참조
 
 	5. 트리거 정보 조회
 		- USER_TRIGGERS
@@ -856,3 +1026,22 @@ END;
 	6. 트리거 변경
 
 	7. 트리거 삭제
+	
+		CREATE OR REPLACE TRIGGER TRG_EMP_LOG
+		AFTER 
+		INSERT OR UPDATE OR DELETE ON EMP_TRG
+		FOR EACH ROW 
+
+		BEGIN 
+			IF INSERTING THEN 
+				INSERT INTO EMP_TRG_LOG (DML_TYPE, EMPNO, ENAME)
+					VALUES ('INSERT', :NEW.EMPNO, :NEW.ENAME);
+			ELSIF UPDATING THEN 
+				INSERT INTO EMP_TRG_LOG (DML_TYPE, EMPNO, ENAME)
+					VALUES ('UPDATE', OLD.EMPNO, OLD.ENAME);
+			ELSIF DELETING THEN 
+				INSERT INTO EMP_TRG_LOG (DML_TYPE, EMPNO, ENAME)
+					VALUES ('DELETING', OLD.EMPNO, OLD.ENAME);
+			END IF;
+		END; 
+	

@@ -396,11 +396,15 @@
 	
 
 쓰레드의 동기화
+
 1. synchronized를 이용한 동기화
 	1) 메서드 전체를 임계영역으로 지정
 	2) 특정한 영역을 임계 영역으로 지정
 
 2. volatile
+
+	- 멀티코어 CPU에선 메모리 캐시 메모리가 코어마다 있어서 공유하는 메모리 값의 불일치가 발생할 수 있는데
+		volatile 로 변수를 선언하면 캐시가 아닌 실제 메모리에서 가져오라는 뜻
 
 
 		package exam01;
@@ -462,3 +466,192 @@
 			}
 
 		}
+
+
+
+package exam01;
+public class Ex09 {
+    public static void main(String[] args) throws InterruptedException{
+        Ex09_1 th1 = new Ex09_1("*");
+        Ex09_1 th2 = new Ex09_1("**");
+        Ex09_1 th3 = new Ex09_1("***");
+
+        th1.start();
+        th2.start();
+        th3.start();
+
+        Thread.sleep(2000);
+        th1.suspend();
+        Thread.sleep(2000);
+        th2.suspend();
+
+        Thread.sleep(3000);
+        th1.stop();
+        th2.stop();
+
+        Thread.sleep(2000);
+        th3.stop();
+    }
+}
+
+-------인터럽트 이용하면 ... ----------------------
+class Ex09_1 implements Runnable {
+    private volatile boolean stopped; // 정지 X
+    private volatile boolean suspended = false; //일시정지 X
+
+    private Thread th;
+
+    public Ex09_1(String name) {
+        th = new Thread(this, name);
+    }
+
+    @Override
+    public void run() {
+        while(!stopped) {
+            if(!suspended) {
+                System.out.println(th.getName());
+                try {
+                    Thread.sleep(1000);
+                } catch ( InterruptedException e) {
+                    System.out.println("Interrupted!");
+                }
+            } else {
+                th.yield(); //일시정지 상태일때 양보
+            }
+        }
+    }
+    public void start() {
+        th.start();
+    }
+    public void suspend() {
+        suspended = true;
+        System.out.println("suspended - interrupted!");
+        th.interrupt();
+    }
+    public void resume() {
+        suspended = false;
+    }
+    public void stop() {
+        stopped = true;
+        //System.out.println("stop - interrupted!");
+
+    }
+}
+
+
+Synchronized 
+
+
+package exam02;
+public class Account {
+    private int balance = 1000;
+    public int getBalance() {
+        return balance;
+    }
+
+    public void withdraw(int money) {
+        if(balance >= money) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {}
+
+            balance -= money;
+        }
+    }
+}
+package exam02;
+public class Ex01 {
+    public static void main(String[] args) {
+        Ex01_1 ex01_1 = new Ex01_1();
+        Thread th1 = new Thread(ex01_1);
+        Thread th2 = new Thread(ex01_1);
+
+        th1.start();
+        th2.start();
+    }
+}
+class Ex01_1 implements Runnable {
+
+    private Account acc = new Account();
+
+    @Override
+    public void run() {
+        while(acc.getBalance() > 0) {
+            int money = (int)(Math.random() * 3 + 1) * 100;//100 ~ 300
+            acc.withdraw(money);
+            System.out.println("balance : " + acc.getBalance());
+        }
+    }
+}
+>>
+balance : 700
+balance : 700
+balance : 500
+balance : 600
+balance : 200
+balance : 0
+balance : -200 // 동시에 같은 자원에 접근하는 쓰레드의 특성 때문에 이런 문제 발생함
+
+-------------------문제해결 : synchronized 적용 2가지---------------------------------------------
+package exam02;
+
+public class Account {
+    private int balance = 1000;
+    public int getBalance() {
+        return balance;
+    }
+
+    public synchronized void withdraw(int money) {
+        if(balance >= money) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {}
+
+            balance -= money;
+        }
+    }
+}
+또는
+package exam02;
+
+public class Account {
+    private int balance = 1000;
+    public int getBalance() {
+        return balance;
+    }
+
+    public  void withdraw(int money) {
+        synchronized(this) {
+            if (balance >= money) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+
+                balance -= money;
+            }
+        }
+    }
+}
+
+
+---------------------------------------------------------
+singleton 에서의 쓰레드 자원공유 문제의 경우 이렇게 하면 됨
+--------------------------------------------------------
+
+package exam02;
+public class Board {
+    private static Board instance;
+    
+    private Board(){}
+    
+    public static Board getInstance() {
+        synchronized (Board.class) {
+
+            if (instance == null) {
+                instance = new Board();
+            }
+            return instance;
+        }
+    }
+}

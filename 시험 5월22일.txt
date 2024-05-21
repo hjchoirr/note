@@ -156,7 +156,7 @@ CREATE OR REPLACE VIEW empidx_over15k as
 ;
 
 
-395 Q1
+394 Q1
 
 CREATE TABLE DEPT_CONST (
 	DEPTNO number(2) CONSTRAINT deptconst_deptno_pk PRIMARY KEY ,
@@ -186,14 +186,29 @@ Q1.
 create user PREV_HW identified by ORCL ;
 grant create session to PREV_HW;
 
-*****
-grant select on SCOTT.EMP to DBSTUDY2 with grant option; 
+Q2.
+
+--grant select on SCOTT.EMP to PREV_HW with grant option; 
+grant select on SCOTT.EMP to PREV_HW
+grant select on SCOTT.DEPT to PREV_HW
+grant select on SCOTT.SALGRADE to PREV_HW
+
+Q3.
+revoke select on scott.emp from prev_hw
+revoke select on scott.dept from prev_hw;
+revoke select on scott.salgrade from prev_hw;
+
+P422
+PL/SQL에서 여러 명령어를 모아둔 프로그램의 기본단위를 (블록) 이라고 한다.
+기본 PL/SQL 블록은 실행에 사용할 변수, 상수, 커서등을 선언하는 (DECLARE)와 조건문, 반복문,
+SELECT DML,함수 등 실제 수행할 기능부를 정의라는 (BEGIN),
+그리고 PL/SQL으로 제작한 프로그램의 실행도중 발생하는 오류를 처리하는 EXCEPTION으로 구성됩니다.
 
 
 
+P444 
 
-
-P444 Q1
+Q1
 
 BEGIN 
 	FOR i IN 1..9 LOOP
@@ -204,4 +219,64 @@ BEGIN
 	
 END;
 
+Q2.
+
+
+
+DECLARE
+	V_DEPTNO NUMBER ;
+BEGIN
+	V_DEPTNO := 30;
+	CASE V_DEPTNO 
+		WHEN 10 THEN DBMS_OUTPUT.PUT_LINE('ACCOUNTING');
+		WHEN 20 THEN DBMS_OUTPUT.PUT_LINE('RESEARCH');
+		WHEN 30 THEN DBMS_OUTPUT.PUT_LINE('SALES');
+		WHEN 40 THEN DBMS_OUTPUT.PUT_LINE('OPERATION');
+		ELSE DBMS_OUTPUT.PUT_LINE('N/A');
+	END CASE;
+			
+END;
+
+
+
+P 456 
+오라클에서는 여러가지 데이터를 하나의 자료형으로 저장하고 사용하기 위해 직접 정의하는 
+(복합자료형)을 제공합니다. 
+(레코드)형은여라가지 자료형을 하나의 변수에 저장할때 사용합니다.
+(컬렉션)형은 특정 자료형의 데이터 여러개를 하나의 변수에 저장할때 사용됩니다
+
+
+p 478
+
+명시적 커서 Loop 1.
+
+DECLARE
+	CURSOR c1 IS SELECT * FROM emp;
+	V_EMP EMP%ROWTYPE;
+BEGIN
+	OPEN c1;
+		LOOP
+			FETCH c1 INTO V_EMP;
+			EXIT WHEN c1%NOTFOUND;
+			DBMS_OUTPUT.PUT_LINE('EMPNO : ' || V_EMP.EMPNO);
+			
+		END LOOP;
+		
+	CLOSE c1;
+END;
+
+명시적 커서 FOR 2.
+
+DECLARE
+	CURSOR C1 IS SELECT * FROM emp;
+BEGIN
+	FOR d IN C1 LOOP
+		DBMS_OUTPUT.PUT_LINE('EMPNO : ' || d.EMPNO);
+	END LOOP;
+END;
+
+
+P 479
+
+P 519
 
