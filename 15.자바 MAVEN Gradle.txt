@@ -94,41 +94,64 @@ maven
 		CTRL + SHIFT + B
 		
 버전 표기법 
-1       .18.       30
-(Major)  (Minor)   (Patch)
+	1       .18.       30
+	(Major)  (Minor)   (Patch)
 
-Major - 기존 버전과 호환되지 않는 버전
-Minor - 호환성에는 문제가 없는 기능추가, 수정
-Patch - 오류, 버그, 수정 있는 경우
+	Major - 기존 버전과 호환되지 않는 버전
+	Minor - 호환성에는 문제가 없는 기능추가, 수정
+	Patch - 오류, 버그, 수정 있는 경우
 
 
 lombok.jar 설치방법
 
-maven central : 의존성 저장소
+	maven central : 의존성 저장소에서 검색  또는 
 
-mvnrepository : maven central 보다 더 많이 참고하게 됨
-	lombok 검색 
-	Lombok 1.18.32 찾아서 maven dependencies 부분 카피 해서 
-	내 pom.xml의 
-	<dependencies>
-	</dependencies>
-	사이에 붙이기
+	mvnrepository : maven central 보다 더 많이 참고하게 됨
+		lombok 검색 
+		Lombok 1.18.32 찾아서 maven dependencies 부분 카피 해서 
+		내 pom.xml의 
+		<dependencies>
+		</dependencies>
+		사이에 붙이기
+		
+	또는 
+
+	인텔리J에서 파일 -> Settings -> plugins 에서 lombok install
+
+JUnit jupiter 설치
 	
-또는 
+	mvnrepository : Junit jupiter 검색
 
-인텔리J에서 파일 -> Settings -> plugins 에서 lombok install
+		JUnit Jupiter (Aggregator)  5.10.2 선택 (5.11.0-M2, M1 등 비안정 버전)
+		 - dependency 카피해서 dependency 로 추가
+		 
+		Maven Surefire Plugin  검색
+		 - dependency 카피해서 plugin 으로 추가
+		 
+			-------------------------
+			<dependencies>
+				<dependency>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter</artifactId>
+					<version>5.10.2</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.2.5</version>
+					</plugin>
 
+				</plugins>
+			</build>
+			-------------------------
 
-mvnrepository : Junit jupiter 검색
+		인텔리J에서 sync 버튼 누르기
 
-	JUnit Jupiter (Aggregator)  5.10.2 선택 (5.11.0-M2, M1 등 비안정 버전)
-	 - dependency 카피해서 dependency 로 추가
-	Maven Surefire Plugin 
-	 - dependency 카피해서 plugin 으로 추가
-	 
-	인텔리J에서 sync 버튼 누르기
-
-lombok
+lombok - 개발 편의도구
 
  - @Getter
  - @Setter
@@ -139,113 +162,421 @@ lombok
  
  - @NoArgsConstructor : 기본생성자
  - @AllArgsConstructor : 모든 멤버 변수로 초기화 생성자
+ - @RequiredArgsConstructor : 필수 멤버 변수 생성 초기화 생성자 
+	- 필수 멤버변수 : @NonNull 표기된 멤버변수
+	- 멤버변수를 final(상수)로 정의한 경우, 값을 대입하지 않은 경우
+	
 
 	@NoArgsConstructor(access = AccessLevel.PUBLIC) //기본생성자
 	@AllArgsConstructor
 	
-package member;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+		package member;
+		import lombok.EqualsAndHashCode;
+		import lombok.Getter;
+		import lombok.Setter;
+		import lombok.ToString;
 
-import java.time.LocalDateTime;
+		import java.time.LocalDateTime;
 
-//@Data 
-@EqualsAndHashCode
-@Getter @Setter @ToString
-public class Member {
-    private String userId;
-    private String userNm;
-    private String email;
-    private LocalDateTime regDt;
-}
-package exam01;
-import member.Member;
-import org.junit.jupiter.api.Test;
-import java.time.LocalDateTime;
+		//@EqualsAndHashCode
+		//@Getter @Setter @ToString
+		@Data
+		@NoArgsConstructor(access = AccessLevel.PUBLIC) //기본생성자, 접근자 
+		@AllArgsConstructor
+		public class Member {
+			private String userId;
+			private String userNm;
+			private String email;
+			private LocalDateTime regDt;
+		}
+		package exam01;
+		import member.Member;
+		import org.junit.jupiter.api.Test;
+		import java.time.LocalDateTime;
 
-public class Ex01 {
+		public class Ex01 {
 
-    @Test
-    void test1() {
-        Member member = new Member();
-        member.setUserId("user01");
-        member.setUserNm("사용자01");
-        member.setEmail("user01@test.org");
-        member.setRegDt(LocalDateTime.now());
+			@Test
+			void test1() {
+				Member member = new Member();
+				member.setUserId("user01");
+				member.setUserNm("사용자01");
+				member.setEmail("user01@test.org");
+				member.setRegDt(LocalDateTime.now());
 
-        System.out.println(member);
-    }
+				System.out.println(member);
+			}
 
-    @Test
-    void test2() {
-        Member member1 = new Member();
-        member1.setUserId("user01");
-        member1.setUserNm("사용자01");
-        member1.setEmail("user01@test.org");
-        member1.setRegDt(LocalDateTime.now());
+			@Test
+			void test2() {
+				Member member1 = new Member();
+				member1.setUserId("user01");
+				member1.setUserNm("사용자01");
+				member1.setEmail("user01@test.org");
+				member1.setRegDt(LocalDateTime.now());
 
-        Member member2 = new Member();
-        member2.setUserId("user01");
-        member2.setUserNm("사용자01");
-        member2.setEmail("user01@test.org");
-        member2.setRegDt(LocalDateTime.now());
+				Member member2 = new Member();
+				member2.setUserId("user01");
+				member2.setUserNm("사용자01");
+				member2.setEmail("user01@test.org");
+				member2.setRegDt(LocalDateTime.now());
 
-        System.out.println(member1.equals(member2));
-        System.out.println(member1.hashCode());
-        System.out.println(member2.hashCode());
-    }
+				System.out.println(member1.equals(member2));
+				System.out.println(member1.hashCode());
+				System.out.println(member2.hashCode());
+			}
 
-}
-
-
+		}
 
 
+		-------------------------
+		package member;
+		import lombok.*;
+
+		import java.time.LocalDateTime;
+		@Data
+		@RequiredArgsConstructor
+		public class Member {
+			@NonNull //필수 초기화 변수 지정하기
+			private String userId;
+			
+			@NonNull  // 필수 초기화 변수 지정하기
+			private String userNm;
+			private String email;
+			
+			@ToString.Exclude   // ToString에 나오는거 배제하기
+			private LocalDateTime regDt;
+		}
+
+		또는
+		package member;
+		import lombok.Data;
+		import lombok.RequiredArgsConstructor;
+
+		@Data
+		@RequiredArgsConstructor
+		public class Board {
+			private int seq;
+			private final String subject;   // @NonNull 또는 final 로 필수 초기화 변수 지정하기 @RequiredArgsConstructor
+			private final String content;   // 필수 초기화 변수 지정하기
+			private  String poster;
+		}
+		-------------------------------------
+		package exam01;
+
+		import member.Board;
+		import member.Member;
+		import org.junit.jupiter.api.Test;
+
+		public class Ex02 {
+			@Test
+			void test1() {
+				Member member = new Member("USER02", "사용자02");
+				System.out.println(member);
+			}
+			@Test
+			void test2() {
+				Board board = new Board("제목", "내용");
+				System.out.println(board);
+
+			}
+		}
+
+@Builder 
+	- 빌더패턴 
+		: 객체를 내부에서 생성하는 패턴
+		: 생성자 접근 제어자 private
+	
+		//----의사코드  User 클래스----
+		package member;
+		import java.time.LocalDateTime;
+
+		public class User {
+			private String userId;
+			private String userNm;
+			private String email;
+			private LocalDateTime regDt;
+
+			private User() {}
+
+			public static Builder builder() {
+				return new Builder();
+			}
+
+			@Override
+			public String toString() {
+				return "User{" +
+						"userId='" + userId + '\'' +
+						", userNm='" + userNm + '\'' +
+						", email='" + email + '\'' +
+						", regDt=" + regDt +
+						'}';
+			}
+
+			public static class Builder {
+				private User user = new User();
+				public Builder userId(String userId) {
+					user.userId = userId;
+					return this;
+				}
+				public Builder userNm(String userNm) {
+					user.userNm = userNm;
+					return this;
+				}
+				public Builder userEmail(String email) {
+					user.email = email;
+					return this;
+				}
+				public Builder regDt(LocalDateTime regDt) {
+					user.regDt = regDt;
+					return this;
+				}
+
+				public User build() {
+					return user;
+				}
+			}
+		}
+		//------@Builder 사용 User2 클래스------------------
+		package member;
+		import lombok.Builder;
+		import lombok.ToString;
+		import java.time.LocalDateTime;
+
+		@Builder @ToString
+		public class User2 {
+			private String userId;
+			private String userNm;
+			private String email;
+			
+			@ToString.Exclude  // ToString 에서 배제될 항목 위에 선언
+			private LocalDateTime regDt;
+		}
+		//-------User, User2 사용 테스트---------
+		package exam01;
+		import member.Board;
+		import member.Member;
+		import member.User;
+		import member.User2;
+		import org.junit.jupiter.api.Test;
+		import java.time.LocalDateTime;
+
+		public class Ex02 {
+			@Test
+			void test3() {
+				User user = User.builder()
+							.userId("USER01")
+							.userNm("사용자01")
+							.userEmail("aaa@aaa.com")
+							.regDt(LocalDateTime.now())
+							.build();
+				System.out.println(user);
+
+			}
+			@Test
+			void test4() {
+				User2 user = User2.builder()
+							.userId("USER01")
+							.userNm("사용자01")
+							.email("aaa@aaa.com")
+							.regDt(LocalDateTime.now())
+							.build();
+				System.out.println(user);
+			}
+		}
 
 
 
 
 
 그레이들(Gradle) 사용법
-1. 설치 
-2. 그레이들 명령어
-1) 버전 확인 
-gradle --version
 
-2) 프로젝트 생성
-- gradle init [--type 타입명]
-- build.gradle : 프로젝트에 필요한 의존성과 빌드처리 내용을 작성하는 파일
-- settings.gradle : 프로젝트에 대한 설정정보를 작성하는 파일
+	설정파일 build.gradle -> 그루비, 코틀린 : DSL 특화언어
+	DSL ( Domain Specific Language )
+		- Domain : 전문가영역, 영역별로 설정하는 방식
+		- 설정영역
+			ext {
+				// 람다식
+			}
 
-3) java-application 타입으로 생성 시 프로젝트 구조
+	1. 설치 
+		gradle 사이트 -> releases -> 8.7 Download: binary-only  
+		환경변수 path 추가 D:\hjchoi\gradle-8.7\bin
+		
+	2. 그레이들 명령어
+		1) 버전 확인 
+			> gradle --version
+			
+			> gradle tasks : 명령어 확인하기
 
-4) 프로젝트 빌드
-- gradle build
-- 프로젝트를 컴파일(빌드)한다.
-- build.gradle에 apply plugin: 'java'가 추가된 경우 .jar파일로 패키징까지 된다.
-- 컴파일된 파일들은 'app > build' 폴더 안에 생성되며, .jar파일은 'build > libs'에 패키징된다.
+		2) 프로젝트 생성
+			- gradle init [--type 타입명]  ( 메이븐은 mvn archetype:generate 메이븐 프로젝트 생성)
+			- build.gradle : 프로젝트에 필요한 의존성과 빌드처리 내용을 작성하는 파일
+			- settings.gradle : 프로젝트에 대한 설정정보를 작성하는 파일
+			
+			exam03 폴더에 생성
+			cd exam03 
+			D:\hjchoi\7.SQL응용\exam03> gradle init
+			type of build : Application
+			language : java
+			target java verion : 17
+			project name : exam03
+			application structure: Single Application
+			build script DSL: Groovy
+			test framework : JUnit Jupiter
+			Generate build using new APIs and behavior : no
+			
+			
+			
+			
 
-5) 프로젝트 실행
-- gradle run 
-- 컴파일 후 메인클래스를 실행한다.
-- 스프링부트의 경우 gradle bootRun을 통해 앱을 구동할 수 있다.
+		3) java-application 타입으로 생성 시 프로젝트 구조
 
-6) 프로젝트 패키징
-- gradle jar
-- 프로그램을 .jar로 패키징
-- 'build > libs'에 생성된다.
-- apply plugin: 'java'가 추가된 경우 build명령으로 해결가능
+		4) 프로젝트 빌드
+			- gradle build  ( 메이븐의 경우 mvn package : compile test 배포 )
+			- 프로젝트를 컴파일(빌드)한다.
+			- build.gradle에 apply plugin: 'java'가 추가된 경우 .jar파일로 패키징까지 된다.
+			- 컴파일된 파일들은 'app > build' 폴더 안에 생성되며, .jar파일은 'build > libs'에 패키징된다.
+			- 주로 이렇게 : gradle clean build
+			- 테스트 실패하면 배포 안됨
 
-7) 프로젝트 클린
-- gradle clean
+		5) 프로젝트 실행
+			- gradle run 
+			- 컴파일 후 메인클래스를 실행한다.
+			- 스프링부트의 경우 gradle bootRun을 통해 앱을 구동할 수 있다.
 
-8) gradle-wrapper
-- gradle' 명령어로 프로젝트를 빌드할 수 있지만, gradle-wrapper의 실행명령으로도 task를 실행할 수 있다.
-- 새로운 환경에서 gradle을 설치하지 않고도 빌드가 가능
-	- gradle 명령어의 경우 기본적으로 gradle이 로컬에 설치가 되어있어야 한다.)
-	- 또한 gradle 명령어로 빌드를 할 경우 로컬에 설치된 gradle 버젼으로 빌드되기 때문에, 개발 당시 버젼과 다를경우 문제를 일으킬 수도 있다.
-- gradlew build를 사용하면 사용자가 프로젝트를 만든 사람과 동일한 버전으로 빌드를 할 수 있으며, 심지어 gradle이 설치되지 않아도 빌드가 가능하다.
+		6) 프로젝트 패키징
+			- gradle jar   : 테스트가 실패해도 패키징 진행됨 ( 참고: gradle bootjar 스프링부트에서 )
+			- 프로그램을 .jar로 패키징
+			- 'build > libs'에 생성된다.
+			- apply plugin: 'java'가 추가된 경우 build명령으로 해결가능
+
+		7) 프로젝트 클린
+			- gradle clean
+			- build 디렉토리 삭제
+			
+
+		8) gradle-wrapper
+			- gradle' 명령어로 프로젝트를 빌드할 수 있지만, gradle-wrapper의 실행명령으로도 task를 실행할 수 있다.
+			- 새로운 환경에서 gradle을 설치하지 않고도 빌드가 가능
+				- gradle 명령어의 경우 기본적으로 gradle이 로컬에 설치가 되어있어야 한다.)
+				- 또한 gradle 명령어로 빌드를 할 경우 로컬에 설치된 gradle 버젼으로 빌드되기 때문에, 개발 당시 버젼과 다를경우 문제를 일으킬 수도 있다.
+			- gradlew build를 사용하면 사용자가 프로젝트를 만든 사람과 동일한 버전으로 빌드를 할 수 있으며, 심지어 gradle이 설치되지 않아도 빌드가 가능하다.
 
 
-3. build.gradle
+	3. build.gradle
+	
+		compile,api : 의존성 상위까지 모두 빌드함 -> 빌드 느림
+		implementation : 직접 의존하는 모듈만 빌드 
+		testImplementation : 테스트에 사용하는  라이브러리 추가
+		annotationProcessor : 
+		compileOnly
+		runtimeOnly : compile 시에는 필요하지 않지만 실행시 필요
+		developmentOnly : 개발시에만 필요, compile시에 제거
+		
+		
+		참고) 메이븐 scope 
+			- compile : 컴파일 시에 포함, 배포시 포함
+			- runtime : 컴파일시에 포함 안되고 실행중에 포함
+			- provided : 개발시에만 필요, 배포시엔 배제
+			- test : 테스트시에 필요
+			<dependency>
+				<scope></scope>
+			<dependency>
+			
+	
+
+인텔리j에서 제공하는 gradle  사용 설정
+settings -> Build,Exc.. -> Build tool -> Gradle -> Build run using  2가지 -> inteliJ IDE 로 변경
+
+
+gradle 프로젝트에 lombok 설정하기
+
+		https://mvnrepository.com/
+		lombok 검색 Project Lombok » 1.18.32 
+		Gradle(Short)  용 카피하여  build.gradle 파일의 dependency 에 추가
+
+		compileOnly 'org.projectlombok:lombok:1.18.32' 
+		->  annotationProcessor 'org.projectlombok:lombok:1.18.32' 로 고쳐서 추가하기
+
+			compileOnly "org.projectlombok:lombok:$lbversion"
+			annotationProcessor "org.projectlombok:lombok:$lbversion"
+			testcompileOnly "org.projectlombok:lombok:$lbversion"
+			testannotationProcessor "org.projectlombok:lombok:$lbversion"
+
+
+
+		sourceCompatibility = 17
+
+		ext {  // 각 브레이스 안에서 모두 사용 가능한 전역변수 선언
+			lbversion = '1.18.32'
+		}
+
+
+		settings -> Build, Exc.. -> compiler -> Annotation Processor
+
+		gradle sync 버튼 누르기
+
+
+		sourceCompatibility : 자바버전
+		ext {
+			//전역변수
+		}
+
+		def // 지역변수
+
+
+
+JDBC(Java DataBase Connectivity) API
+
+	API(Application Programming Interface)
+	
+		- 자바 데이터베이스 연결 기술 명세서 - 인터페이스로 구성
+		- 구현체는 각 DB업체가 구성(데이터베이스 드라이버)
+		- java.sql 패키지 :JDBC API
+		
+		
+	1. Oracle JDBC 드라이버 설치
+		DriverManager 클래스 -> Connection 
+		DataSource 인터페이스 -> Connection : 커넥션풀
+
+	2. 연동 과정
+	1) java.sql.* 패키지 임포트
+	2) JDBC 드라이버 로딩
+	3) 데이터베이스 접속을 위한 Connection객체 생성
+	4) 쿼리문을 실행하기 위한 Statement/PreparedStatement/CallableStatement 객체 생성
+	5) 쿼리 실행
+	6) 쿼리 실행 결과 값(int, ResultSet) 사용
+	7) 사용된 객체(ResultSet, Statement/PreparedStatement/CallableStatement, Connection) 종료
+
+	3. JDBC 드라이버 로딩 및 DBMS 접속
+	1) JDBC 드라이버 로딩하기
+	2) Connection 객체 생성하기
+	3) 데이터베이스 연결 닫기
+
+
+데이터베이스 쿼리 실행
+1. Statement 객체로 데이터 접근하기
+1) ResultSet executeQuery(String sql)
+2) int executeUpdate(String sql)
+3) close()
+
+2. PreparedStatement 객체로 데이터 접근하기
+1) 동적인 쿼리에 사용
+2) 하나의 객체로 여러 번의 쿼리를 실행할 수 있으며, 동일한 쿼리문을 특정 값만 바꾸어서 여러 번 실행해야 할 때, 매개변수가 많아서 쿼리문을 정리해야 할 때 유용
+
+3. CallableStatement 객체로 데이터 접근하기
+1) 프로시저 실행시 사용 
+
+3. 쿼리문 실행 결과 값 가져오기
+1) ResultSet 객체의 메서드
+
+
+커넥션 풀
+Tomcat JDBC
+
+
+
+
+
+

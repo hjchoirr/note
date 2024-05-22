@@ -9,7 +9,7 @@
 			
 		1) 사용법 
 			CREATE SEQUENCE 시퀀스이름
-				INCREMENT BY 숫자 -- 숫자씩 증가
+INCREMENT BY 숫자 -- 숫자씩 증가
 				START WITH 숫자 -- 숫자에서부터 증가 시작
 				MAXVALUE 숫자 -- 최대 숫자만큼 증가
 				MINVALUE 숫자 -- 최소 숫자 무터 시작

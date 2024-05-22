@@ -1,3 +1,8 @@
+5/23 부터 포트폴리오 만드는 기간
+5/23 - 24 필요한거 강의
+5/23 - 6/4
+5/27 - 6/3  조별 과제 2가지를 3일씩 하고 발표 
+
 5/22 시험 SQL 응용
 
 13장 ~ 19장 까지
@@ -25,27 +30,6 @@ PL/SQL 구조
 스칼라
 참조형
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-5/23 부터 포트폴리오 만드는 기간
-
-5/23 - 24 필요한거 강의
-
-5/23 - 6/4
-
-5/27 - 6/3  조별 과제 2가지를 3일씩 하고 발표 
 
 
 인덱스 정보 DICTIONARY에서 확인하기
@@ -173,15 +157,16 @@ CREATE TABLE emp_const (
 	tel varchar2(20) CONSTRAINT empconst_tel_unq UNIQUE,
 	hiredate DATE,
 	sal number(7, 2) CONSTRAINT empconst_sal_chk CHECK sal BETWEEN 1000 AND 9999,
-	deptno number(2),
-	CONSTRAINT empconst_deptno_fk FOREIGN KEY (NUMBER) REFERENCES dept_const(deptno) 
+	deptno number(2) CONSTRAINT empconst_deptno_fk REFERENCES DEPT_CONST (DEPTNO) 
 );
 
+SELECT TABLE_NAME, CONSTRAINT_NAME, CONSTRAINT_TYPE 
+  FROM USER_CONSTRAINTS 
+ WHERE TABLE_NAME IN ( 'EMP_CONST', 'DEPT_CONST' ) 
+ORDER BY CONSTRAINT_NAME; 
 
+P 416
 
-
-
-P416
 Q1.
 create user PREV_HW identified by ORCL ;
 grant create session to PREV_HW;
@@ -198,7 +183,7 @@ revoke select on scott.emp from prev_hw
 revoke select on scott.dept from prev_hw;
 revoke select on scott.salgrade from prev_hw;
 
-P422
+P 422
 PL/SQL에서 여러 명령어를 모아둔 프로그램의 기본단위를 (블록) 이라고 한다.
 기본 PL/SQL 블록은 실행에 사용할 변수, 상수, 커서등을 선언하는 (DECLARE)와 조건문, 반복문,
 SELECT DML,함수 등 실제 수행할 기능부를 정의라는 (BEGIN),
@@ -206,7 +191,7 @@ SELECT DML,함수 등 실제 수행할 기능부를 정의라는 (BEGIN),
 
 
 
-P444 
+P 444 
 
 Q1
 
@@ -276,7 +261,27 @@ BEGIN
 END;
 
 
-P 479
+P 479 exception
+DECLARE 
+	v_wrong DATE;
+BEGIN
+	select ename INTO v_wrong FROM emp WHERE empno = 7369;
+	dbms_output.put_line('예외발생하면 실행되지 않습니다');
+EXCEPTION
+	WHEN OTHERS THEN
+	
+	dbms_output.put_line('오류가 발생하였습니다. [' || TO_CHAR(SYSDATE, 'YYYY-MM-DD hh:mm:ss') || ']');
+	dbms_output.put_line('SQLCODE : ' || TO_CHAR(SQLCODE));
+	dbms_output.put_line('SQLERRM : ' || SQLERRM);
+END;
 
-P 519
+P 519 function
 
+CREATE OR REPLACE FUNCTION FUNC_DATE_KOR(
+	V_DATE DATE
+)
+RETURN varchar2
+AS
+BEGIN
+	RETURN TO_CHAR(V_DATE, 'YYYY"년"MM"월"DD"일"');	
+END FUNC_DATE_KOR;
