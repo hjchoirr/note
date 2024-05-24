@@ -25,7 +25,7 @@ maven
 	
 2. 사용 
 1) maven 프로젝트 생성 
-	mvn archetype:generate
+mvn archetype:generate
 		groupId : 소속된 그룹(도메인 방식)
 						예) org.project
 		artifactId : 프로젝트 구분 명칭 
@@ -526,6 +526,53 @@ gradle 프로젝트에 lombok 설정하기
 		def // 지역변수
 
 
+docker oracle-xe 설치
+
+C:\Users\admin>docker search oracle-xe
+
+NAME                              DESCRIPTION                                      STARS     OFFICIAL
+gvenzl/oracle-xe                  Oracle Database XE (21c, 18c, 11g) for every…   304
+oracleinanutshell/oracle-xe-11g                                                    288
+wnameless/oracle-xe-11g-r2        Oracle Express Edition 11g Release 2 on Ubun…   105
+..
+
+C:\Users\admin>docker pull gvenzl/oracle-xe:18
+
+C:\Users\admin>docker images
+C:\Users\admin>docker run --name oracle-xe -d -p 1521:1521 -e ORACLE_PASSWORD=oracle gvenzl/oracle-xe:18
+
+
+create user study iden... oracle
+
+grant connect, resource to study
+
+alter user study quota unlimited on users;
+
+
+
+ojdbc11 mvn repository 검색
+
+	Ojdbc11 » 23.4.0.24.05 
+	Orai18n » 23.4.0.24.05   
+
+gradle short 의존성 추가 build.gradle에 
+
+implementation 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+-> 변경
+runtimeOnly 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+
+
+Orai18n » 23.4.0.24.05    mvn repository 검색
+implementation 'com.oracle.database.nls:orai18n:23.4.0.24.05'
+
+
+
+Project Lombok » 1.18.32
+
+compileOnly 'org.projectlombok:lombok:1.18.32'
+annotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+
 
 JDBC(Java DataBase Connectivity) API
 
@@ -534,6 +581,8 @@ JDBC(Java DataBase Connectivity) API
 		- 자바 데이터베이스 연결 기술 명세서 - 인터페이스로 구성
 		- 구현체는 각 DB업체가 구성(데이터베이스 드라이버)
 		- java.sql 패키지 :JDBC API
+			javadoc - java.sql package
+		
 		
 		
 	1. Oracle JDBC 드라이버 설치
@@ -543,9 +592,23 @@ JDBC(Java DataBase Connectivity) API
 	2. 연동 과정
 	1) java.sql.* 패키지 임포트
 	2) JDBC 드라이버 로딩
+		- Class.forName(..)  -> odjdbc11.jar
+			oralce.jdbc.driver.OracleDriver
+			
+		
 	3) 데이터베이스 접속을 위한 Connection객체 생성
+		DriverManager
+			.getConnection(..)
+			
+		DataSource 인터페이스 : 커넥션풀을 제공하는 라이브러리 구현체가 있다
+			Tomcat JDBC, HikariCP
+			Connection getConnection
+			Connection conn = DriverManager.getConnection(url, user, password);
+		
 	4) 쿼리문을 실행하기 위한 Statement/PreparedStatement/CallableStatement 객체 생성
 	5) 쿼리 실행
+		Statement
+		
 	6) 쿼리 실행 결과 값(int, ResultSet) 사용
 	7) 사용된 객체(ResultSet, Statement/PreparedStatement/CallableStatement, Connection) 종료
 
@@ -556,27 +619,748 @@ JDBC(Java DataBase Connectivity) API
 
 
 데이터베이스 쿼리 실행
-1. Statement 객체로 데이터 접근하기
-1) ResultSet executeQuery(String sql)
-2) int executeUpdate(String sql)
-3) close()
 
-2. PreparedStatement 객체로 데이터 접근하기
-1) 동적인 쿼리에 사용
-2) 하나의 객체로 여러 번의 쿼리를 실행할 수 있으며, 동일한 쿼리문을 특정 값만 바꾸어서 여러 번 실행해야 할 때, 매개변수가 많아서 쿼리문을 정리해야 할 때 유용
+	1. Statement 객체로 데이터 접근하기
+		1) ResultSet executeQuery(String sql)
+			- select 
+			- 조회
+		2) int executeUpdate(String sql)  
+		
+			- insert, update, delete
+				반환값 : 반영된 레코드 갯수
+				
+		3) close()
 
-3. CallableStatement 객체로 데이터 접근하기
-1) 프로시저 실행시 사용 
+	3. 쿼리문 실행 결과 값 가져오기
+	
+		1) ResultSet 객체의 메서드	
+		boolean next()
+		
+		자료형 get자료형(int 컬럼순서번호 );
+		자료형 get자료형(int 컬럼명 );
+		
+		String getString(..) 문자형 데이터(CHAR, VARCHAR2, CLOB)
+		int getInt(...), long getLong(..) :정수형 데이터
+		float getFloat(..) double getDouble(..) 실수형 데이터
+		
+		java.sql.Time
+		java.sql.Date
+		java.sql.TimeStamp : 날짜 + 시간 = getTimestamp(..)
+		
+			------------------------------------------------------------------------
+			package exam01;
+			import org.junit.jupiter.api.Test;
+			import java.sql.*;
 
-3. 쿼리문 실행 결과 값 가져오기
-1) ResultSet 객체의 메서드
+			public class Ex01 {
+				@Test
+				void test1() {
+					try {
+						Class.forName("oracle.jdbc.driver.OracleDriver");
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+					String url = "jdbc:oracle:thin:@localhost:1521:XE";
+					String user = "STUDY";
+					String password = "oracle";
+
+					try (Connection conn = DriverManager.getConnection(url, user, password);
+						 Statement stmt = conn.createStatement()) {
+
+						String sql = "Insert into member (user_no, user_id, user_pw, user_nm, mobile) values (seq_member.NEXTVAL, 'USER02', '123456', '사용자02','01055554444')";
+
+						int cnt = stmt.executeUpdate(sql);
+						System.out.println(cnt);
+					}
+					catch (SQLException e) {
+							e.printStackTrace();
+					}
+				}
+				@Test
+				void test2() {
+					//오라클 드라이버 동적 로딩
+					try {
+						Class.forName("oracle.jdbc.driver.OracleDriver");
+					} catch(ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+
+					String url = "jdbc:oracle:thin:@localhost:1521:XE";
+					String user = "STUDY";
+					String password = "oracle";
+
+					try (Connection conn = DriverManager.getConnection(url, user, password);
+						Statement stmt = conn.createStatement()) {
+						//String sql = "select * from member";
+			            String keyword = "사용자";
+						String sql = "select * from member where user_nm like '%" + keyword + "%'";
+
+						//String sql = "select user_no, user_id from member";
+						ResultSet rs = stmt.executeQuery(sql);
+						while(rs.next()) {
+							//long userNo = rs.getLong(1);   // column index 
+							//String userId = rs.getString(2);
+							long userNo = rs.getLong("user_no");
+							String userId = rs.getString("user_id");
+							String userPw = rs.getString("user_pw");
+							String userNm = rs.getString("user_nm");
+							String mobile = rs.getString("mobile");
+							//Timestamp ts =  rs.getTimestamp("reg_dt");
+							LocalDateTime regDt =  rs.getTimestamp("reg_dt").toLocalDateTime();
+
+							System.out.printf("user_no : %d, user_id : %s, user_pw : %s, mobile : %s, regDt : %s%n", userNo, userId, userPw, mobile, regDt);
+						}
+						rs.close();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			------------------------------------------------------------------------------------
+
+	2. PreparedStatement 객체로 데이터 접근하기
+	
+		1) 동적인 쿼리에 사용
+		2) 하나의 객체로 여러 번의 쿼리를 실행할 수 있으며, 동일한 쿼리문을 특정 값만 바꾸어서 여러 번 실행해야 할 때, 매개변수가 많아서 쿼리문을 정리해야 할 때 유용
+			- SQL injection 방지 
+			
+			Connection	
+				PreparedStatement prepareStatement(Strinf sql);
+			sql에서 값이 할당될 부분에 ? 로 기입
+			
+			set자료형(int ?의 위치번호, 값)
+			
+			ResultSet executeQuery();  : select
+			int executeUpdate(); : insert, update, delete
+			
+			---------------------------------------------------------
+			public class Ex02 {
+				private String url = "jdbc:oracle:thin:@localhost:1521:XE";
+				private String user = "STUDY";
+				private String password = "oracle";
+
+				@BeforeAll
+				static void init() {
+					try {
+						Class.forName("oracle.jdbc.driver.OracleDriver");
+					}catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
+			....
+			@Test
+			void test2() {
+				String userId = "USER04";
+				String userNm = "사용자04";
+				String userPw = "123456";
+				String mobile = "0101112222";
+
+				String sql = "insert into member(user_no, user_id, user_nm, user_pw, mobile) values (seq_member.nextval, ?, ?, ?, ?)";
+
+				try(Connection conn = DriverManager.getConnection(url, user, password);
+					PreparedStatement pstmt = conn.prepareStatement(sql, new String[] {"user_no"})) {
+					pstmt.setString(1, userId);
+					pstmt.setString(2, userNm);
+					pstmt.setString(3, userPw);
+					pstmt.setString(4, mobile);
+
+					int cnt = pstmt.executeUpdate();
+					System.out.println(cnt);
+
+					// sequence next val 로 만들어진 member 테이블의 기본키의 새로 생성된 데이터 받아오기
+					ResultSet rs = pstmt.getGeneratedKeys();
+					if(rs.next()) {
+						long userNo = rs.getLong(1);
+						System.out.printf("user_no : %d%n", userNo);
+					}
+				} catch(SQLException e) {
+					e.printStackTrace();
+				}
+
+			}
+			---------------------------------------------------------
+
+
+	4. CallableStatement 객체로 데이터 접근하기
+	
+		1) 프로시저 실행시 사용 
+
+			-------------------------------------------------
+			package exam01;
+			import org.junit.jupiter.api.BeforeAll;
+			import org.junit.jupiter.api.Test;
+
+			import java.sql.CallableStatement;
+			import java.sql.Connection;
+			import java.sql.DriverManager;
+			import java.sql.SQLException;
+
+			public class Ex03 {
+				private String url = "jdbc:oracle:thin:@localhost:1521:XE";
+				private String user = "STUDY";
+				private String password = "oracle";
+
+				@BeforeAll
+				static void init() {
+					try {
+						//오라클 드라이버 동적 로딩
+						Class.forName("oracle.jdbc.driver.OracleDriver");
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
+
+				@Test
+				void test1() {
+					String sql = "CALL Register_member(?, ?, ?, ?)";
+					try(Connection conn = DriverManager.getConnection(url, user, password);
+						CallableStatement cstmt = conn.prepareCall(sql)) {
+						cstmt.setString(1, "USER06");
+						cstmt.setString(2,"12234");
+						cstmt.setString(3, "사용자06");
+						cstmt.setString(4, "01088899999");
+						int cnt = cstmt.executeUpdate();
+						System.out.println(cnt);
+
+					}catch(SQLException e) {
+						e.printStackTrace();
+					}
+
+				}
+			}
+			----------------------------------------------------
+(정리)		
+오라클 JDBC Driver ojdbc11.jar
+
+	1. 드라이버 동적 로딩
+		Class.forName("oracle.jdbc.driver.OracleDriver");
+		
+	2. Connection 객체 생성
+		1) DriverManager
+			static Connection getConnection(url, user.password);
+			url = "jdbc:oracle:thin:@localhost:1521:XE"
+		2) DataSource 인터페이스 : 커넥션 풀 사용
+			Tomcat JDBC
+				의존성 : tomcat-jdbc
+			HikariCP
+		
+	3. Statement
+		1) 정적 SQL 실행 (보안등 문제)
+		2) Connection
+			Statement createStatement()
+			 - ResultSet executeAQuery(String sql) - Select
+				ResultSet : 조회결과 레코드 주소 : 커서 이동 다음해 ㅇ조회
+					boolean next() 다음행 있으면 true 없으면 false
+					자료형 get자료형(int 컬럼순서번호);
+					자료형 get자료형(String 컬럼명);
+			int executeUpdate(String sql) ; insert, delete, update
+				- 반환값 : 반영된 레코드 갯수
+				
+	4. PreparedStatement
+		1) 동적 SQL
+		2) 값을 ? 파라메터로 미리 정의, 값을 set자료형 메서드로  준비
+		3) Connection
+			PreparedStatement prepareStatement(String sql);
+			PreparedStatement prepareStatement(String sql, String[] columnNames);
+			 -> ResultSet getGeneratedKeys()를 통해 조회
+		4) 실행
+			ResultSet executeQuery();
+			int executeUpdate();
+			
+	5. CallableStatement
+		- 프로시저 호출용
+	
+
+(그러나 문제가 있다)
+
+DriverManager - 접속할때마다 Connection 객체를 생성 -> 효율성 떨어짐, 성능도 안좋음
+
+
 
 
 커넥션 풀
 Tomcat JDBC
 
+		2) DataSource 인터페이스 : 커넥션 풀 사용
+			Tomcat JDBC
+				의존성 : tomcat-jdbc
+			HikariCP
+
+
+	maven repository에서 Tomcat jdbc 검색
+		Tomcat JDBC » 10.1.24 
+		build.gradle 파일에 의존성 카피 
+			implementation 'org.apache.tomcat:tomcat-jdbc:10.1.24' : 
+		
+		dependencies {
+			implementation 'org.apache.tomcat:tomcat-jdbc:10.1.24'
+		}
+
+			-----tomcat.jdbc 예제----------------------------------------------------------
+			package exam01;
+			import org.apache.tomcat.jdbc.pool.DataSource;
+			import org.junit.jupiter.api.BeforeAll;
+			import org.junit.jupiter.api.Test;
+
+			import java.sql.CallableStatement;
+			import java.sql.Connection;
+			import java.sql.DriverManager;
+			import java.sql.SQLException;
+
+			public class Ex03 {
+				private String url = "jdbc:oracle:thin:@localhost:1521:XE";
+				private String user = "STUDY";
+				private String password = "oracle";
+
+				@BeforeAll
+				static void init() {
+					try {
+						//오라클 드라이버 동적 로딩
+						Class.forName("oracle.jdbc.driver.OracleDriver");
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
+
+				@Test
+				void test1() {
+					String sql = "CALL Register_member(?, ?, ?, ?)";
+					try(Connection conn = DriverManager.getConnection(url, user, password);
+						CallableStatement cstmt = conn.prepareCall(sql)) {
+						cstmt.setString(1, "USER06");
+						cstmt.setString(2,"12234");
+						cstmt.setString(3, "사용자06");
+						cstmt.setString(4, "01088899999");
+						int cnt = cstmt.executeUpdate();
+						System.out.println(cnt);
+
+					}catch(SQLException e) {
+						e.printStackTrace();
+					}
+
+				}
+				@Test
+				void test2() {
+					DataSource ds = new DataSource();
+					ds.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+					ds.setUrl("jdbc:oracle:thin:@localhost:1521:XE");
+					ds.setUsername("STUDY");
+					ds.setPassword("oracle");
+
+					ds.setInitialSize(2);  //초기 로드 생성 연결 객체 수 - 기본값 10
+					ds.setMaxActive(10); // 최대 생성할 연결객체 수 - 기본값 100
+					ds.setTestWhileIdle(true); // 연결객체가 유휴 상태일때 연결상태 체크
+					ds.setTimeBetweenEvictionRunsMillis(5 * 1000); //5초에 한번씩 연결상태 체크
+					ds.setMinEvictableIdleTimeMillis(30 * 1000); //유휴상태 객체를 30초후 소멸 후 새로 생성
+
+					try(Connection conn = ds.getConnection()) {
+						System.out.println(conn);
+					} catch(SQLException e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+			-------------------------------------------------------
+
+	HikariCP » 5.1.0
+	implementation 'com.zaxxer:HikariCP:5.1.0'
+
+			-------Hikari 예제---------------------------------------
+			@Test
+			void test3() {
+				HikariConfig config = new HikariConfig();
+				config.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+				config.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:XE");
+				config.setUsername("STUDY");
+				config.setPassword("oracle");
+
+				config.setMinimumIdle(2);
+				config.setMaximumPoolSize(10);
+
+				HikariDataSource ds = new HikariDataSource(config);
+				try(Connection cnn = ds.getConnection()) {
+					System.out.println(cnn);
+				} catch(SQLException e) {
+					e.printStackTrace();
+				}
+			}
 
 
 
 
+마이바티스(mybatis) 프레임워크 설치 및 적용 - 마이바티스 공식사이트 참조
+	1. 설치 
+		INTELIj 에 gradle 프로젝트 만들면 build.gradle 파일 자동 생성됨 - 의존성 설정파일
+		
+		mvn repository검색 -= 의존성 추가
+		
+		ojdbc11 - Oracle JDBC Driver compatible with JDK11, JDK17, JDK19, and JDK21
+		Ojdbc11 » 23.4.0.24.05
+		Gradle(short)
+		implementation 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+			: implementation -> runtimeOnly 로 바꾸기 : 실행중에만..
+		
+		orai18n - 한글
+		Orai18n » 23.4.0.24.05
+		implementation 'com.oracle.database.nls:orai18n:23.4.0.24.05'
 
+		MyBatis » 3.5.16
+		implementation 'org.mybatis:mybatis:3.5.16'
+		
+		lombok 
+		Project Lombok » 1.18.32
+		compileOnly 'org.projectlombok:lombok:1.18.32'
+		annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    
+		의존성 추가 후 sync 버튼
+		
+		
+		https://mybatis.org/ 마이바티스 공식사이트 참조
+		
+		시작하기 페이지 - XML 설정 복사 (XML설정파일에서 지정하는 마이바티스의 핵심이 되는 설정)
+			: resources 안에 configs 디렉토리 만들고 xml 파일 추가(DB연결 설정)
+			
+		-> src/main/resources/configs/mybatis-config.xml 파일 만들어 붙여넣기
+		
+			<?xml version="1.0" encoding="UTF-8" ?>
+			<!DOCTYPE configuration
+					PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+					"https://mybatis.org/dtd/mybatis-3-config.dtd">
+			<configuration>
+				<environments default="development">
+					<environment id="development">
+						<transactionManager type="JDBC"/>
+						<dataSource type="POOLED">
+							<property name="driver" value="${driver}"/>
+							<property name="url" value="${url}"/>
+							<property name="username" value="${username}"/>
+							<property name="password" value="${password}"/>
+						</dataSource>
+					</environment>
+				</environments>
+				<mappers>
+					<mapper resource="org/mybatis/example/BlogMapper.xml"/>
+				</mappers>
+			</configuration>		
+			
+			---------------------------------------------------------------
+		-> <properties></properties> 만들고 변수 값 채우기
+		
+			driver -> oracle.jdbc.driver.OracleDriver
+			url -> jdbc:oracle:thin:@localhost:1521:XE
+			username -> STUDY
+			password -> oracle
+			
+			
+			----이렇게 추가, 수정--------------------------------------------
+			<?xml version="1.0" encoding="UTF-8" ?>
+			<!DOCTYPE configuration
+					PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+					"https://mybatis.org/dtd/mybatis-3-config.dtd">
+			<configuration>
+				<properties>
+					<property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+					<property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
+					<property name="username" value="STUDY" />
+					<property name="password" value="oracle"/>
+				</properties>
+				<environments default="dev"> 
+					<environment id="dev">   <!--개발환경과 운영환경 다르면 추가할 수 있다 -->
+						<transactionManager type="JDBC"/>
+						<dataSource type="POOLED">
+							<property name="driver" value="${driver}"/>
+							<property name="url" value="${url}"/>
+							<property name="username" value="${username}"/>
+							<property name="password" value="${password}"/>
+						</dataSource>
+					</environment>
+				</environments>
+				<mappers>
+					<mapper resource="mappers/MemberMapper.xml" />
+				</mappers>
+			</configuration>
+			------------------------------------------------
+			
+	src/main/resources/mappers/MemberMapper.xml 만들기
+	-> 마이바티스 공식 사이트 시작하기 아래쪽에 매핑 xml 복사
+	  : 맵퍼의 namespace 중요 - 바꾸기 
+			
+		<?xml version="1.0" encoding="UTF-8" ?>
+		<!DOCTYPE mapper
+				PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+				"https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		<mapper namespace="mappers.MemberMapper">
+		
+			<!-- 
+			/*DB 필드명과 클래스 멤버변수와 다를때는 이렇게 매핑 
+			<resultMap id="memberMap" type="exam01.Member">
+				<result column="user_no" property="userNo" />
+				<result column="user_id" property="userId" />
+				<result column="user_pw" property="userPw" />
+				<result column="user_nm" property="userNm" />
+				<result column="mobile" property="mobile" />
+				<result column="reg_dt" property="regDt" />
+			</resultMap>
+			*/
+			-->
+			
+			<select id="getList" resultMap="memberMap">
+				SELECT * FROM MEMBER
+			</select>
+			<!--
+			<insert></insert>
+			<update></update>
+			<delete></delete>
+			-->			
+
+		</mapper>
+		---------------------------------------------------------------------	
+		package configs;
+		import org.apache.ibatis.io.Resources;
+		import org.apache.ibatis.session.SqlSession;
+		import org.apache.ibatis.session.SqlSessionFactory;
+		import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+
+		import java.io.IOException;
+		import java.io.Reader;
+
+		public class DBConn {
+			private static SqlSessionFactory factory;
+
+			static {
+				try {
+					// 설정파일(mybatis-config.xml) -> Reader 객체로 변환 (resource 폴더 기준)
+					Reader reader = Resources.getResourceAsReader("configs/mybatis-config.xml");
+
+					factory = new SqlSessionFactoryBuilder().build(reader); // default environment
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+			public static SqlSession getSession(boolean autoCommit) { // autoCommit 옵션 받기
+				SqlSession session = factory.openSession(autoCommit);
+				return session;
+			}
+
+			public static SqlSession getSession() { // autoCommit 설정 없으면 기본으로 autoCommit
+				return getSession(true);
+			}
+		}		
+		--------------------------------------------------------------------
+		package exam01;
+		import lombok.Data;
+		import java.time.LocalDateTime;
+
+		@Data
+		public class Member {
+			private long user_no;
+			private String user_id;
+			private String user_pw;
+			private String user_nm;
+			private String mobile;
+			private LocalDateTime red_dt;
+			private LocalDateTime mod_dt;
+		}
+		--------------------------------------------------------------------
+		package exam02;
+
+		import configs.DBConn;
+		import exam01.Member;
+		import org.apache.ibatis.session.SqlSession;
+		import org.junit.jupiter.api.Test;
+
+		import java.util.List;
+
+		public class Ex01 {
+
+			@Test
+			void test1() {
+				SqlSession session = DBConn.getSession();
+				List<Member> members = session.selectList("mappers.MemberMapper.getList");
+				members.forEach(System.out::println);
+			}
+		}
+		-------------------------------------------------------------------
+
+	2. 설정
+		SqlSessionFactory
+		
+			-> SqlSession 객체 생성
+			
+			
+				-> insert(..)
+				-> delete(..)
+				-> update(..)
+				-> List<T> selectList(..)
+				-> T selectOne(..)
+		
+			SqlSessionFactoryBuilder 로 
+			
+			
+			getMapper(Class class)
+			
+			
+			
+	3. 적용
+
+
+
+5. 로그
+	mybatis 사이트 - 매퍼설정 logImpl
+
+		<settings>
+			<setting name="logImpl" value="SLF4J"/>
+		</settings>
+	
+	slf4j-api 가이드라인(인터페이스 위주) 만 제공하므로 구현체 필요함
+	logback-class 대표적 구현체
+	
+	의존성 찾기 slf4j api 
+	
+	SLF4J API Module » 2.0.13
+	implementation 'org.slf4j:slf4j-api:2.0.13'
+
+
+	logback 검색
+	Logback Classic Module » 1.5.6
+	testImplementation 'ch.qos.logback:logback-classic:1.5.6'
+	-> test 떼고 implementation 'ch.qos.logback:logback-classic:1.5.6'
+
+	sync 버튼
+
+	source/main/resources/
+	logback.xml  : mybatis 공식사이트 로깅 부분 카피
+	    
+		<pattern>%5level [%thread] - %msg%n</pattern>
+		
+		<pattern>%d %5p %c{2} - %m%n</pattern>
+		// 5글자 내에서 로그레벨 : 5p  // %m : 로그메시지 , %d :로그시점 기록, %c : 클래스명
+		// %c{2} 패키지명은 한자로 축약, 클래스명은 전체이름 표시
+
+		<root level="error">
+	
+			로그 레벨
+			
+				FATAL
+				ERROR
+				WARN
+				INFO - 일반정보
+				DEBUG - 자세한 정보
+				TRACE - 더 자세한 정보
+				---------------------------------------------------------------------
+				<?xml version="1.0" encoding="UTF-8"?>
+				<!DOCTYPE configuration>
+				<configuration>
+
+					<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+						<encoder>
+							<pattern>%d %5p %c{2} - %m%n</pattern>
+						</encoder>
+					</appender>
+
+					<logger name="mappers">
+						<level value="DEBUG"/>
+					</logger>
+
+					<root level="INFO">
+						<appender-ref ref="stdout"/>
+					</root>
+
+				</configuration>
+				---------------------------------------------------------------------
+
+4. 동적 SQL
+	mybatis 사이트의 동적 SQL 참조 
+	
+	1) if : 
+	2) choose, when, otherwise
+	3) trim, where, set
+	
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">  //WHERE절 가장 앞쪽 AND, OR 제거와 WHERE 빠져야 할 경우 필ㅇㅛ
+		  ...
+		</trim>
+		위의 trim 대신 where 절 감싸기
+		<WHERE>  //가장 앞쪽 AND, OR 제거
+		  ...
+		</WHERE>
+		
+		
+		<trim prefix="SET" suffixOverrides=",">   // 마지막 , 는 제거 
+		  ...
+		</trim>
+		위의 trim 대신 set절 감싸기
+		<set>
+		..
+		</set>
+		
+
+    <select id="getList3" resultMap="memberMap">
+        SELECT * FROM MEMBER
+        <where>
+            <if test="userId != null">
+                user_id = #{userId}
+            </if>
+            <if test="userNm != null">
+                and user_nm like #{userNm}
+            </if>
+            <if test="mobile != null">
+                and mobile like #{mobile}
+            </if>
+        </where>
+    </select>
+
+
+	<update id="modify">
+        update member
+            <set>
+                <if test="userPw != null">
+                    user_pw = #{userPw},
+                </if>
+                <if test="userNm != null">
+                    user_nm = #{userNm},
+                </if>
+                <if test="mobile != null">
+                    mobile = #{mobile},
+                </if>
+            </set>
+        where user_id = #{userId}
+    </update>
+
+    <select id="getList3" resultMap="memberMap">
+        <bind name="P_userNm" value="'%' + _parameter.getUserNm() + '%'"/>
+        <bind name="P_mobile" value="'%' + _parameter.getMobile() + '%'"/>
+        SELECT * FROM MEMBER
+        <where>
+            <if test="userId != null">
+                user_id = #{userId}
+            </if>
+            <if test="userNm != null">
+                and user_nm like #{P_userNm}
+            </if>
+            <if test="mobile != null">
+                and mobile like #{P_mobile}
+            </if>
+        </where>
+    </select>		
+
+    <select id="getList4" resultMap="memberMap">
+        select * from member
+        <where>
+            <foreach item="item" index="index" collection="list"
+                open="USER_ID IN (" close=")" separator=",">
+                #{item}
+
+            </foreach>
+        </where>
+    </select>
+    <select id="getList5">
+        select * from member where
+        <![CDATA[
+            user_no > #{userNo}
+        ]]>
+    </select>
+
+	4) foreach
+	5) bind

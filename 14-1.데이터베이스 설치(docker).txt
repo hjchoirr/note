@@ -321,8 +321,54 @@ docker exec -it oracle11g /bin/bash
 	# sqlplus /nolog
 	SQL> conn sys/oralce as sysdba
 	SQL> alter user SYSTEM IDENTIFIED BY "oracle" ACCOUNT UNLOCK;
+------------------------------------------------------------	
 	
-	
+C:\Users\admin>docker search oracle-xe
+
+NAME                              DESCRIPTION                                      STARS     OFFICIAL
+gvenzl/oracle-xe                  Oracle Database XE (21c, 18c, 11g) for every…   304
+oracleinanutshell/oracle-xe-11g                                                    288
+wnameless/oracle-xe-11g-r2        Oracle Express Edition 11g Release 2 on Ubun…   105
+
+
+C:\Users\admin>docker pull gvenzl/oracle-xe:18
+
+C:\Users\admin>docker images
+C:\Users\admin>docker run --name oracle-xe -d -p 1521:1521 -e ORACLE_PASSWORD=oracle gvenzl/oracle-xe:18
+
+
+create user study iden... oracle
+
+grant connect, resource to study
+
+alter user study quota unlimited on users;
+
+
+
+ojdbc11 mvn repository 검색
+
+	Ojdbc11 » 23.4.0.24.05 
+	Orai18n » 23.4.0.24.05   
+
+gradle short 의존성 추가 build.gradle에 
+
+implementation 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+-> 변경
+runtimeOnly 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+
+
+Orai18n » 23.4.0.24.05    mvn repository 검색
+implementation 'com.oracle.database.nls:orai18n:23.4.0.24.05'
+
+
+
+Project Lombok » 1.18.32
+
+compileOnly 'org.projectlombok:lombok:1.18.32'
+annotationProcessor 'org.projectlombok:lombok:1.18.32'
+-----------------------------------------------
+
+
 
 
 데이터와 데이터베이스, DBMS
