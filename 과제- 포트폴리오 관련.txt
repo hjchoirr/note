@@ -22,3 +22,214 @@ Board 테이블
 		- 게시글 목록 : 조회(기시긍 제목, 내용 - Like 검색)
 		- 게시글 1개(개시글 번호) selectOne
 	
+------------------------------------------------------------------
+묵찌빠 게임 
+
+1. 회원가입
+2. 로그인
+q. 종료
+
+
+5/27 1교시 동영상 참조
+
+D:\hjchoi\8.실무프로젝트(P-2)\project>git init
+Initialized empty Git repository in D:/hjchoi/8.?ㅻТ?꾨줈?앺듃(P-2)/project/.git/
+fatal: unknown write failure on standard output
+
+D:\hjchoi\8.실무프로젝트(P-2)\project>git remote add origin https://github.com/hjchoirr/project502_p2.git
+
+D:\hjchoi\8.실무프로젝트(P-2)\project>git add .
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'gradlew', LF will be replaced by CRLF the next time Git touches it
+
+D:\hjchoi\8.실무프로젝트(P-2)\project>git commit -m "initial upload"
+[master (root-commit) 6bd312e] initial upload
+ 11 files changed, 425 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 .idea/.gitignore
+ create mode 100644 .idea/gradle.xml
+ create mode 100644 .idea/misc.xml
+ create mode 100644 .idea/vcs.xml
+ create mode 100644 build.gradle
+ create mode 100644 gradle/wrapper/gradle-wrapper.jar
+ create mode 100644 gradle/wrapper/gradle-wrapper.properties
+ create mode 100644 gradlew
+ create mode 100644 gradlew.bat
+ create mode 100644 settings.gradle
+
+D:\hjchoi\8.실무프로젝트(P-2)\project>git push origin master
+Enumerating objects: 16, done.
+Counting objects: 100% (16/16), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (13/13), done.
+Writing objects: 100% (16/16), 59.93 KiB | 11.98 MiB/s, done.
+Total 16 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/hjchoirr/project502_p2.git
+ * [new branch]      master -> master
+
+D:\hjchoi\8.실무프로젝트(P-2)\project>
+
+깃허브에서
+
+Branch name pattern - master
+
+2개 체크
+ - Require a pull request before merging
+ - Do not allow bypassing the above settings
+
+
+
+---------------------------------------------------------------------
+
+lombok
+ojdbc11  - runtimeOnly
+orai18n
+mybatis
+slf4j-api
+Logback Classic Module - implementation
+
+
+sync
+
+
+---------------------------------------------------------------------
+
+build.gradle에 추가
+---------------------------------------------------------------------
+plugins {
+    id 'java'
+    id 'application'
+}
+
+mainClassName = 'org.choongang.Application'
+
+tasks.jar {
+    manifest.attributes['Main-Class'] = 'org.choongang.Application'
+}
+
+---------------------------------------------------------------------
+Application.java 만들기 - main/java/org.choongang/Application.java
+---------------------------------------------------------------------
+
+package org.choongang;
+public class Application {
+    public static void main(String[] args) {
+        System.out.println("프로그램 시작!");
+    }
+}
+
+---------------------------------------------------------------------
+코끼리 모양 그레이들에서 
+gradle run
+gradle build
+---------------------------------------------------------------------
+
+
+D:\hjchoi\8.실무프로젝트2\project>cd build
+
+D:\hjchoi\8.실무프로젝트2\project\build>cd libs
+
+D:\hjchoi\8.실무프로젝트2\project\build\libs>java -jar project-1.0-SNAPSHOT.jar
+?봽濡쒓렇?옩 ?떆?옉!
+
+D:\hjchoi\8.실무프로젝트2\project\build\libs>
+---------------------------------------------------------------------
+
+
+mvc 모델 - 역할 분담
+
+M : model 
+	- 비즈니스 로직 구현
+	  Service : 기능/회원가입기능 등 -> JoinService
+	- DTO (Data Transfer Object) :데이터 전달 목적의 객체 
+	- Validator - 데이터 검증
+	- DAO(Data Access Object) :데이터 접근객체(DB처리..)
+	- VO(Value Object)
+		
+V - view : 처리 결과 데이터를 보이는 부분
+
+C : Controller 요청(사용자) - 요청처리를 위한 모델, 뷰 연결 - 응답(뷰)
+	- 모델과 뷰의 중재 역할
+ 
+DDD (Domain Driven Design : 도메인 주도 설계)
+Domain : 전문가 영역 - 게시판 도메인, 주문 도메인, 상품 도메인, 회원 도메인
+
+표현계층
+도메인계층
+인프라계층 : 공통인프라(DB...)
+
+MSA(Micro Service Architecture)
+
+
+
+4. Controller 설계 
+
+	1) 메뉴 라우팅
+	2) 컨트롤러
+	
+	
+	-> 템플릿 메서드 패턴
+	
+	run()
+	공통 : common()
+	메뉴항목 : show()
+	입력 : prompt()
+
+
+	3) 뷰(View) : template
+		- Template 인터페이스
+		- Template 클래스
+	
+file.encoding
+	윈도우 인코딩 window949, CPC949, EUC-KR -> 한글을 2바이트로 표시하는 유니코드
+	UTF-8 : 한글 1글자를 3바이트로 표시하는 유니코드
+	
+	환경변수
+	
+	java -jar -Dfile.encoding=UTF-8 파일명.jar
+	
+	String System.getEnv("환경변수명")
+	
+	
+	코끼리 -> 명령 -> gradle build
+	
+	D:\hjchoi\8.실무프로젝트2\project\build\libs>java -jar -Dfile.encoding=UTF-8 project-1.0-SNAPSHOT.jar
+
+5. Model 설계
+	기능 - Service
+		- DTO, DAO, Validator ..다른 객체의 협력을 통해서 하나의 기능을 완성
+		- 회원이 입력한 데이터가 매개변수 
+		
+		DTO : Data Transfer Object
+		
+		
+mybatis-config.xml
+
+
+SQL> create user project2_1 identified by oracle;
+
+User created.
+
+SQL> alter user project2_1 quota unlimited on users;
+
+User altered.
+
+SQL> grant connect, resource to project2_1;
+
+Grant succeeded.
+
+SQL> conn project2_1/oracle
+Connected.
+SQL> create table member(
+  2     user_no number(10) primary key,
+  3     user_id varchar2(30) unique not null,
+  4     user_pw varchar2(65) not null,
+  5     user_nm varchar2(40) not null,
+  6     reg_dt date default sysdate,
+  7     mod_dt date 
+  8  );
+
+Table created.
+
+SQL> create sequence seq_member;
+
