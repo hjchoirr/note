@@ -233,3 +233,9 @@ Table created.
 
 SQL> create sequence seq_member;
 
+
+502 - 2 조 
+
+소켓 강의 - 5/28 3시 10분부터  동영상 참조
+	- 소스 github : ....
+	https://github.com/yonggyo1125/project502_13_2
