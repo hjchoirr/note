@@ -234,8 +234,182 @@ Table created.
 SQL> create sequence seq_member;
 
 
-502 - 2 조 
 
 소켓 강의 - 5/28 3시 10분부터  동영상 참조
 	- 소스 github : ....
 	https://github.com/yonggyo1125/project502_13_2
+	
+
+p-2 : 묵찌빠
+p-3 : 학생관리
+	2, 3 구조화된 틀 따르기
+	구조를 파악하기
+	만드는게 목표가 아님 
+	
+
+상품성 있게 만들기
+
+p-4 : 팀별 포트폴리오 : 스프링부트 + JPA, ( + 스프링클라우드 )
+	: 좀더 자율적
+	
+p-5 : 기업 포트폴리오 : 기업에서 기획서를 제공
+
+
+5/29 동영상 꼭 다시 보기(구조설명) 5/27 : 구조 만드는 동영상 - 1교시부터
+
+P-2, P-3 구조 설명
+
+	mvc 모델 - 역할 분담 모델 / UI 
+
+			
+	V - view : 처리 결과 데이터를 보이는 부분
+
+	C : Controller 요청(사용자) - 요청처리를 위한 모델, 뷰 연결 - 응답(뷰)
+		- 모델과 뷰의 중재 역할
+	 
+	  : 사용자의 요청은 controller로 들어옴, 요청에 대한 처리를 위해 맞는 기능(Model)을 찾는다
+	     처리 결과를 view로 보냄  
+
+	M : model 
+		- 기능을 말함
+		- 비즈니스 로직 구현
+		  Service : 기능/회원가입기능 등 -> JoinService
+		- DTO (Data Transfer Object) :데이터 전달 목적의 객체 
+		- Validator - 데이터 검증
+		- DAO(Data Access Object) :데이터 접근객체(DB처리..)
+		- VO(Value Object)
+
+	DDD (Domain Driven Design : 도메인 주도 설계)
+	
+	Domain : 전문가 영역 
+		   : 기능별 영역 - 게시판 도메인, 주문 도메인, 상품 도메인, 회원 도메인
+
+		예)
+		  표현계층 : 출력, 응답(View)
+		  도메인계층 
+		  인프라계층 : 공통인프라(DB...)
+
+	MSA(Micro Service Architecture)
+
+
+
+	4. Controller 설계 
+
+		1) 메뉴 라우팅
+		2) 컨트롤러
+		
+		
+		-> 템플릿 메서드 패턴
+		
+		run()
+		공통 : common()
+		메뉴항목 : show()
+		입력 : prompt()
+
+
+		3) 뷰(View) : template
+			- Template 인터페이스
+			- Template 클래스
+
+
+	게임 - 도메인으로 분리하기
+
+		메인도메인 
+		게임도메인
+		템플릿도메인
+		
+	학생관리 프로그램의 경우
+		학생도메인
+		교수도메인
+		행정직원도메인
+	
+	
+	템플릿 - 뷰
+
+
+	구조 소스 적용하기
+	https://github.com/yonggyo1125/project502_13_2/
+	project502_13_2/src/
+
+
+	M(Model) : 기능 
+	
+		서비스 - 예) 회원가입 기능
+		  - DTO(Data Transfer Object) : 데이터 전달 객체 
+			: RequestJoin, RequestLogin
+		  - Validator : 데이터 검증
+		  - DAO(Data Access Object) : 데이터 접근 객체
+		  + 기타..
+		  
+	주입 - 통제를 위해.. - 매개변수로 받는 거 말함
+	
+	의존 - 생성자로 객체 생성 -> 의존성 : 닫힌 구조?
+	
+	
+	로케이터를 통해서 사용하면 바꿀때 100군데 다 안꿔도 된다. 객체 통제
+	로케이터 한군데서만 바꾸면 로케이터를 사용하는 모든 객체에 적용됨 
+	  -> 확장에 열린 구조, 통제 가능, 주입하기, (개방폐쇄 원칙)
+	  
+	-> 통제를 하기 위한 전략 패턴
+	
+	
+	스프링프레임워크 - 주기능 : 객체관리 기능
+	
+	기능은 싱글톤 패턴으로 
+	
+	서비스 로케이터 인터페이스 -> 추상 서비스 로케이터 -> 각 서비스가 상속
+	
+	
+	라우터(Router) : 웹은 톰캣이 대신함 - 해당주소에  해당 서비스 찾아줌
+	
+	 - 공통부분(global)에 있고 -> main 에 메인 라우터
+	
+	 - 해당 컨트롤러 찾는 기능
+	 
+	템플릿츠(Templates) : Controller의 show()에서 사용, 필요한 뷰(템플릿)를 찾아 가도록 함
+	
+	 
+	AbstractController 에 Scanner 있음
+		
+	@Override
+    public final void run() {
+        common();
+        show();
+        prompt();
+    }
+	
+	추상클래스의 목적 : 공통기능, 공통자원, (설계)
+	인터페이스의 목적 : 설계
+	
+	
+	-----------------------요기까지 쌤 설명
+	요기부터 내가 파악
+	
+	Router interface - global에 위치함
+		: 해당 controller 찾아 연결함 
+		: change(), start()
+	MainRouter
+		: 현재 메인 메뉴밖에 없으므로 라우터가 MainRouter 밖에 없다
+		: change() : MemberControllerLocator 클래스의 find() 호출로 컨트롤러 받아오고 controller.run() 호출
+		: start() : wile 안에서 change() 호출
+	
+	
+	Controller interface - Service 와 view 연결
+		: show(), run()
+		
+	AbstractController - 컨트롤러 추상클래스 (추상클래스는 공통자원, 공통기능)
+		
+		: common()
+		: prompt()  메뉴중 선택하라 메시지 출력후 입력 받아  change() 호출
+		: promptWithValidation()
+		: change() - Router의 change() 호출
+		
+		: final run() - common() show() prompt() : 절차고정
+	
+	MainController - AbstractController 상속받고 show() 구현 
+		: show() : 메인메뉴 templates render() 호출
+	
+	ControllerLocator interface : 
+	
+	
+	
