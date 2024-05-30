@@ -412,4 +412,407 @@ P-2, P-3 구조 설명
 	ControllerLocator interface : 
 	
 	
+5/30 수업 동영상 1교시 뒷부분 컴퓨터 조립 보기 - 로케이터 이해하기
+
+SOLID : 객체지향 설계 원칙
+
+S : 단일책임 원칙(Single Responsibility Principle) : 하나의 클래스는 하나의 책임을 가짐
+
+O : 개방폐쇄원칙 (Open Close Principle)
+
+L : 리스코프 치환 원칙 : 하위 클래스 자료형 -> 상위 클래스의 자료형 으로 대체
+	서브타입은 언제나 기반타입으로 교체 가능(다형성)
+
+I : 인터페이스 분리 원칙(Interface Segregation Principle) : 
+	역할별로 인터페이스 분리, 하나의 인터페이스에 설계항목 너무 많이 하지 말라
+
+D : 의존 역전 원칙 (Dependancy Inversion Principle) : 
+	특정 대상을 직접 참조하기 보다는 그 대상의 상위 요소인 추상클래스 또는 인터페이스 참조
 	
+	ArrayList<String> items = new ArrayList<>();  -- X
+	List<String> items = new ArrayList<>();  -- O
+	
+	- 아래처럼 쓰는게 더 좋다- 훨씬 유연하게 쓸 수 있다
+
+
+
+개방폐쇄 원칙 
+	디자인 패턴 : 전략패턴
+	확장에 열려있고 변화에 영향을 받는데는 닫혀있는..구조로.. 
+	통제를 위해 구성 객체의 주입 개방 -> 생성자 매개변수(의존관계), 세터 메서드(연관관계)를 통해서
+
+
+
+예제 - game 브랜치에 ..
+https://github.com/yonggyo1125/project502_13_2/blob/game/src/test/java/exam03/Body.java
+
+
+		public class Body {
+		}
+
+		public class Monitor {
+		}
+
+		public class TouchScreen {
+		}
+
+
+		public class Desktop {
+
+			private Monitor monitor;
+			private Body body;
+
+			public Desktop(Monitor monitor, Body body) {
+				//주입하여 생성자 호출하도록 함 (생성자 매개변수)-> 통제를 위한 개방
+				this.monitor = monitor;
+				this.body = body;
+			}
+
+			public void run() {
+				// 객체 활용한 기능
+			}
+		}
+
+		public class ComAssembler {
+			public Monitor monitor(){
+				return new Monitor();
+			}
+
+			public Body body() {
+				return new Body();
+			}
+
+			public TouchScreen touchScreen() {
+				return new TouchScreen();
+			}
+
+			public Desktop desktop() {
+				return new Desktop(monitor(), body());
+			}
+		/*
+			public Tablet tablet() {
+				return new Tablet(touchScreen(), body());
+			}
+		*/
+
+		}
+
+		public class Ex02 {
+			public static void main(String[] args) {
+				ComAssembler assem = new ComAssembler();
+
+				Desktop d1 = new assem.desktop()
+				Desktop d2 = new assem.desktop();
+				
+			}
+		}
+
+		==========================================
+
+		public class Desktop {
+			private Monitor monitor;
+			private Body body;
+			private Keyboard keyboard;
+			private Mouse mouse;
+			private GraphicCard card;
+
+			public Desktop(Monitor monitor, Body body, Keyboard keyboard, Mouse mouse, GraphicCard card) {
+				this.monitor = monitor;
+				this.body = body;
+				this.keyboard = keyboard;
+				this.mouse = mouse;
+				this.card = card;
+			}
+
+			public void run() {
+				// monitor, body, keyboard, mouse 객체를 활용 ...
+			}
+		}
+
+		public class ComputerAssembler {
+			public Monitor monitor() {
+				return new Monitor();
+			}
+
+			public Body body() {
+				return new Body();
+			}
+
+			public Keyboard keyboard() {
+				return new Keyboard();
+			}
+
+			public Mouse mouse(){
+				return new Mouse();
+			}
+
+			public GraphicCard card() {
+				return new GraphicCard();
+			}
+
+			public Desktop desktop() {  //조립된 데스크탑 제공
+				return new Desktop(monitor(), body(), keyboard(), mouse(), card());
+			}
+		}
+
+		public class UpgradedMonitor extends Monitor {
+		}
+
+		---
+
+		public class ComputerAssembler {
+			public Monitor monitor() {
+				return new UpgradedMonitor();   ///*********
+			}
+
+			public Body body() {
+				return new Body();
+			}
+
+			public Keyboard keyboard() {
+				return new Keyboard();
+			}
+
+			public Mouse mouse(){
+				return new Mouse();
+			}
+
+			public GraphicCard card() {
+				return new GraphicCard();
+			}
+
+			public Desktop desktop() {
+				return new Desktop(monitor(), body(), keyboard(), mouse(), card());
+				}
+		}
+
+		public class Ex02 {
+			public static void main(String[] args) {
+				ComputerAssembler assembler = new ComputerAssembler();
+
+				Desktop d1 = assembler.desktop();
+				Desktop d2 = assembler.desktop();
+			}
+		}
+
+참고 : 데코레이터 패턴
+
+	class BufferedInputStream extends InputStream {
+		private InputStream in;
+		
+		public BufferedInputStream(InputStream in) {
+			this.in = in;
+		}
+		
+		
+		public int read() {
+			//추가기능
+			int b = in.read();
+			//추가기능
+			
+			return b;
+		}
+	}
+
+
+
+소겟 강의 5/30 11시부터 다시 server 프로젝트 만들기 강의
+
+
+ - build.gradle : DSL ( groovy, Kotlin )
+
+
+
+
+		package org.choongang;
+		import java.io.DataInputStream;
+		import java.io.InputStream;
+		import java.net.ServerSocket;
+		import java.net.Socket;
+
+		public class Server {
+			public static void main(String[] args) throws Exception {
+				ServerSocket serverSocket = new ServerSocket(9999);
+				while(true) {
+					System.out.println("서버 대기중..");
+					Socket socket = serverSocket.accept();
+					System.out.println("클라이언트 접속: " + socket);
+					InputStream in = socket.getInputStream();
+					DataInputStream dis = new DataInputStream(in);
+					String str = dis.readUTF();
+					System.out.println("클라이언트가 보낸 메세지 : " + str);
+
+				}
+			}
+		}
+
+
+		package org.choongang;
+		import java.io.DataOutputStream;
+		import java.io.IOException;
+		import java.io.OutputStream;
+		import java.net.Socket;
+
+		public class Client2 {
+			public static void main(String[] args) throws IOException {
+				Socket socket = new Socket("localhost", 9999);
+
+				OutputStream out = socket.getOutputStream();
+				DataOutputStream dos = new DataOutputStream(out);
+				dos.writeUTF("안녕하세요.");
+			}
+		}
+
+====Server=================
+Server
+package org.choongang;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.logging.SocketHandler;
+
+public class Server {
+    private ServerSocket serverSocket;
+    private ExecutorService threadPool;
+
+    public Server() {
+        try {
+            serverSocket = new ServerSocket(9999);
+        }catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        threadPool = new ThreadPoolExecutor(2, 100, 120L, TimeUnit.SECONDS, new SynchronousQueue<>());
+    }
+
+    public void start() {
+
+    try {
+        while (true) {
+                Socket socket = serverSocket.accept();
+                SocketHandler handler = new SocketHandler(socket);
+                //수신처리
+                handler.input(data -> {
+                    System.out.println(data);
+                });
+        }
+            }catch (IOException e) {
+                e.printStackTrace();
+    }
+
+    }
+    class SocketHandler {
+        private Socket socket;
+
+        public SocketHandler(Socket socket) {
+            this.socket = socket;
+        }
+        //수신처리
+        public void input(Consumer<String> handler) {
+            threadPool.execute(() -> {
+                try(DataInputStream dis = new DataInputStream(socket.getInputStream())) {
+
+                    while(true) {
+                        if(socket == null || handler == null) {
+                            Thread.currentThread().yield(); // 다음 작업순서의 쓰레드에 작업을 넘김
+                            break;
+                        }
+                        String data = dis.readUTF();
+                        handler.accept(data);
+                    }
+
+                }catch(IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        //전송처리
+        public void output() {
+            threadPool.execute(() -> {
+
+            });
+        }
+    }
+}
+-----client---------------------------------------
+package org.choongang;
+
+import java.io.DataOutputStream;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class Ex01 {
+    public static void main(String[] args) throws Exception{
+        Socket socket = new Socket("localhost", 9999);
+        Scanner sc = new Scanner(System.in);
+
+        try(DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
+            while(true) {
+                    System.out.print("메세지: ");
+                    String message = sc.nextLine();
+                    dos.writeUTF(message);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+----Application---------------------------------
+package org.choongang;
+
+public class Application {
+    public static void main(String[] args) {
+        Server server = new Server();
+        server.start();
+    }
+}
+
+--------------------------------------------------
+
+의존성 추가
+
+lombok
+jackson databind ( Jackson Databind » 2.17.1 )  자바객체를 jason 으로 바꿔주는 
+jackson jsr310 datatype - Java Date & Time API, java.time 패키지 대응 ( Jackson Datatype: JSR310 » 2.17.1 )
+
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1'
+
+jackson databind
+	
+	- ObjectMapper 클래스 
+		: 자바 객체 -> JSON문자열
+		: String writeValueAsString(Object data)
+	
+	- T readValue(String str, Class<T> class)
+		:JSON 문자열 -> 자바객체(setter)
+	
+	
+	
+
+실행시 환경변수 
+java 자바파일.class -D변수명=값 -D변수명=값
+
+String _port = System.getenv("port");
+int port = _port == null || _port.isBlank() ? 9999 : Integer.parseInt(_port);
+
+
+
+코끼리 -> gradle clean build
+
+
+이거 안됨 --- 보류
+D:\hjchoi\8.실무프로젝트(P-2)\server> cd build\libs
+D:\hjchoi\8.실무프로젝트(P-2)\server\build\libs>java -jar server-1.0-SNAPSHOT.jar -Dfile.encoding=UTF-9 -Dport=4000
+
+
