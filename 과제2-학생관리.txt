@@ -1,0 +1,169 @@
+SQL> create user PROJECT2_2 identified by oracle;
+
+User created.
+
+SQL> grant connect, resource to PROJECT2_2;
+
+Grant succeeded.
+
+SQL> alter user project2_2 quota unlimited on users;
+
+User altered.
+
+SQL>
+
+	DROP TABLE MEMBER;
+	DROP TABLE STUDENT;
+	DROP TABLE SUBJECT;
+	DROP TABLE SCORE;
+
+	CREATE TABLE MEMBER (
+	   USER_NO NUMBER(10) PRIMARY KEY,
+	   USER_ID VARCHAR2(20) NOT NULL,
+	   USER_PW VARCHAR2(65) UNIQUE NOT NULL,
+	   USER_NM VARCHAR2(40) NOT NULL,
+	   REG_DT DATE DEFAULT SYSDATE
+	);
+
+	CREATE TABLE STUDENT (
+	   S_NO NUMBER(10) PRIMARY KEY,-- 학생번호(학번)
+	   S_NM VARCHAR2(40) NOT NULL, -- 학생 이름
+	   S_GRADE NUMBER(10)NOT NULL, -- 학생 학년
+	   S_GEN CHAR(1)NOT NULL , -- 학생 성별
+	   S_ADM_DT DATE NOT NULL, -- 입학일
+	   S_STAT VARCHAR2(20)NOT NULL -- 재적 상태
+	);
+
+	CREATE TABLE SUBJECT (
+	   SUB_CODE NUMBER(10) PRIMARY KEY, -- 과목 코드
+	   SUB_NM VARCHAR2(100) NOT NULL, -- 과목명
+	   TEACHER_NM VARCHAR2(40) NOT NULL, -- 교수명
+	   SUB_DIV VARCHAR2(5) NOT NULL --문이과
+	 
+	);
+
+
+	CREATE TABLE SCORE (
+	   SEQ NUMBER(10) PRIMARY KEY, -- 시퀀스 번호
+	   S_NO NUMBER(10) REFERENCES STUDENT (S_NO) NOT NULL, -- 학번
+	   SUB_CODE NUMBER(10) REFERENCES SUBJECT (SUB_CODE) NOT NULL, -- 과목코드
+	   S_YEAR NUMBER(5) NOT NULL, -- 년도별 성적
+	   S_SEM NUMBER (5) NOT NULL -- 학기별 성적
+	 );
+	 
+	CREATE SEQUENCE seq_student;
+	create sequence seq_member;	
+   
+   초기메뉴  MainMenu
+   -------
+	<학생관리 프로그램>
+	
+	1. 회원가입
+	2. 로그인
+	-------
+	
+
+	메인메뉴 (로그인 후) Main2Menu
+		MAIN2 							- Main2Tpl
+	1. 정보관리 - 추가 수정 삭제 : ADMIN	- AdminTpl
+	2. 정보조회 - 조회 : LIST			- ListTpl
+	3. 통계조회 - 조회 : REPORT			- ReportTpl
+
+
+	1 선택시 		AdminControllerLocator
+		MADMIN							- MadminTpl			AdminController
+		<정보관리> AdmMenu  			
+		1. 과목관리 ADMSUBJECT			- AdmSubjectTpl		AdmSubjectController
+		2. 학생관리 ADMSTUDENT			- AdmStudentTpl
+		3. 성적관리 ADMSCORE				- AdmScoreTpl
+
+
+	2 선택시    
+		MLIST
+		<정보조회> ListMenu				- MlistTpl
+		1. 과목조회 LISTSUBJECT			- ListSubjectTpl
+		2. 학생정보조회 LISTSTUDENT		- ListStudentTpl
+		3. 성적조회 LISTSCORE			- LsitScoreTpl
+
+
+	3 선택시
+		MREPORT
+		<통계조회> ReportMenu			- MrptTpl
+		1. 과목별성적통계 REPORTSUBJECT	- RptSubjectTpl
+		2. 연도별성적통계 REPORTYEAR		- RptYearTpl
+		3. 남녀별성적통계 REPORTGENDER	- RptGenderTpl
+
+
+	도메인(package)
+	- main
+	- member : 회원가입, 로그인
+	- subject 과목
+	- student 학생
+	- score	성적
+	
+	
+	- admin : 관리 - 추가, 수정, 삭제
+	- list : 조회
+	- report : 통계
+	
+	
+	도메인별 메뉴
+	MainMenu
+	
+	GameMenu
+	SubjectMenu
+	StudentMenu
+	
+	global - 
+	
+
+	<학생관리 프로그램>
+
+	- 메인 메뉴
+	
+	1. 회원가입
+	2. 로그인
+
+	- 로그인 시
+	
+	1. 과목
+	  1-1. 조회
+	  1-2. 추가
+	  1-3. 수정
+	  1-4 삭제
+
+	2. 학생
+	  1-1. 조회
+	  1-2. 추가
+	  1-3. 수정
+	  1-4 삭제
+
+	3, 성적
+	  1-1. 조회 - 통계(성별, 학년별, ...)
+	  1-2. 추가
+	  1-3. 수정
+	  1-4 삭제
+
+	4. 로그아웃
+	
+	
+메뉴
+
+SubjectMenu
+    LISTSUBJECT,
+    ADDSUBJECT,
+    MODSUBJECT,
+    DELSUBJECT
+
+
+StudentMenu
+    LISTSTUDENT,
+    ADDSTUDENT,
+    MODSTUDENT,
+    DELSTUDENT,
+
+ScoreMenu
+    LISTSCORE,
+    ADDSCORE,
+    MODSCORE,
+    DELSCORE
