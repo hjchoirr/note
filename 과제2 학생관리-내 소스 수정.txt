@@ -1,0 +1,79 @@
+MainMenu
+    MAIN, // 메인 화면
+    JOIN, // 회원가입
+    LOGIN, // 로그인
+    MYPAGE, // 마이페이지
+    GAME, // 게임하기
+    STUDENT, //학생관리
+
+public enum StudentMenu implements Menu {
+    SUBJECTS, // 과목
+    STUDENTS, // 학생
+    SCORES // 성적
+}
+
+
+GameControllerLocator : 
+  게임 컨트롤러 찾기 메서드 find() 에서 게임서브메뉴 혼자하기 같이하기 랭킹 에따른 
+  
+
+
+MainRouter getInstance() -> start() -> change(MainMenu.MAIN)
+	- change(MainMenu.MAIN) 
+	: 매개변수 menu에 따른 컨트롤러 판단하고 (게임컨트롤러, 멤버컨트롤러, 학생로케이터 판단 
+	: 찾은 컨트롤러.run() 실행시킴
+	
+	
+
+StudentControllerLocator
+
+	- StudentController : 학생관리메인 
+	- SubjectsController : 과목
+	- StudentsController : 학생
+	- ScoresController : 성적
+	
+	=> StudentController 학생관리메인
+		- show() 재정의 : 템플릿츠...render( MainMenu.STUDENT)
+		- prompt() : 메뉴중 골라라 입력받고 change(입력값)
+		- change(m) : 컨트롤러 찾아서 컨트롤러.run() 시킴
+			=> ??? 라우터랑 비슷하네??
+			=> 라우터의 change는 매개변수가 enum menu
+			=> 컨트롤러의 change는 매개변수가 입력받은 메뉴숫자
+		
+	=> SubjectsController 미완성
+	=> StudentsController 미완성
+	=> ScoresController 미완성
+	
+	
+Templates
+	SubjectsTpl
+	StudentsTpl
+	ScoresTpl
+	
+	MainTpl 수정 : 로그인상태의 메인메뉴 과목, 학생, 성적 고르기 노출
+
+	
+AbstractController 
+	change() 메서드 수정 : 로그인상태의 경우 게임 말고 학생관리로 컨트롤러 변경 라우팅
+	
+MainTpl - getTpl() 수정 : q.종료 추가
+
+
+        <result column="S_NO" property="sNo" />
+        <result column="S_NM" property="sNm" />
+        <result column="S_GRADE" property="sGrade" />
+        <result column="S_GEN" property="sGen" />
+        <result column="S_ADM_DT" property="sAdmDt" />
+        <result column="S_STAT" property="sStat" />
+		
+    <select id="getList" resultMap="studentMap">
+        <bind name="pSno" value="'%' + _parameter.getSNo() + '%'" />
+        <bind name="pSNm" value="'%' + _parameter.getSNm() + '%'" />
+        <bind name="pKeyword" value="'%' + _parameter.getKeyword() + '%'" />
+        SELECT * FROM (SELECT ROWNUM NUM, t.* FROM STUDENT t) m
+        <
+		
+org\choongang\student\mapper\SubjectMapper.xml
+
+
+        <mapper resource="org/choongang/subject/mapper/SubjectMapper.xml" />
