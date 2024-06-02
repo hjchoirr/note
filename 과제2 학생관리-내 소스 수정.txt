@@ -59,6 +59,49 @@ AbstractController
 MainTpl - getTpl() 수정 : q.종료 추가
 
 
+
+StudentServiceLocator 
+	- services.put(menu, service);
+		menu : SUBJECTS
+		service : SubjectService
+		
+SubjectController-prompt()
+		Templates.getInstance().render(StudentMenu.SUBJECTS, () -> subjecting); 
+
+
+
+
+
+
+훅은 템플릿에서 중간에 출력을 추가할때 사용한다고 보시면 될거 같아요! 
+Template을 상속 받은 클래스에 
+public void addHook(Consumer<String> hook) { 
+	this.hook = hook 
+}  
+
+추가한 후 
+getTpl 함수내에 적절하게 hook.get()
+
+
+
+그리고 추가 출력은 controller의 show 에서 render에서 
+출력할 문자열을 추가하면 되는데 아무래도 직접 보여드리는게 이해하는데 도움이 될거 같아요!
+
+
+
+INSERT INTO subject values(2, '영어', '조정식','문');
+INSERT INTO subject values(3, '사회', '이지영','문');
+INSERT INTO subject values(4, '과학', '조정식','이');
+INSERT INTO subject values(5, '국어', '서혜진','문');
+INSERT INTO subject values(6, '체육', '손흥민','이');
+INSERT INTO subject values(7, '음악', '조수미','문');
+
+
+
+
+
+
+
         <result column="S_NO" property="sNo" />
         <result column="S_NM" property="sNm" />
         <result column="S_GRADE" property="sGrade" />
@@ -76,4 +119,127 @@ MainTpl - getTpl() 수정 : q.종료 추가
 org\choongang\student\mapper\SubjectMapper.xml
 
 
-        <mapper resource="org/choongang/subject/mapper/SubjectMapper.xml" />
+<mapper resource="org/choongang/subject/mapper/SubjectMapper.xml" />
+
+===========SubjectMapper.xml==============================
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.choongang.student.mapper.SubjectMapper">
+    <resultMap id="subjectMap" type="org.choongang.student.entities.Subject">
+        <result column="SUB_CODE" property="subCode" />
+        <result column="SUB_NM" property="subNm" />
+        <result column="TEACHER_NM" property="teacherNm" />
+        <result column="SUB_DIV" property="subDiv" />
+    </resultMap>
+
+    <!-- 과목 개별 조회 -->
+    <select id="get" resultMap="subjectMap">
+        SELECT * FROM SUBJECT
+        <where>
+            <if test="subCode != null">
+                SUB_CODE=#{subCode}
+            </if>
+        </where>
+    </select>
+
+    <!-- 과목 목록 조회 -->
+    <select id="getList" resultMap="subjectMap">
+        <bind name="pSubCode" value="'%' + _parameter.getSubCode() + '%'" />
+        <bind name="pSubNm" value="'%' + _parameter.getSubNm() + '%'" />
+        <bind name="pKeyword" value="'%' + _parameter.getKeyword() + '%'" />
+        SELECT * FROM (SELECT ROWNUM NUM, t.* FROM SUBJECT t) m
+        <where>
+            <![CDATA[m.NUM >= {sRow} AND m.NUM <= {eRow}]]>
+            <if test="subCode != null">
+                AND SUB_CODE LIKE #{pSubCode}
+            </if>
+            <if test="userNm != null">
+                AND SUB_NM LIKE #{pSubNm}
+            </if>
+            <if test="keyword != null">
+                AND CONCAT(SUB_CODE, SUB_NM) LIKE #{pKeyword}
+            </if>
+        </where>
+        ORDER BY m.SUB_NM DESC
+    </select>
+
+    <!-- 과목 목록 조회 -->
+    <select id="getList" resultMap="subjectMap">
+        <bind name="pSubCode" value="'%' + _parameter.getSubCode() + '%'" />
+        <bind name="pSubNm" value="'%' + _parameter.getSubNm() + '%'" />
+        <bind name="pKeyword" value="'%' + _parameter.getKeyword() + '%'" />
+        SELECT * FROM (SELECT ROWNUM NUM, t.* FROM SUBJECT t) m
+        <where>
+            <![CDATA[m.NUM >= {sRow} AND m.NUM <= {eRow}]]>
+            <if test="subCode != null">
+                AND SUB_CODE LIKE #{pSubCode}
+            </if>
+            <if test="userNm != null">
+                AND SUB_NM LIKE #{pSubNm}
+            </if>
+            <if test="keyword != null">
+                AND CONCAT(SUB_CODE, SUB_NM) LIKE #{pKeyword}
+            </if>
+        </where>
+        ORDER BY m.SUB_NM DESC
+    </select>
+    <!-- 과목 목록 갯수, 페이징 구현시 활용 가능 -->
+    <select id="getTotal" resultType="long">
+        <bind name="pSubCode" value="'%' + _parameter.getSNo() + '%'" />
+        <bind name="pSubNm" value="'%' + _parameter.getSNm() + '%'" />
+        <bind name="pKeyword" value="'%' + _parameter.getKeyword() + '%'" />
+        SELECT COUNT(*) FROM SUBJECT
+        <where>
+            <if test="subCode != null">
+                AND SUB_CODE LIKE #{pSubCode}
+            </if>
+            <if test="subNm != null">
+                AND SUB_NM LIKE #{pSubNm}
+            </if>
+            <if test="keyword != null">
+                AND CONCAT(SUB_CODE, SUB_NM) LIKE #{pKeyword}
+            </if>
+        </where>
+    </select>
+
+    <!-- 과목 등록 여부 파악 - 갯수가 나오면 이미 등록으로 판단 -->
+    <select id="exist" resultType="int">
+        SELECT COUNT(*) FROM SUBJECT WHERE SUB_CODE=#{subCode}
+    </select>
+
+    <!-- 과목 등록 -->
+    <insert id="register">
+        <selectKey keyProperty="subCode" order="BEFORE" resultType="long">
+            SELECT SUBJECT.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO SUBJECT (SUB_CODE, SUB_NM, TEACHER_NM, SUB_DIV )
+        VALUES (#{subCode}, #{subNm}, #{teacherNm}, #{subDiv})
+    </insert>
+
+    <!-- 과목 정보 수정 -->
+    <update id="modify">
+        UPDATE SUBJECT
+        <set>
+            <if test="subNm != null">
+                SUB_NM=#{subNm},
+            </if>
+            <if test="teacherNm != null">
+                TEACHER_NM=#{teacherNm},
+            </if>
+            <if test="subDiv != null">
+                SUB_DIV=#{subDiv},
+            </if>
+        </set>
+        WHERE SUB_CODE=#{subCode}
+    </update>
+
+    <!-- 과목 삭제 -->
+    <delete id="delete">
+        DELETE FROM SUBJECT WHERE SUB_CODE=#{subCode}
+    </delete>
+</mapper>
+
+===========SubjectMapper.xml==============================
