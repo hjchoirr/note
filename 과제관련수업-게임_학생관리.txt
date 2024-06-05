@@ -277,7 +277,9 @@ P-2, P-3 구조 설명
 		- DTO (Data Transfer Object) :데이터 전달 목적의 객체 
 		- Validator - 데이터 검증
 		- DAO(Data Access Object) :데이터 접근객체(DB처리..)
-		- VO(Value Object)
+		- VO(Value Object) : 데이터 보관 객체 / 변경되지 않은 데이터를 주로 저장
+			- entity : 데이터 레코드 한개
+		- 기타
 
 	DDD (Domain Driven Design : 도메인 주도 설계)
 	
@@ -623,7 +625,9 @@ https://github.com/yonggyo1125/project502_13_2/blob/game/src/test/java/exam03/Bo
 
 
 
-
+		---------------------------------
+		소켓 샘플
+		---------------------------------
 		package org.choongang;
 		import java.io.DataInputStream;
 		import java.io.InputStream;
@@ -663,119 +667,122 @@ https://github.com/yonggyo1125/project502_13_2/blob/game/src/test/java/exam03/Bo
 			}
 		}
 
-====Server=================
-Server
-package org.choongang;
+		---------------------------------
+		소켓 샘플2
+		---------------------------------
+		====Server=================
+		Server
+		package org.choongang;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.logging.SocketHandler;
+		import java.io.DataInputStream;
+		import java.io.IOException;
+		import java.net.ServerSocket;
+		import java.net.Socket;
+		import java.util.concurrent.ExecutorService;
+		import java.util.concurrent.SynchronousQueue;
+		import java.util.concurrent.ThreadPoolExecutor;
+		import java.util.concurrent.TimeUnit;
+		import java.util.function.Consumer;
+		import java.util.logging.SocketHandler;
 
-public class Server {
-    private ServerSocket serverSocket;
-    private ExecutorService threadPool;
+		public class Server {
+			private ServerSocket serverSocket;
+			private ExecutorService threadPool;
 
-    public Server() {
-        try {
-            serverSocket = new ServerSocket(9999);
-        }catch(IOException e) {
-            e.printStackTrace();
-        }
+			public Server() {
+				try {
+					serverSocket = new ServerSocket(9999);
+				}catch(IOException e) {
+					e.printStackTrace();
+				}
 
-        threadPool = new ThreadPoolExecutor(2, 100, 120L, TimeUnit.SECONDS, new SynchronousQueue<>());
-    }
+				threadPool = new ThreadPoolExecutor(2, 100, 120L, TimeUnit.SECONDS, new SynchronousQueue<>());
+			}
 
-    public void start() {
+			public void start() {
 
-    try {
-        while (true) {
-                Socket socket = serverSocket.accept();
-                SocketHandler handler = new SocketHandler(socket);
-                //수신처리
-                handler.input(data -> {
-                    System.out.println(data);
-                });
-        }
-            }catch (IOException e) {
-                e.printStackTrace();
-    }
+			try {
+				while (true) {
+						Socket socket = serverSocket.accept();
+						SocketHandler handler = new SocketHandler(socket);
+						//수신처리
+						handler.input(data -> {
+							System.out.println(data);
+						});
+				}
+					}catch (IOException e) {
+						e.printStackTrace();
+			}
 
-    }
-    class SocketHandler {
-        private Socket socket;
+			}
+			class SocketHandler {
+				private Socket socket;
 
-        public SocketHandler(Socket socket) {
-            this.socket = socket;
-        }
-        //수신처리
-        public void input(Consumer<String> handler) {
-            threadPool.execute(() -> {
-                try(DataInputStream dis = new DataInputStream(socket.getInputStream())) {
+				public SocketHandler(Socket socket) {
+					this.socket = socket;
+				}
+				//수신처리
+				public void input(Consumer<String> handler) {
+					threadPool.execute(() -> {
+						try(DataInputStream dis = new DataInputStream(socket.getInputStream())) {
 
-                    while(true) {
-                        if(socket == null || handler == null) {
-                            Thread.currentThread().yield(); // 다음 작업순서의 쓰레드에 작업을 넘김
-                            break;
-                        }
-                        String data = dis.readUTF();
-                        handler.accept(data);
-                    }
+							while(true) {
+								if(socket == null || handler == null) {
+									Thread.currentThread().yield(); // 다음 작업순서의 쓰레드에 작업을 넘김
+									break;
+								}
+								String data = dis.readUTF();
+								handler.accept(data);
+							}
 
-                }catch(IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-        //전송처리
-        public void output() {
-            threadPool.execute(() -> {
+						}catch(IOException e) {
+							e.printStackTrace();
+						}
+					});
+				}
+				//전송처리
+				public void output() {
+					threadPool.execute(() -> {
 
-            });
-        }
-    }
-}
------client---------------------------------------
-package org.choongang;
+					});
+				}
+			}
+		}
+		-----client---------------------------------------
+		package org.choongang;
 
-import java.io.DataOutputStream;
-import java.net.Socket;
-import java.util.Scanner;
+		import java.io.DataOutputStream;
+		import java.net.Socket;
+		import java.util.Scanner;
 
-public class Ex01 {
-    public static void main(String[] args) throws Exception{
-        Socket socket = new Socket("localhost", 9999);
-        Scanner sc = new Scanner(System.in);
+		public class Ex01 {
+			public static void main(String[] args) throws Exception{
+				Socket socket = new Socket("localhost", 9999);
+				Scanner sc = new Scanner(System.in);
 
-        try(DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
-            while(true) {
-                    System.out.print("메세지: ");
-                    String message = sc.nextLine();
-                    dos.writeUTF(message);
-            }
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
+				try(DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
+					while(true) {
+							System.out.print("메세지: ");
+							String message = sc.nextLine();
+							dos.writeUTF(message);
+					}
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 
-----Application---------------------------------
-package org.choongang;
+		----Application---------------------------------
+		package org.choongang;
 
-public class Application {
-    public static void main(String[] args) {
-        Server server = new Server();
-        server.start();
-    }
-}
+		public class Application {
+			public static void main(String[] args) {
+				Server server = new Server();
+				server.start();
+			}
+		}
 
---------------------------------------------------
+		--------------------------------------------------
 
 의존성 추가
 
@@ -812,7 +819,7 @@ int port = _port == null || _port.isBlank() ? 9999 : Integer.parseInt(_port);
 
 
 이거 안됨 --- 보류
-D:\hjchoi\8.실무프로젝트(P-2)\server> cd build\libs
-D:\hjchoi\8.실무프로젝트(P-2)\server\build\libs>java -jar server-1.0-SNAPSHOT.jar -Dfile.encoding=UTF-9 -Dport=4000
+	D:\hjchoi\8.실무프로젝트(P-2)\server> cd build\libs
+	D:\hjchoi\8.실무프로젝트(P-2)\server\build\libs>java -jar server-1.0-SNAPSHOT.jar -Dfile.encoding=UTF-9 -Dport=4000
 
 

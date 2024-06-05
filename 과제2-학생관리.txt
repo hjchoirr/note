@@ -167,3 +167,61 @@ ScoreMenu
     ADDSCORE,
     MODSCORE,
     DELSCORE
+
+
+
+
+
+	M : model 
+		- 기능을 말함
+		- 비즈니스 로직 구현
+		  Service : 기능/회원가입기능 등 -> JoinService
+		- DTO (Data Transfer Object) :데이터 전달 목적의 객체 
+		- Validator - 데이터 검증
+		- DAO(Data Access Object) :데이터 접근객체(DB처리..)
+		- VO(Value Object) : 데이터 보관 객체 / 변경되지 않은 데이터를 주로 저장
+			- entity : 데이터 레코드 한개
+		- 기타
+
+
+
+소스 구조 설명 ( 6/3 1교시 마지막 부터)
+
+Router 인터페이스 - Change(Menu menu) 
+	: 입력에 맞는 Controller 찾아 change 
+		MainRouter - 
+			: change(menu) 
+				- controller.run() 
+	
+	: start() 메서드는 맨처음 Application에서 시작할때만 사용함
+	
+	Controller : 서비스 찾고 사용자 요청 prompt 로 받고 show() 
+			
+	생성자매개변수로 Desktop 객체 생성 - 의존관계 : 의존성을 외부에서 주입한다
+	setter함수 사용 - 연관관계 
+
+	ControllerLocator 설명하기위해 Desktop, Tablet, ComputerAssembler 예시
+	
+	Locator : 객체 찾는 역할 - 싱글톤으로 사용 위해 Map 사용... 
+	
+	구조 좀 수정
+		1.	
+		package org.choongang.global;
+		public interface Startable {
+			void start();
+		}
+		
+		2.
+		public class MainRouter implements Router, Startable {
+
+		3.
+
+	
+	마이바티스 mapper.xml
+		동적 SQL
+		
+	
+	
+	
+	
+	

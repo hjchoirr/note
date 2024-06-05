@@ -1,4 +1,4 @@
-람다식(Lamba expression)
+람다식(Lambda expression)
 
 	-----js 참고------------------
 	//---매개변수가 함수
@@ -194,7 +194,7 @@
 
 	1) 매개변수가 X, 반환값 1개     - 제공자
 		Supplier<T>
-				: T get()
+: T get()
 
 	2) 매개변수가 1개, 반환값 0개    - 소비자
 		Consumer<T>
@@ -226,7 +226,7 @@
         Function<String, Integer> f = a -> a.length();
         Function<String, Integer> f = String::length; //위와 동일
 		
-        len = f.apply(str);
+len = f.apply(str);
 		-------------------------------------------------------------------
         // Predicate<T>  :  boolean test(T t); 람다식
 		

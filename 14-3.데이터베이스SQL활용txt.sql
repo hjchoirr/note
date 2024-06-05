@@ -13,7 +13,7 @@ INCREMENT BY 숫자 -- 숫자씩 증가
 				START WITH 숫자 -- 숫자에서부터 증가 시작
 				MAXVALUE 숫자 -- 최대 숫자만큼 증가
 				MINVALUE 숫자 -- 최소 숫자 무터 시작
-				CYCLE -- 최대숫자 도달시  MINVALUE 부터 다시 시작 | NOCYCLE ( default 최대숫자 도달시 에러)
+CYCLE -- 최대숫자 도달시  MINVALUE 부터 다시 시작 | NOCYCLE ( default 최대숫자 도달시 에러)
 				CACHE 숫자 -- default (CACHE 20 -> 20개의 숫자를 미리 생성해 놓는다) | NOCACHE
 				
 			ALTER SEQUENCE
@@ -242,7 +242,7 @@ INCREMENT BY 숫자 -- 숫자씩 증가
 		ALTER TABLE MEMBER DISABLE CONSTRAINT MEM_AGE_CK;
 		ALTER TABLE MEMBER ENABLE CONSTRAINT MEM_AGE_CK;
 
-		CREATE SEQUENCE SEQ_MEMBER;
+CREATE SEQUENCE SEQ_MEMBER;
 
 		INSERT INTO MEMBER (USER_NO, USER_ID, USER_PW, USER_NM, AGE)
 			VALUES (SEQ_MEMBER.NEXTVAL, 'USER03', '1234', '사용자03', 13);
@@ -334,7 +334,7 @@ INCREMENT BY 숫자 -- 숫자씩 증가
 
 	5. INDEX(인덱스)
 	6. VIEW(뷰)
-	7. SEQUENCE(시퀀스)
+7. SEQUENCE(시퀀스)
 	8. SYNONYM(동의어)
 	9. PROFILE(프로파일)
 	10. ROLE(롤)
@@ -413,7 +413,7 @@ INCREMENT BY 숫자 -- 숫자씩 증가
 		USER is "SYSTEM"
 		SQL> create role ROLE1;  -- ROLE1 이란 롤 만들기
 		Role created.
-		SQL> grant create session, create table, create sequence, create view to ROLE1; --ROLE1 에 권한들 추가
+SQL> grant create session, create table, create sequence, create view to ROLE1; --ROLE1 에 권한들 추가
 		Grant succeeded.		
 		SQL> create user DBSTUDY3 identified by oracle;  -- DBSTUDY3 유저생성
 		User created.
