@@ -986,31 +986,151 @@ JUnit 5 기초2
 		}
 
 Mockito 기초 사용법
+6/10  (소스 :9.웹서버프로그램구현\day02)
+
+	사전 작업
+	dependencies {
+		testImplementation platform('org.junit:junit-bom:5.10.2')    // 5.10.0 에서 수정
+		testImplementation 'org.junit.jupiter:junit-jupiter'
+	}
 
 	- Mockito는 모의 객체 생성, 검증, 스텁을 지원하는 프레임워크이다.
+	
+	
 
 1. 의존성 
+
 	1) mockito-core
 	2) mockito-junit-jupiter
 
 	mvn repository : mockito core 검색 Mockito Core » 5.12.0
 	Mockito JUnit Jupiter » 5.12.0
 	
+	Mockito Core » 5.12.0
+	Mockito mock objects library core API and implementation  // API와 구현체 함께 있다고 나옴 implementation
+
 	testImplementation 'org.mockito:mockito-core:5.12.0'
 	testImplementation 'org.mockito:mockito-junit-jupiter:5.12.0'
 
 	(참고) servlet.api
-	  - javax.servlet-api
+	  - javax.servlet-api     
 	  - jakarta.servlet-api / jakarta ee9~10
 	  
-	jakarta servlet api -> Jakarta Servlet » 6.0.0
+		HttpServletRequest 인터페이스 : 사용자 요청 데이터 조회, 처리 - String getParameter(String name);
+	  
+	jakarta servlet api -> Jakarta Servlet » 6.0.0 -> 배포시에는 배제됨 : 웹서버에  이미 있으니까 -- 테스트 환경의 스텁 제공함?
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-    testCompileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    testCompileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'  // compileOnly 로 되어있으면 src/java/main에서만 인식되므로 src/test 에도 사용하기 위함
+
+		과정 : 6/10 동영상 9시 중간부터 
+		-------------------------------------------
+		package member.services;
+		import jakarta.servlet.http.HttpServletRequest;
+
+		public class LoginService {
+			public void process(HttpServletRequest request) {
+				//아이디 : email, 비밀번로 password
+
+				String email = request.getParameter("email");
+				String password = request.getParameter("password");
+				System.out.printf("email=%s, password=%s%n", email, password);
+				
+				String test = request.getParameter("123");  //참고1
+
+			}
+		}
+		-------------------------------------------
+		package tests;
+		import jakarta.servlet.http.HttpServletRequest;
+		import member.services.LoginService;
+		import org.junit.jupiter.api.BeforeEach;
+		import org.junit.jupiter.api.DisplayName;
+		import org.junit.jupiter.api.Test;
+		import static org.junit.jupiter.api.Assertions.*;
+		import static org.mockito.BDDMockito.given;
+		import static org.mockito.BDDMockito.willReturn;
+		import static org.mockito.Mockito.mock;
+
+		@DisplayName("로그인 서비스 기능 테스트")
+		public class LoginServiceTest {
+			private LoginService loginService;
+			private HttpServletRequest request;
+
+			@BeforeEach
+			void init() {
+				loginService = new LoginService();
+
+				// mock HttpServletRequest 모의객체 생성
+				request = mock(HttpServletRequest.class);
+				given(request.getParameter("email")).willReturn("test01@test.org");
+				given(request.getParameter("password")).willReturn("12345678");
+
+				given(request.getParameter("123")).willThrow(IllegalAccessException.class); //참고1
+
+			}
+
+			@Test
+			@DisplayName("로그인 성공시 예외발생 없음")
+			void successTest() {
+				assertDoesNotThrow( ()-> {
+				   loginService.process(request);
+				});
+			}
+
+			@Test
+			@DisplayName("필수항목(아이디, 비밀번호) 검증, 검증실패시 ValidationException 발생")
+			void requiredFieldTest() {
+
+			}
+		}
+		-------------------------------------------
+		좀 정리하면
+		-------------------------------------------
+		package tests;
+		import jakarta.servlet.http.HttpServletRequest;
+		import member.services.LoginService;
+		import org.junit.jupiter.api.BeforeEach;
+		import org.junit.jupiter.api.DisplayName;
+		import org.junit.jupiter.api.Test;
+		import static org.junit.jupiter.api.Assertions.*;
+		import static org.mockito.BDDMockito.given;
+		import static org.mockito.BDDMockito.willReturn;
+		import static org.mockito.Mockito.mock;
+
+		@DisplayName("로그인 서비스 기능 테스트")
+		public class LoginServiceTest {
+			private LoginService loginService;
+			private HttpServletRequest request;
+
+			@BeforeEach
+			void init() {
+				loginService = new LoginService();
+
+				// mock HttpServletRequest 모의객체 생성
+				request = mock(HttpServletRequest.class);
+			}
+			
+			void setParamData(String name, String value)    {
+				given(request.getParameter(name)).willReturn(value);
+			}
+			void setSuccessData() {
+				setParamData("email", "test01@test.org");
+				setParamData("password", "12345678");
+			}
+			
+			@Test
+			@DisplayName("로그인 성공시 예외발생 없음")
+			void successTest() {
+				assertDoesNotThrow( ()-> {
+					setSuccessData();
+					loginService.process(request);
+				});
+			}
+
+		}
 
 	
-	
 
-	
 
 
 2. 모의 객체 생성
@@ -1033,6 +1153,130 @@ Mockito 기초 사용법
 	4) 지정한 값을 리턴하는 대신에 익셉션을 발생하게 설정할 수 도 있다. 이때는 willReturn() 대신 willThrow() 메서드를 사용하면 된다.
 
 	5) BDDMockito.willThrow() 메서드는 발생할 익셉션 타입이나 익셉션 객체를 인자로 받는다. 이어서 given() 메서드는 모의 객체를 전달받는다. 이때는 모의 객체 메서드의 실행이 아닌 모의 객체를 만들어 주는 것  이때 given() 메서드는 인자로 전달받은 모의 객체 자신을 리턴하는데 이때 익셉션을 발생할 메서드를 호출한다.
+
+	(참고)
+	가짜 데이터 생성 라이브러리
+	java faker
+	
+	java faker 검색(mvn repository)
+	Java Faker » 1.0.2
+	testImplementation 'com.github.javafaker:javafaker:1.0.2'
+	
+			----------------------------------------	
+			package global.validators;
+			public interface Validator<T>{
+				void check(T form);
+			}
+				
+			----------------------------------------	
+			package global;
+
+			public class ValidationException extends RuntimeException{
+				public ValidationException(String message) {
+					super(message);
+				}
+			}
+
+			----------------------------------------	
+			package member.Validators;
+			import global.validators.Validator;
+			import jakarta.servlet.http.HttpServletRequest;
+
+			public class LoginValidator implements Validator<HttpServletRequest> {
+				@Override
+				public void check(HttpServletRequest form) {
+
+				}
+			}
+
+			----------------------------------------	
+			package member.services;
+			import global.ValidationException;
+			import global.validators.Validator;
+			import jakarta.servlet.http.HttpServletRequest;
+			import member.Validators.LoginValidator;
+
+			public class LoginService {
+
+				private Validator<HttpServletRequest> validator;
+
+				public LoginService(Validator<HttpServletRequest> validator) {
+					this.validator = validator;
+				}
+
+				public void process(HttpServletRequest request) {
+					//아이디 : email, 비밀번로 password
+
+					String email = request.getParameter("email");
+					String password = request.getParameter("password");
+					System.out.printf("email=%s, password=%s%n", email, password);
+
+					if(email == null || email.isBlank())    {
+						throw new ValidationException("이메일을 입력하세요");
+					}
+
+				}
+			}
+
+			----------------------------------------	
+			package tests;
+			import com.github.javafaker.Faker;
+			import global.ValidationException;
+			import jakarta.servlet.http.HttpServletRequest;
+			import member.Validators.LoginValidator;
+			import member.services.LoginService;
+			import org.junit.jupiter.api.BeforeEach;
+			import org.junit.jupiter.api.DisplayName;
+			import org.junit.jupiter.api.Test;
+			import static org.junit.jupiter.api.Assertions.*;
+			import static org.mockito.BDDMockito.given;
+			import static org.mockito.Mockito.mock;
+
+			@DisplayName("로그인 서비스 기능 테스트")
+			public class LoginServiceTest {
+				private LoginService loginService;
+				private HttpServletRequest request;
+				private Faker faker;
+
+				@BeforeEach
+				void init() {
+					loginService = new LoginService(new LoginValidator());
+
+					// mock HttpServletRequest 모의객체 생성
+					request = mock(HttpServletRequest.class);
+					faker = new Faker();
+				}
+
+				void setParamData(String name, String value)    {
+					given(request.getParameter(name)).willReturn(value);
+				}
+				void setSuccessData() {
+
+					String password = faker.regexify("\\w{8}").toLowerCase();
+					setParamData("email", faker.internet().emailAddress());
+					setParamData("password", password);
+				}
+
+				@Test
+				@DisplayName("로그인 성공시 예외발생 없음")
+				void successTest() {
+					assertDoesNotThrow( ()-> {
+						setSuccessData();
+						loginService.process(request);
+					});
+				}
+
+				@Test
+				@DisplayName("필수항목(아이디, 비밀번호) 검증, 검증실패시 ValidationException 발생")
+				void requiredFieldTest() {
+
+					//아이디 필수항목 검증
+					assertThrows(ValidationException.class, () -> {
+					   loginService.process(request);
+					});
+				}
+			}
+
 
 4. 인자 매칭 처리
 	1) org.mockito.ArgumentMatchers 클래스를 사용하면 정확하게 일치하는 값 대신 임의의 값에 일치하도록 설정할 수 있다.
@@ -1058,10 +1302,10 @@ Mockito 기초 사용법
 	2) should() 메서드는 모의 객체의 메서드가 불려야 한다는 것을 설정하고 should() 메서드 다음에 실제로 불려야 할 메서드를 지정한다.
 	3) 이 코드에서 genMock 모의 객체의 generate() 메서드가 GameLevel.EASY 인자를 사용해서 호출되었는지 검증한다.
 	4) 정확한 값이 아니라 메서드가 불렸는지 여부가 중요하다면 any(), anyInt() 등을 사용해서 인자를 지정하면 된다.
-	then(genMock).should().generate(any());
+		then(genMock).should().generate(any());
 
 	5) 정확하게 한 번만 호출된 것을 검증하고 싶다면 should() 메서드에 Mockito.only()를 인자로 전달한다
-	then(genMock).should(only()).generate(any());
+		then(genMock).should(only()).generate(any());
 	6) 메서드 호출 횟수를 검증하기 위해 Mockito 클래스가 제공하는 메서드는 다음과 같다.
 	- only() : 한 번만 호출
 	- times(int) : 지정한 횟수만큼 호출
@@ -1069,6 +1313,126 @@ Mockito 기초 사용법
 	- atLeast(int) : 적어도 지정한 횟수만큼 호출
 	- atLeastOnce() : atLeast(1)과 동일
 	- atMost(int) : 최대 지정한 횟수만큼 호출
+
+		--------------------------------------------------------------
+
+		package global;
+		public class Mailer {
+			public void send(String email) {
+				System.out.println("메일전송!!");
+			}
+		}
+
+		--------------------------------------------------------------
+
+		package member.services;
+		import global.Mailer;
+		import global.validators.Validator;
+		import jakarta.servlet.http.HttpServletRequest;
+
+		public class LoginService {
+
+			private Validator<HttpServletRequest> validator;
+			private Mailer mailer;
+
+			public LoginService(Validator<HttpServletRequest> validator) {
+				this.validator = validator;
+			}
+			public void setMailer(Mailer mailer) {
+				this.mailer = mailer;
+			}
+
+			public void process(HttpServletRequest request) {
+				//아이디 : email, 비밀번로 password
+				System.out.println(request.getParameter("email"));
+				System.out.println(request.getParameter("password"));
+				validator.check(request);
+
+				//로그인 성공 가정
+				//성공시 메일 전송
+
+				if(mailer != null) {
+					String email = request.getParameter("email");
+
+					mailer.send(email);
+					mailer.send(email);
+				}
+			}
+		}
+
+		--------------------------------------------------------------
+		package exam01;
+		import com.github.javafaker.Faker;
+		import global.Mailer;
+		import jakarta.servlet.http.HttpServletRequest;
+		import member.Validators.LoginValidator;
+		import member.services.LoginService;
+		import org.junit.jupiter.api.BeforeEach;
+		import org.junit.jupiter.api.Test;
+		import java.util.Locale;
+		import static org.mockito.BDDMockito.given;
+		import static org.mockito.BDDMockito.then;
+		import static org.mockito.Mockito.mock;
+
+		public class Ex02Test {
+			private LoginService loginservice ;
+			private  Mailer mailer;
+			private Faker faker;
+			private HttpServletRequest request;
+
+			@BeforeEach
+			void init() {
+				loginservice = new LoginService(new LoginValidator());
+				mailer = mock(Mailer.class);   // Juniper 이용하는 test를 위해서는 꼭 이렇게 .. new 로 생성하면 안됨
+				faker = new Faker(Locale.ENGLISH);
+				request = mock(HttpServletRequest.class);
+
+				//스텁추가
+				given(request.getParameter("email")).willReturn(faker.internet().emailAddress());
+				given(request.getParameter("password")).willReturn(faker.regexify("\\w{8}").toLowerCase());
+			}
+
+			@Test
+			void test1() {
+				loginservice.setMailer(mailer);
+				loginservice.process(request);
+				String email = request.getParameter("email");
+				then(mailer).should().send(email); // send 함수가 loginService.process 메서드에서 한번이상 호출되는지 체크
+				//then(mailer).should(only()).send(email); // send 함수가 loginService.process 메서드에서 한번만 호출되는지 체크
+			}
+
+			@Test
+			void test2() {
+				loginservice.setMailer(mailer);
+				loginservice.process(request);
+
+				String email = request.getParameter("email");
+				System.out.println(email);
+
+				ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+				then(mailer).should().send(captor.capture()); //인자 캡쳐
+				String usedEmail = captor.getValue();   //send() 메서드에서 매개변수에 사용한 값 확인 위해
+				System.out.println(usedEmail);
+
+				assertTrue(email.contains(usedEmail)); 
+			}
+		}
+		===================================
+		@Mock
+		private  Mailer mailer;
+
+		@Mock
+		private HttpServletRequest request;
+
+		@BeforeEach
+		void init() {
+			//mailer = mock(Mailer.class);   // 에너테이션 @Mock 쓰면 이거 필요없음
+			//request = mock(HttpServletRequest.class);
+			...
+		}
+		===================================
+
 
 6. 인자 캡쳐
 	1) 단위 테스트를 실행하다보면 모의 객체를 호출할 때 사용한 인자를 검증해야 할 때가 있다. String이나 int와 같은 타입은 쉽게 검증할 수 있지만 많은 속성을 가진 객체는 쉽게 검증하기 어렵다. 이럴 때 사용할 수 있는 것이 인자 캡처이다.

@@ -76,8 +76,9 @@ git add . : 변경된 모든 파일
 스냅샷단계/커밋단계
 git commit -m 작업내용
 
-
-
+캐시 삭제
+git rm -r --cached 
+git rm -r --cached . (??? 위가 맞는듯)
 
 VSCODE 설치
 file-preference-settings
