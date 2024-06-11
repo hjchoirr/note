@@ -59,9 +59,10 @@ D:\hjchoi> git init
 원격 브랜치 연결
   로컬 리파지토리 -> 원격 리파지토리 / 상태공유
   git remote add origin 원격리파지토리 주소    
-                                 https://github.com/hjchoirr/class502_13.git
+                        https://github.com/hjchoirr/class502_13.git
   
-  git remote set-url origin 원격리파지토리 주소 ->변경
+  git remote set-url origin 원격리파지토리 주소 ->변경 
+  (git remote set-url origin https://github.com/hjchoirr/class502_new.git )
 
   git push origin 브랜치명
    로컬 저장된 브랜치 -> 원격저장소의 브랜치로 상태반영
