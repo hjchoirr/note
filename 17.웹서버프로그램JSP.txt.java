@@ -436,34 +436,352 @@
 	
 	5) src/mian 안에 controllers 패키지
 	
+	XML 말고 서블릿 매핑 방법 : 어노테이션 @WebServlet 사용하기
+	@WebServlet("/member/*") 
+	
+		--------------------------------------------		
+		<?xml version="1.0" encoding="UTF-8" ?>
+		<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+				 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				 xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+							  https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+				 version="6.0">
+		</web-app>	
+		--------------------------------------------		
+		package controllers;
+		import jakarta.servlet.ServletException;
+		import jakarta.servlet.annotation.WebServlet;
+		import jakarta.servlet.http.HttpServlet;
+		import jakarta.servlet.http.HttpServletRequest;
+		import jakarta.servlet.http.HttpServletResponse;
 
+		import java.io.IOException;
+		import java.io.PrintWriter;
+		import java.util.Arrays;
+		@WebServlet("/member/*")
+		public class MemberController extends HttpServlet {
+			@Override
+			public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+				System.out.println("URI: " + req.getRequestURI());
+				System.out.println("URL: " + req.getRequestURL().toString());
+				System.out.println("getQueryString: " + req.getQueryString());
+				System.out.println("getMethod: " + req.getMethod());
+
+				String mode = getMode(req);
+				if(mode.equals("join")) {
+					joinForm(req, resp);
+				}else if(mode.equals("login")) {
+					loginForm(req, resp);
+				}
+			}
+
+			@Override
+			public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+				String mode = getMode(req);
+				if(mode.equals("join")) {
+					joinProcess(req, resp);
+				}else if(mode.equals("login")) {
+					loginProcess(req, resp);
+				}
+			}
+
+			private String getMode(HttpServletRequest req) {
+				String url = req.getRequestURI();
+				String[] urls = url.split("/");
+
+				return urls.length > 0 ? urls[urls.length - 1] : "";  // URL 비어있을까봐
+			}
+
+			private void joinForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+				resp.setContentType("text/html;charset=UTF-8");
+				PrintWriter out = resp.getWriter();
+				out.println("<h1>회원가입</h1>");
+			}
+			private void loginForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+				resp.setContentType("text/html;charset=UTF-8");
+				PrintWriter out = resp.getWriter();
+				out.println("<h1>로그인</h1>");
+
+			}
+			private void joinProcess(HttpServletRequest req, HttpServletResponse resp) {
+
+			}
+			private void loginProcess(HttpServletRequest req, HttpServletResponse resp) {
+
+			}
+
+		}
+		--------------------------------------------		
 
 
 필터와 래퍼
 
-- 요청과 응답 사이에서 걸러주는 기능 
+	- 요청과 응답 사이에서 걸러주는 기능 ( 응답 전후 )
 
-1. 필터 클래스, 필터 객체, 필터
-	Filter 인터페이스를 구현 -> 필터 클래스 
+			----------------------------------------------------
+			<?xml version="1.0" encoding="UTF-8" ?>
+			<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+					 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					 xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+								  https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+					 version="6.0">
 
-2. 필터가 위치하는 곳
+				<filter>
+					<filter-name>board-filter</filter-name>
+					<filter-class>filters.BoardFilter</filter-class>
+				</filter>
+				<filter-mapping>
+					<filter-name>board-filter</filter-name>
+					<url-pattern>/board</url-pattern>
+				</filter-mapping>
 
-3. 필터 클래스의 작성, 설치, 등록
-	web.xml 
-		<filter>
-			<filter-name>..</filter-name>
-			<filter-class>...</filter-class>
-		</filter>
-		<filter-mapping>
-			<filter-name>...</filter-name>
-			<url-pattern>...</url-pattern>
-		</filter-mapping>
+				<filter>
+					<filter-name>board2-filter</filter-name>
+					<filter-class>filters.Board2Filter</filter-class>
+				</filter>
+				<filter-mapping>
+					<filter-name>board2-filter</filter-name>
+					<url-pattern>/board</url-pattern>
+				</filter-mapping>
 
-	- 필터 체인(filter chain)
+				<filter>
+					<filter-name>common-filter</filter-name>
+					<filter-class>filters.CommonFilter</filter-class>
+				</filter>
+				<filter-mapping>
+					<filter-name>common-filter</filter-name>
+					<url-pattern>/*</url-pattern>
+					*/
+				</filter-mapping>
+			</web-app>
+			----------------------------------------------------
+
+			package controllers;
+
+			import jakarta.servlet.ServletException;
+			import jakarta.servlet.annotation.WebServlet;
+			import jakarta.servlet.http.HttpServlet;
+			import jakarta.servlet.http.HttpServletRequest;
+			import jakarta.servlet.http.HttpServletResponse;
+
+			import java.io.IOException;
+			import java.io.PrintWriter;
+
+			@WebServlet("/board")
+			public class BoardController extends HttpServlet {
+				@Override
+				public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+					resp.setContentType("text/html;charset=UTF-8");
+					PrintWriter out = resp.getWriter();
+					out.println("<h1>게시판</h>");
+
+				}
+			}
+			----------------------------------------------------
+			package filters;
+			import jakarta.servlet.*;
+			import java.io.IOException;
+
+			public class BoardFilter implements Filter {
+
+				@Override
+				public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+					System.out.println("BoardFilter - 응답 전");
+					chain.doFilter(req, resp); // 다음 필터 또는 서블릿의 처리 메서드 실행
+					System.out.println("BoardFilter - 응답 전");
+				}
+			}
+			----------------------------------------------------
+			public class Board2Filter implements Filter {
+				@Override
+				public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+					System.out.println("Board2Filter - 응답 전");
+					chain.doFilter(request, response);
+					System.out.println("Board2Filter - 응답 후");
+				}
+			}
+			----------------------------------------------------
+			>>
+			BoardFilter 응답 전 필터
+			Board2Filter - 응답 전
+			CommonFilter 요청전
+			doGet()!
+			CommonFilter 응답후
+			Board2Filter - 응답 후
+			BoardFilter 응답 후 필터
 	
-4. 필터 클래스의 init 메서드와 destroy 메서드
-5. 래퍼 클래스 작성 및 적용하기
 
+
+	1. 필터 클래스, 필터 객체, 필터
+		Filter 인터페이스를 구현 -> 필터 클래스 
+
+	2. 필터가 위치하는 곳
+
+	3. 필터 클래스의 작성, 설치, 등록
+		web.xml 
+			<filter>
+				<filter-name>..</filter-name>
+				<filter-class>...</filter-class>
+			</filter>
+			<filter-mapping>
+				<filter-name>...</filter-name>
+				<url-pattern>...</url-pattern>
+			</filter-mapping>
+
+		- 필터 체인(filter chain)
+		
+	4. 필터 클래스의 init 메서드와 destroy 메서드
+		web.xml 
+			<filter>
+				<filter-name>..</filter-name>
+				<filter-class>...</filter-class>
+				<init-param>
+					<param-name>이름</param-name>
+					<param-value>값</param-value>
+				<init-param>
+			</filter>
+			
+			<filter-mapping>
+				<filter-name>...</filter-name>
+				<url-pattern>...</url-pattern>
+			</filter-mapping>
+	
+    <filter>
+        <filter-name>common-filter</filter-name>
+        <filter-class>filters.CommonFilter</filter-class>
+        <init-param>
+            <param-name>key1</param-name>
+            <param-value>value1</param-value>
+        </init-param>
+        <init-param>
+            <param-name>key2</param-name>
+            <param-value>value2</param-value>
+        </init-param>
+    </filter>
+-----------------------------
+package filters;
+import jakarta.servlet.*;
+import java.io.IOException;
+
+public class CommonFilter implements Filter {
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+        System.out.println("CommonFilter 요청전");  // 여기 코드 삽입 지양 -> Wrapper에다
+        chain.doFilter(request, response);
+        System.out.println("CommonFilter 응답후"); // 여기 코드 삽입 지양-> Wrapper에다
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        System.out.println("CommonFilter - init()");
+        System.out.println("key1 : " + filterConfig.getInitParameter("key1"));
+        System.out.println("key2 : " + filterConfig.getInitParameter("key2"));
+    }
+
+    @Override
+    public void destroy() {
+        System.out.println("CommonFilter - destroy()");
+
+    }
+}
+	
+	
+	5. 래퍼 클래스 작성 및 적용하기
+
+		필터 클래스 FilterChain::doFilter() 메서드 전, 후 -> 여기에 코드 작성 지양
+		
+		기본구현 클래스 
+		ServletRequest 인터페이스 -> servletRequestWrapper
+		ServletResponse 인터페이스 -> servletResponseWrapper
+
+		HttpServletRequest 인터페이스 -> HttpservletRequestWrapper
+		HttpServletRequest 인터페이스 -> HttpservletRequestWrapper
+		
+		참고) 클래스명에 Wrapper 있다고 해소 감싸는 구조는 아님! (중요)
+		
+		자카르타 DOC 문서 - 
+		
+		jakarta.servlet
+			- ServletRequestWrapper - ServletRequestWrapper
+		jakarta.servlet.http 
+			- HttpServletRequest - HttpServletRequestWrapper	
+
+			---------------------------------------------------------
+			package filters;
+			import jakarta.servlet.*;
+			import java.io.IOException;
+
+			public class CommonFilter implements Filter {
+				@Override
+				public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+					System.out.println("CommonFilter 요청전");  // 여기 코드 삽입 지양
+
+					chain.doFilter(new CommonRequestWrapper(request), new CommonResponseWrapper(response));
+
+					System.out.println("CommonFilter 응답후"); // 여기 코드 삽입 지양
+
+				}
+			}
+			---------------------------------------------------------
+
+			package filters;
+			import jakarta.servlet.ServletRequest;
+			import jakarta.servlet.http.HttpServletRequest;
+			import jakarta.servlet.http.HttpServletRequestWrapper;
+
+			public class CommonRequestWrapper extends HttpServletRequestWrapper {
+
+				public CommonRequestWrapper(ServletRequest request) {
+					super((HttpServletRequest) request);
+
+					//요청전 공통처리부분
+					System.out.println("요청전 공통처리 코드...CommonRequestWrapper 생성자");
+				}
+			}
+			---------------------------------------------------------
+
+			package filters;
+			import jakarta.servlet.ServletResponse;
+			import jakarta.servlet.http.HttpServletResponse;
+			import jakarta.servlet.http.HttpServletResponseWrapper;
+
+			public class CommonResponseWrapper extends HttpServletResponseWrapper {
+				public CommonResponseWrapper(ServletResponse response) {
+					super((HttpServletResponse) response);
+
+					System.out.println("응답후 공통부분 - CommonResponseWrapper 생성자");
+
+				}
+			}
+			---------------------------------------------------------
+			>>>
+			CommonFilter 요청전
+			요청전 공통처리 코드...CommonRequestWrapper 생성자
+			응답후 공통부분 - CommonResponseWrapper 생성자
+			BoardFilter 응답 전 필터
+			Board2Filter - 응답 전
+			doGet()!
+			Board2Filter - 응답 후
+			BoardFilter 응답 후 필터
+			CommonFilter 응답후
+			---------------------------------------------------------
+
+		(필터의 용도)
+		Examples that have been identified for this design are:
+
+			Authentication Filters
+			Logging and Auditing Filters
+			Image conversion Filters
+			Data compression Filters
+			Encryption Filters
+			Tokenizing Filters
+			Filters that trigger resource access events
+			XSL/T filters
+			Mime-type chain Filter
+			
+		인코딩,디코딩 필터 등
 
 JSP의 특징
 (Java Server Page) - 서블릿 코드 번역기술
