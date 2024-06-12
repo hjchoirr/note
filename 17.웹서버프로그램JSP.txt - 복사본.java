@@ -383,7 +383,6 @@
 				</servlet-mapping>
 			```			
 			------------------------------------------------------
-			```java
 			package servlets.member;
 			import jakarta.servlet.ServletException;
 			import jakarta.servlet.http.HttpServlet;
@@ -405,7 +404,6 @@
 
 				}
 			}
-			```
 		------------------------------------------------------
 		
 		
