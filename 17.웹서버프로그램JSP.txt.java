@@ -372,7 +372,7 @@
 			}
 
 			----- servlet - mapping 설정 묶어서..-------------------------------------------------
-			```xml
+			
 				<servlet>
 					<servlet-name>member-servlet</servlet-name>
 					<servlet-class>servlets.member.MemberServlet</servlet-class>
@@ -381,7 +381,7 @@
 					<servlet-name>member-servlet</servlet-name>
 					<url-pattern>/member/* </url-pattern>
 				</servlet-mapping>
-			```			
+					*/
 			------------------------------------------------------
 			package servlets.member;
 			import jakarta.servlet.ServletException;
