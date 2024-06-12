@@ -646,59 +646,125 @@
 				<url-pattern>...</url-pattern>
 			</filter-mapping>
 	
-    <filter>
-        <filter-name>common-filter</filter-name>
-        <filter-class>filters.CommonFilter</filter-class>
-        <init-param>
-            <param-name>key1</param-name>
-            <param-value>value1</param-value>
-        </init-param>
-        <init-param>
-            <param-name>key2</param-name>
-            <param-value>value2</param-value>
-        </init-param>
-    </filter>
------------------------------
-package filters;
-import jakarta.servlet.*;
-import java.io.IOException;
 
-public class CommonFilter implements Filter {
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+			-----------------------------
+			<?xml version="1.0" encoding="UTF-8" ?>
+			<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+					 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					 xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+								  https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+					 version="6.0">
 
-        System.out.println("CommonFilter 요청전");  // 여기 코드 삽입 지양 -> Wrapper에다
-        chain.doFilter(request, response);
-        System.out.println("CommonFilter 응답후"); // 여기 코드 삽입 지양-> Wrapper에다
-    }
+				<filter>
+					<filter-name>common-filter</filter-name>
+					<filter-class>filters.CommonFilter</filter-class>
+					<init-param>
+						<param-name>key1</param-name>
+						<param-value>value1</param-value>
+					</init-param>
+					<init-param>
+						<param-name>key2</param-name>
+						<param-value>value2</param-value>
+					</init-param>
+				</filter>
+				<filter-mapping>
+					<filter-name>common-filter</filter-name>
+					<url-pattern>/*</url-pattern>*/
+				</filter-mapping>
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        System.out.println("CommonFilter - init()");
-        System.out.println("key1 : " + filterConfig.getInitParameter("key1"));
-        System.out.println("key2 : " + filterConfig.getInitParameter("key2"));
-    }
+				<filter>
+					<filter-name>board-filter</filter-name>
+					<filter-class>filters.BoardFilter</filter-class>
+				</filter>
+				<filter-mapping>
+					<filter-name>board-filter</filter-name>
+					<url-pattern>/board</url-pattern>
+				</filter-mapping>
 
-    @Override
-    public void destroy() {
-        System.out.println("CommonFilter - destroy()");
+				<filter>
+					<filter-name>board2-filter</filter-name>
+					<filter-class>filters.Board2Filter</filter-class>
+				</filter>
+				<filter-mapping>
+					<filter-name>board2-filter</filter-name>
+					<url-pattern>/board</url-pattern>
+				</filter-mapping>
 
-    }
-}
-	
+			</web-app>
+			-----------------------------------------
+			package filters;
+			import jakarta.servlet.*;
+			import java.io.IOException;
+
+			public class CommonFilter implements Filter {
+				@Override
+				public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+					System.out.println("CommonFilter 요청전");  // 여기 코드 삽입 지양 -> Wrapper에다
+					chain.doFilter(request, response);
+					System.out.println("CommonFilter 응답후"); // 여기 코드 삽입 지양-> Wrapper에다
+				}
+
+				@Override
+				public void init(FilterConfig filterConfig) throws ServletException {
+					System.out.println("CommonFilter - init()");
+					System.out.println("key1 : " + filterConfig.getInitParameter("key1"));
+					System.out.println("key2 : " + filterConfig.getInitParameter("key2"));
+				}
+
+				@Override
+				public void destroy() {
+					System.out.println("CommonFilter - destroy()");
+
+				}
+			}
+			----------------------------------------------------------------------
+			--------web.xml 필터 설정 빼고 어노테이션 @WebFilter 사용하기------------
+			----------------------------------------------------------------------
+			package filters;
+			import jakarta.servlet.*;
+			import jakarta.servlet.annotation.WebFilter;
+			import jakarta.servlet.annotation.WebInitParam;
+
+			import java.io.IOException;
+
+			@WebFilter(value="/board",  
+				initParams = {
+					@WebInitParam(name="k1", value="value1"),
+					@WebInitParam(name="k2", value="value2")
+			})
+			public class BoardFilter implements Filter {
+				@Override
+				public void init(FilterConfig filterConfig) throws ServletException {
+					String k1 = filterConfig.getInitParameter("k1");
+					String k2 = filterConfig.getInitParameter("k2");
+					System.out.printf("k1=%s k2=%s%n", k1, k2);
+				}
+
+				@Override
+				public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+					System.out.println("BoardFilter 응답 전 필터");
+					chain.doFilter(req, resp); // 다음 필터 또는 서블릿
+					System.out.println("BoardFilter 응답 후 필터");
+				}
+			}
+			-------------------------------------------------------------------------
+
 	
 	5. 래퍼 클래스 작성 및 적용하기
 
 		필터 클래스 FilterChain::doFilter() 메서드 전, 후 -> 여기에 코드 작성 지양
+		- 래퍼는 필터에만 사용 가능함 - 필터에 플러스 알파 기능 추가
+		- 필터는 래퍼 없이 사용가능함
 		
-		기본구현 클래스 
+		기본구현 클래스 - Adapter 클래스
 		ServletRequest 인터페이스 -> servletRequestWrapper
 		ServletResponse 인터페이스 -> servletResponseWrapper
 
 		HttpServletRequest 인터페이스 -> HttpservletRequestWrapper
 		HttpServletRequest 인터페이스 -> HttpservletRequestWrapper
 		
-		참고) 클래스명에 Wrapper 있다고 해소 감싸는 구조는 아님! (중요)
+		참고) 클래스명에 Wrapper 있다고 해서 감싸는 구조는 아님! (중요)
 		
 		자카르타 DOC 문서 - 
 		
@@ -716,11 +782,9 @@ public class CommonFilter implements Filter {
 				@Override
 				public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-					System.out.println("CommonFilter 요청전");  // 여기 코드 삽입 지양
-
+					System.out.println("CommonFilter 요청전");  // 여기 코드 삽입 지양 -> 대신에 Wrapper 사용
 					chain.doFilter(new CommonRequestWrapper(request), new CommonResponseWrapper(response));
-
-					System.out.println("CommonFilter 응답후"); // 여기 코드 삽입 지양
+					System.out.println("CommonFilter 응답후"); // 여기 코드 삽입 지양 -> 대신에 Wrapper 사용
 
 				}
 			}
@@ -739,7 +803,16 @@ public class CommonFilter implements Filter {
 					//요청전 공통처리부분
 					System.out.println("요청전 공통처리 코드...CommonRequestWrapper 생성자");
 				}
+
+				@Override
+				public String getParameter(String name) {
+					String value = super.getParameter(name);
+					value = value == null ? value : "★" + value + "♥";
+					return value;
+				}
+
 			}
+
 			---------------------------------------------------------
 
 			package filters;
@@ -781,7 +854,16 @@ public class CommonFilter implements Filter {
 			XSL/T filters
 			Mime-type chain Filter
 			
-		인코딩,디코딩 필터 등
+			인코딩,디코딩 필터 
+			쿠키 암호화, 복호화
+
+	필터 예제 
+	https://github.com/yonggyo1125/board_jsp-11-/blob/master/main/java/commons/CommonRequestWrapper.java
+	
+	6/12 15시 동영상 - 테스트 래퍼, 필터 코드 막기
+	
+
+(소스 D:\hjchoi\9.웹서버프로그램구현\day04 참고)
 
 JSP의 특징
 (Java Server Page) - 서블릿 코드 번역기술
@@ -791,7 +873,16 @@ JSP의 특징
 4. JSP로 개발하면 코드 길이를 줄일 수 있다.
 
 JSP의 페이지 처리과정
-
+	
+	post.jsp -> post_jsp.java -> post_jsp.class -> 실행 -> _jspInit() 한번 -> _jspService() 매 요청시 -> _jspDestroy() 실행
+	
+	Catalina base : C:\Users\admin\.SmartTomcat\day04\day04.main 내의 work 폴더
+	
+	
+	C:\Users\admin\.SmartTomcat\day04\day04.main\work\Catalina\localhost\day04\org\apache\jsp\ 이곳에
+		-> post_jsp.class, post_jsp.java 파일 자동 생성됨 ( 이클립스는 경로 다름)
+	
+	
 JSP 생명 주기
 	_jspInit() : 초기화시(처음만 호출)
 	_jspService(....) : 매 요청시 
@@ -821,55 +912,103 @@ JSP 생명 주기
 스크립트 태그
 	- 자바 코드를 입력할 수 있는 태그 
 	
-1. 스크립트 태그의 종류
-1) 선언문 
-	- 번역 위치가 클래스명 바로 아래쪽 추가 (멤버 변수, 메서드)
-	<%!
-		자바코드 ...
-	%>
-2) 스크립틀릿
-	_jspService 메서드의 지역 내에 코드 추가 (메서드 정의 X, 변수 -> 지역변수)
-	<%
-		자바코드 ...   
-	%>
-3) 표현문(expression)
-	_jspService 메서드의 지역 내에 번역
-	
-	<%=변수%> = out.print(변수)
-	
-	
+	1. 스크립트 태그의 종류
+		1) 선언문 
+			- 번역 위치가 클래스명 바로 아래쪽 추가 (멤버 변수, 메서드)
+			<%!
+				자바코드 ...
+			%>
+		2) 스크립틀릿
+			_jspService 메서드의 지역 내에 코드 추가 (메서드 정의 X, 변수 -> 지역변수)
+			<%
+				자바코드 ...   
+			%>
+		3) 표현문(expression)
+			_jspService 메서드의 지역 내에 번역
+			
+			<%=변수%> = out.print(변수)
+		
+			-------------------------------------------------
+			post.jsp
+			-------------------------------------------------
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<h1>게시글 작성</h1>
+
+			<form method="post" action="post_ps.jsp">
+				제목 : <input type="text" name='subject'><br>
+				내용 : <textarea name="content"></textarea><br>
+				<button type="submit">작성하기</button>
+			</form>
+			
+			<%
+				// 스크립틀릿 : _jspService() 메서드 지역 내부  
+				
+				int num1 = 100;
+				int num2 = 200;
+				
+				//int result = num1 + num2;
+				
+				int result = add(num1, num2);
+				System.out.println(result);
+				
+			%>
+
+			<%! 
+				// 선언문 : 인스턴스변수
+				
+				int num1 = 10;
+				int num2 = 20;
+				
+				int add(int num1, int num2) {
+					return num1 + num2;
+				}
+				
+			%>
+			---------------------------------------------------
+	_jspService메서드 내부에 정의된 지역변수 : 내장 객체(jsp 페이지에서 바로 접근 가능한 객체
+		- 외우기
+		HttpServletRequest request : 요청관련 정보, 기능
+		HttpServletResponse response : 응답관련 정보, 기능
+		PageContext pageContext : JSP로 번역된 서블릿 클래스의 환경정보, 기능
+		ServletConfig config : 서블릿 설정
+		ServletContext application : 서블릿 환경정보, 기능
+		JspWriter out : JSP 페이지에 출력
+		Object page = this 생성된 서블릿 객체를 참조
+		HttpSession session : 세션
+
+
 디렉티브 태그
-<%@ ..... %>
-- page 
-	
-	errorPage -> 에러 출력 페이지 설정
-	isErrorPage="true" : 번역될때 exception 내장 객체 생성 
-	isELIgnored="true" : EL 식 사용 불가 X
-							(Expression Language)
-							${식}
-	
-- include
-- taglib 
+	<%@ ..... %>
+	- page 
+		
+		errorPage -> 에러 출력 페이지 설정
+		isErrorPage="true" : 번역될때 exception 내장 객체 생성 
+		isELIgnored="true" : EL 식 사용 불가 X
+								(Expression Language)
+								${식}
+		
+	- include
+	- taglib 
 
-1. page 디렉티브 태그의 기능과 사용법
-2. include 디렉티브 태그의 기능과 사용법
-	file="jsp|HTML 경로"
-	<%@ include file="..." %>
-	
-3. taglib 디렉티브 태그의 기능과 사용법
-	- 태그 라이브러리 
-	JSTL (JSP Standard Tag Libaray) - 3.0
-	uri="jakarta.tags.core"
-	
-	- JSTL 3.0
-	
-		- jstl-api 
-		- jstl 구현체 
-	
-JSP의 주석 처리
-<%-- 주석 --%> : 번역 X
+	1. page 디렉티브 태그의 기능과 사용법
+	2. include 디렉티브 태그의 기능과 사용법
+		file="jsp|HTML 경로"
+		<%@ include file="..." %>
+		
+	3. taglib 디렉티브 태그의 기능과 사용법
+		- 태그 라이브러리 
+		JSTL (JSP Standard Tag Libaray) - 3.0
+		uri="jakarta.tags.core"
+		
+		- JSTL 3.0
+		
+			- jstl-api 
+			- jstl 구현체 
+		
+	JSP의 주석 처리
+	<%-- 주석 --%> : 번역 X
 
-/*  */ : 자바 코드의 주석으로 번역
+	/*  */ : 자바 코드의 주석으로 번역
 
 
-https://jakarta.ee/specifications/tags/3.0/tagdocs/
+	https://jakarta.ee/specifications/tags/3.0/tagdocs/
