@@ -372,16 +372,18 @@
 			}
 
 			----- servlet - mapping 설정 묶어서..-------------------------------------------------
+			```xml
 				<servlet>
 					<servlet-name>member-servlet</servlet-name>
 					<servlet-class>servlets.member.MemberServlet</servlet-class>
 				</servlet>
 				<servlet-mapping>
 					<servlet-name>member-servlet</servlet-name>
-					<url-pattern>/member/*</url-pattern>
+					<url-pattern>/member/* </url-pattern>
 				</servlet-mapping>
-					*/	
+			```			
 			------------------------------------------------------
+			```java
 			package servlets.member;
 			import jakarta.servlet.ServletException;
 			import jakarta.servlet.http.HttpServlet;
@@ -403,8 +405,41 @@
 
 				}
 			}
-			------------------------------------------------------
+			```
+		------------------------------------------------------
 		
+		
+6/12 day04 (소스 D:\hjchoi\9.웹서버프로그램구현)
+
+	1) file-settings
+		-editor-file encoding
+		-builder,-gradle-inteliJ
+	
+	2) 의존성 추가 : jakarta servlet api,  jakarta servlet jsp, lombok project
+	
+	compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+	compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1'
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+ 
+	3) 웹서비스용 경로 만들기 src/mian 안에 webapp/WEB-INF/web.xml
+	
+		(샘플) D:\hjchoi\apache-tomcat-10.1.24\webapps\examples\WEB-INF
+		
+		<?xml version="1.0" encoding="UTF-8" ?>
+		<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+				 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				 xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+							  https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+				 version="6.0">
+		</web-app>
+		
+	4) 서버설정 (Tomcat 10)
+	
+	5) src/mian 안에 controllers 패키지
+	
+
+
 
 필터와 래퍼
 
@@ -430,3 +465,95 @@
 	
 4. 필터 클래스의 init 메서드와 destroy 메서드
 5. 래퍼 클래스 작성 및 적용하기
+
+
+JSP의 특징
+(Java Server Page) - 서블릿 코드 번역기술
+1. JSP는 서블릿 기술의 확장
+2. JSP는 유지 관리가 용이
+3. JSP는 빠른 개발이 가능
+4. JSP로 개발하면 코드 길이를 줄일 수 있다.
+
+JSP의 페이지 처리과정
+
+JSP 생명 주기
+	_jspInit() : 초기화시(처음만 호출)
+	_jspService(....) : 매 요청시 
+	_jspDestroy() : 소멸시
+	
+ 
+	참고)
+		_jspService 메서드 지역 내부에 정의된 객체 -> 내장 객체 
+		-> jsp 페이지에서 바로 접근이 가능 
+			
+			HttpServletRequest request : 요청 관련 정보, 기능 
+			HttpServletResponse response : 응답 관련 정보, 기능
+		
+			PageContext pageContext : JSP로 번역된 서블릿 클래스의 환경 정보, 기능
+			ServletContext application : 서블릿(애플리케이션) 환경 정보, 기능
+			ServletConfig config : 서블릿 설정 
+			HttpSession session : 세션 
+			JspWriter out : JSP 페이지에 출력
+			Object page = this // 생성된 서블릿 객체를 참조 
+			
+		
+		jsp 페이지에서 자바 코드 : 번역시 자바 코드 그자체로 추가 
+		<%
+			자바 코드 
+		%>
+		
+스크립트 태그
+	- 자바 코드를 입력할 수 있는 태그 
+	
+1. 스크립트 태그의 종류
+1) 선언문 
+	- 번역 위치가 클래스명 바로 아래쪽 추가 (멤버 변수, 메서드)
+	<%!
+		자바코드 ...
+	%>
+2) 스크립틀릿
+	_jspService 메서드의 지역 내에 코드 추가 (메서드 정의 X, 변수 -> 지역변수)
+	<%
+		자바코드 ...   
+	%>
+3) 표현문(expression)
+	_jspService 메서드의 지역 내에 번역
+	
+	<%=변수%> = out.print(변수)
+	
+	
+디렉티브 태그
+<%@ ..... %>
+- page 
+	
+	errorPage -> 에러 출력 페이지 설정
+	isErrorPage="true" : 번역될때 exception 내장 객체 생성 
+	isELIgnored="true" : EL 식 사용 불가 X
+							(Expression Language)
+							${식}
+	
+- include
+- taglib 
+
+1. page 디렉티브 태그의 기능과 사용법
+2. include 디렉티브 태그의 기능과 사용법
+	file="jsp|HTML 경로"
+	<%@ include file="..." %>
+	
+3. taglib 디렉티브 태그의 기능과 사용법
+	- 태그 라이브러리 
+	JSTL (JSP Standard Tag Libaray) - 3.0
+	uri="jakarta.tags.core"
+	
+	- JSTL 3.0
+	
+		- jstl-api 
+		- jstl 구현체 
+	
+JSP의 주석 처리
+<%-- 주석 --%> : 번역 X
+
+/*  */ : 자바 코드의 주석으로 번역
+
+
+https://jakarta.ee/specifications/tags/3.0/tagdocs/
