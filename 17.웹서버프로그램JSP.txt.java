@@ -1215,6 +1215,7 @@ JSP 생명 주기
 		2. include 액션 태그의 기능과 사용법
 		
 			- 페이지 추가 / 버퍼의 통제 - 버퍼 내용 추가 방식
+			- <jsp:include page="이동할 페이지 - JSP, html, text, servlet 경로" />
 			
 			-------------------------------------------------	
 			9.웹서버프로그램구현\day04\src\main\webapp\exam04\ex01.jsp
@@ -1245,7 +1246,9 @@ JSP 생명 주기
 			
 		*** 액션태그 forward, include => 출력 버퍼치환, 버퍼추가 
 		
-		(참고)RequestDispatcher() 메서드의 동작과 동일 - forward(..), include(..)
+		(참고)자바의 RequestDispatcher() 메서드의 동작과 동일 
+			- forward(..)
+			- include(..)
 			
 			- ex01.jsp
 			----------------------------------------------------
@@ -1412,6 +1415,7 @@ JSP 생명 주기
 
 		----------------------------------------------------------
 		/WEB-INF/templates/board/list.jsp
+		
 		<%@ page contentType="text/html;charset=UTF-8" %>
 		<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 		<h1>게시글 목록</h1>
@@ -1485,12 +1489,648 @@ JSP 생명 주기
 			}
 		}
 		----------------------------------------------------------
+6/14 9.웹서버프로그램구현\day05 계속
+
+
+	5. 자바빈즈 액션 태그의 기능과 사용법
+		1) 자바빈즈 :  데이터 표현을 목적으로 하는 자바 클래스
+			Bean : 자바 객체를 의미함
+			<jsp:useBean id="자바빈즈식별이름" class="패키지명 포함한 클래스명" scope="범위">
+			
+			scope : 속성 조회가능 범위
+			  - page(기본값) / PageContext 범위에서 조회 가능
+			  - request / HttpServletRequest
+			  - session / HttpSession
+			  - application / ServletContext
+				--------------------------------------------------------
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%@ page import="java.util.*" %>
+				<jsp:useBean id="items" class="java.util.ArrayList" />
+				${items}
+				<%
+					// scope='page' 일때 조회
+					ArrayList data = (ArrayList)pageContext.getAttribute("items");
+					data.add("A");
+					data.add("B");
+					System.out.println(data); // [A, B]
+					
+					// scope : request 이면 못가져옴 -> null 왜냐하면 scope기 default pageContext 이므로
+					ArrayList data = (ArrayList)request.getAttribute("items");
+					System.out.println(data); // null
+					
+				%>		  
+				>> 
+				[]
+				[A, B]
+				null
+				--------------------------------------------------------
+				<jsp:useBean id="items" class="java.util.ArrayList" scope="request" /> 
+				이렇게  scope="request" 넣으면 결과 [] 로 잘 나옴
+				
+			
+		2) 자바빈즈 작성 규칙
+			- 기본 생성자가 반드시 정의되어 있어야 한다
+			- 데이터를 담고, 조회하는 데이터클래스 위주로 정의(getter, setter)
+			- 직렬화(serialization) 필수 (예전)
+				-----------------------------------------------------
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%@ page import="java.time.*" %>
+				<jsp:useBean id="now" class="java.time.LocalDateTime" />
+				${now}
+				==> 에러
+				-----------------------------------------------------
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%@ page import="board.entities.BoardData" %>
+				<jsp:useBean id="item" class="board.entities.BoardData" />
+				${item}
+
+				(참고) 빌더패턴 : 직접 객체 생성 안할 목적 (new ..) 이라서 기본생성자가 private 이다
+				편법으로 기본생성자 정의하려면 
+				  @NoArgsConstructor
+				  @AllArgsConstructor
+				  이렇게 쓴다
+				  
+		3) useBean 액션 태그로 자바빈즈 사용하기
+		
+		4) setProperty 액션 태그로 프로퍼티 값 저장하기
+			// setter 메서드 호출과 동일
+		5) getProperty 액션 태그로 프로퍼티의 값 가져오기
+			// getter 메서드 호출과 동일
+			
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ page import="board.entities.BoardData" %>
+			<jsp:useBean id="item" class="board.entities.BoardData" />
+			${item}<br>
+
+			<jsp:setProperty name="item" property="subject" value="제목" />
+			<jsp:setProperty name="item" property="content" value="내용" />
+			<jsp:setProperty name="item" property="poster" value="작성자" />
+
+			제목: <jsp:getProperty name="item" property="subject" /><br>
+			내용: <jsp:getProperty name="item" property="content" /><br>
+			작성자: <jsp:getProperty name="item" property="poster" /><br>
+			<br>
+			제목: ${item.getSubject()}<br>
+			내용: ${item.getContent()}<br>
+			작성자: ${item.getPoster()}<br>
+			<br>
+			제목: ${item.subject}<br>
+			내용: ${item.content}<br>
+			작성자: ${item.poster}<br>			
+			
+
+			========================================================
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<form method="post" action="ex04_ps.jsp">
+				작성자: <input type='text' name="writer"><br>
+				제목: <input type='text' name="subject"><br>
+				내용: <textarea name="content"></textarea><br>
+				<button type="submit">작성하기</button>
+			</form>
+			----------------------------------------------------------
+			ex04_ps.jsp
+
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ page import="board.entities.BoardData" %>
+			<jsp:useBean id="item" class="board.entities.BoardData" scope="request"/>
+			${item}<br>
+
+			<jsp:setProperty name="item" property="subject" />   //input태그 name 과 property 일치시키기 
+			<jsp:setProperty name="item" property="content" />
+			<jsp:setProperty name="item" property="poster" param="writer"/>  //input태그 name 과 property 다를때
+
+			제목: ${item.subject}<br>
+			내용: ${item.content}<br>
+			작성자: ${item.poster}<br>
+			----------------------------------------------------------
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ page import="board.entities.BoardData" %>
+			<jsp:useBean id="item" class="board.entities.BoardData" scope="request"/>
+
+			<jsp:setProperty name="item" property="*" />   // 이렇게 하면 더 간단히 사용가능함
+			
+			제목: ${item.subject}<br>
+			내용: ${item.content}<br>
+			작성자: ${item.poster}<br>
+			----------------------------------------------------------
 
 
 
-		5. 자바빈즈 액션 태그의 기능과 사용법
-			1) 자바빈즈 :  데이터 표현을 목적으로 하는 자바 클래스
-			2) 자바빈즈 작성 규칙
-			3) useBean 액션 태그로 자바빈즈 사용하기
-			4) setProperty 액션 태그로 프로퍼티 값 저장하기
-			5) getProperty 액션 태그로 프로퍼티의 값 가져오기
+JSP 내장객체
+
+	1. request
+	2. response
+	3. out
+	4. session
+	5. application
+	6. pageContext
+	7. page
+	8. config
+	9. exception
+
+	속성 처리 객체와 메서드의 종류
+		pageContext, request, session, application
+
+		1. setAttribute(String name, Object value)
+		2. getAttrubute(String name)
+		3. removeAttribute(String name
+		4. getAttributeNames()
+
+		-------------------------------------------------------------------
+		request.getContextPath()  예제
+		<%@ page contentType="text/html;charset=UTF-8" %>
+		<%
+		String url = request.getContextPath() + "/exam03/ex04.jsp";
+		%>
+		<a href="<%=url%>">이동하기</a>
+
+		request.getQueryString()
+		response.sendRedirect(String url)
+		-------------------------------------------------------------------
+
+
+
+익스프레션 언어(EL 표현식)
+	연산식 
+	${식} / 연산, 속성(변수)
+		1. 애트리뷰트 형태로 전달되는 데이터
+		- setAttribute, getAttribute, removeAttribute
+
+		2. 애트리뷰트 값을 출력하는 EL식
+			setAttribute("이름", "값");
+			
+			${이름}
+			
+
+	익스프레션 언어의 기초문법
+		1. EL식의 문법
+			${...식 ...}
+			
+		2. 데이터 이름 하나로만 구성된 EL 식
+
+		3. JSP/서블릿 기술에서 사용되는 네 종류의 애트리뷰트
+			1) page
+			2) request
+			3) session
+			4) application
+			5) EL 식 안에 있는 데이터 이름이 해석되는 순서
+
+			--------------------------------------------------
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%
+				pageContext.setAttribute("num", 300);
+				request.setAttribute("num", 200);
+				application.setAttribute("num", 100);
+			%>
+			${num} <!--범위가 작은 게 우선 순위 높다-->
+			
+			>> 300
+			--------------------------------------------------
+
+
+
+	익스프레션 언어의 내장 객체
+
+		1. 익스프레션 언어의 내장 객체
+			속성값을 범위에 따라 조회할 수 있는 객체(map)
+				마침표(.), 대괄호(['속성명'])
+			
+			1) pageScope
+			2) requestScope
+			3) sessionScope
+			4) applicationScope
+			
+				------------------------------------------------------------
+				day05/exam04/ex02.jsp
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%
+					pageContext.setAttribute("num", 300);
+					request.setAttribute("num", 200);
+					application.setAttribute("num", 100);
+					session.setAttribute("num", 400);
+					
+					pageContext.setAttribute("max-num", 1000);
+
+				%>
+				pageContext.num : ${pageScope.num}<br>
+				request.num : ${requestScope.num}<br>
+				application.num : ${applicationScope.num}<br>
+				session.num : ${sessionScope.num}<br>
+				
+				max-num : ${pageScope["max-num"]}<br> <!-- max-num :변수명 규칙과 맞지 않을때 -->
+				------------------------------------------------------------
+
+			5) param
+			
+				- 요청데이터 
+					값: url 인코딩된 값
+				 Get방식 : ?이름=값&이름=값
+				 POST방식 : 바디 / application/x-www-form-urlencoded
+				            이름=값&이름=값 
+
+				- 자바서블릿은 모두 String 타입, EL식은 데이터 타입 자동
+
+				- 마침표, 대괄호
+				 (참고) HttpServletRequest 의 String getParamter(String name) 동일 
+				 
+				 
+				 
+				------------------------------------------------------------- 
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				${param.num1} + ${param.num2} = ${param.num1 + param.num2}
+
+				http://localhost:3000/day05/exam04/ex03.jsp?num1=100&num2=200
+				------------------------------------------------------------- 
+
+
+				
+			6) paramValues
+
+				HttpServletRequest - String[] getParameterValues(String name) 동일
+				-----------------------------------------------------------
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<form method="POST" action="ex04_ps.jsp">
+					이메일 : <input type="text" name="email"><br>
+					비밀번호 : <input type="password" name="password"><br>
+					선택 : <input type="checkbox" name="chk" value="1">1
+					<input type="checkbox" name="chk" value="2">2
+					<input type="checkbox" name="chk" value="3">3<br>
+					<button type="submit">로그인</button>
+				</form>
+				-----------------------------------------------------------
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				이메일 : ${param.email}<br>
+				비밀번호 : ${param.password}<br>
+				선택 : ${paramValues.chk[0]} | ${paramValues.chk[1]} | ${paramValues.chk[2]}<br>
+				-----------------------------------------------------------
+
+
+			7) header
+			8) headerValues
+			9) cookie	
+			10) initParam
+
+				<context-param>
+					<param-name></param-name>
+					<param-value></param-value>
+				</context-param>
+			
+			11) pageContext
+				- JSP 페이지의 주변 환경에 대한 정보를 제공하는 객체
+
+-------------------------------------------------------------------------------------
+				User-Agent: ${header["User-Agent"]}<br>
+				JSESSIONID : ${cookie.JSESSIONID.getValue()}<br>
+				JSESSIONID : ${cookie.JSESSIONID.value}<br>
+				JSESSIONID : ${header["Cookie"]}<br>			
+				key1 : ${initParam.key1}<br>
+				URI : ${pageContext.getRequest().getRequestURI()}<br>
+				URI : ${pageContext.request.requestURI}<br>   <!-- 윗줄과 동일 -->
+				>>>
+				User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+				JSESSIONID : 0331517251F37DC5E111AA7569558144
+				JSESSIONID : 0331517251F37DC5E111AA7569558144
+				JSESSIONID : JSESSIONID=0331517251F37DC5E111AA7569558144
+				key1 : value1
+				URI : /day05/exam04/ex05.jsp
+				URI : /day05/exam04/ex05.jsp
+				-------------------------------------------------------------------------------------
+				web.xml
+				<?xml version="1.0" encoding="UTF-8"?>
+				<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+						 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						 xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+									  https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+						 version="6.0">
+
+					<context-param>
+						<param-name>key1</param-name>
+						<param-value>value1</param-value>
+					</context-param>
+
+				</web-app>				
+				-------------------------------------------------------------------------------------
+				
+			11) pageContext
+				- JSP 페이지의 주변 환경에 대한 정보를 제공하는 객체
+			
+
+	익스프레션 언어의 연산자
+	
+	1. 익스프레션 언어의 연산자
+		lt - lesser than : <
+		gt - greater than : >
+		le  - lesser than and equal : <=
+		ge - greater than and equal : >= 
+		eq - equal : ==
+		ne - not equal != 
+
+		논리 연산자 
+			&&  / AND
+			||  / OR
+			!  / NOT
+
+	2. 엠프티 연산자
+	
+		${empty str}
+		null 체크, 빈문자열 ''
+		
+		${empty param.str ? '없음' : param.str }
+		
+		
+	3. 대괄호 연산자와 마침표 연산자
+		EL식 속성 : 객체 -> 객체의 각 속성명을 접근(getter  호출)
+		예) ${book.title} -> book.getTitle()
+			 ${book['title']}
+			 
+			 마침표로 사용하는 경우는 변수명 규칙과 동일하게 적용
+				- 앞에는 숫자 X  예) nums['0']
+				- 특수문자 $, _  예) num-1 (X) -> 대괄호 연산자 ['num-1']
+
+JSTL - Jsp Standard Tag Library
+
+	의존성 
+    api : implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'  
+    구현체 : implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'   
+
+
+	1. 설치하기
+	
+		core 라이브러리 : 제어구문, 반복문 등
+		fmt 라이브러리 : 형식화, 숫자 형식, 날짜 형식, 시간대, 다국어
+		functions 라이브러리 : 문자열 가공 등
+		sql 라이브러리 - 안씀 : jsp에서 DB 쿼리 하는것 안좋음
+
+		https://jakarta.ee/specifications/tags/3.0/tagdocs/
+
+
+		2. 코어(core) 라이브러리
+			uri="jakarta.tags.core"
+			 참고)
+				javaee 9 ->  JSTL 1.2 
+				uri="http://java.sun.com/jsp/jstl/core"
+				
+				<%@ taglib prefix="c" uri="jakart.tags.core" %>
+				
+					
+			1) <c:set>	 : 속성 설정
+			   <c:set var="속성명" value="값" />
+			   ${속성명}
+			   scope="page|request|session|application"
+			   기본값 : page
+
+				-------------------------------------------------
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+				<c:set var="num1" value="100" />
+				<c:set var="num2" value="200" />
+				${num1} + ${num2} = ${num1 + num2}<br>
+
+
+			2) <c:remove>	
+				- 속성값 제거
+				<c:remove var="속성명" />
+				-scope 값이 없으면 모든 범위의 속성값 제거
+				
+				-------------------------------------------------
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+				<c:set var="num1" value="100" />
+				<c:set var="num1" value="200" scope="request" />
+				<c:set var="num1" value="300" scope="application" />
+				pageScope.num1 : ${pageScope.num1} <br>
+				requestScope.num1 : ${requestScope.num1} <br>
+				applicationScope.num1 : ${applicationScope.num1} <br>
+
+				<c:remove var="num1" />
+
+				pageScope.num1 : ${pageScope.num1} <br>
+				requestScope.num1 : ${requestScope.num1} <br>
+				applicationScope.num1 : ${applicationScope.num1} <br>
+				
+				>>>
+				pageScope.num1 : 100
+				requestScope.num1 : 200
+				applicationScope.num1 : 300
+				pageScope.num1 :
+				requestScope.num1 :
+				applicationScope.num1 :
+				-------------------------------------------------
+			3) <c:if>
+				- 조건식
+				<c:if test="${조건식}">
+				</c:if>
+				
+					-------------------------------------------------				
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+					<c:set var="num" value="10" />
+					<c:if test="${num % 2 == 1}">
+					홀수입니다
+					</c:if>
+					<c:if test="${!(num % 2 == 1)}">
+					짝수입니다
+					</c:if>
+
+					${num % 2 == 1 ? "홀수입니다" : "짝수입니다"}
+					-------------------------------------------------				
+
+			4) <c:choose>
+				<c:choose>
+					<c:when test="${조건식1}">
+					</c:when>
+					<c:when test="${조건식2}">
+					</c:when>
+					<c:when test="${조건식3}">
+					</c:when>
+					<c:otherwise>
+					</c:otherwise>
+				</c:choose>
+				
+					-------------------------------------------------				
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+					<c:choose>
+						<c:when test="${param.age < 8}">
+							유치원생
+						</c:when>
+						<c:when test="${param.age < 14}">
+							초등학생
+						</c:when>
+						<c:when test="${param.age < 17}">
+							청소년
+						</c:when>
+						<c:otherwise>
+							성인
+						</c:otherwise>
+					</c:choose>			
+					
+					http://localhost:3000/day05/exam05/ex04.jsp?age=15
+					>>청소년
+					-------------------------------------------------				
+
+			5) <c:forEach>
+			
+				- 반복문 
+				- 횟수 
+					<c:forEach begin=시작숫자, end=종료숫자, step=증감단위/기본값1, var="카운트변수" >
+					</c:forEach>
+						-----------------------------------------------------
+						<%@ page contentType="text/html;charset=UTF-8" %>
+						<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+						<c:forEach begin="1" end="10" var="cnt" step="2">
+							<div>반복 ${cnt}</div>
+						</c:forEach>					
+						-----------------------------------------------------
+				- 배열, 컬랙션(Collection - List, Set), Iterator, Enumeration (items="${배열컬렉션 속성}" var="요소1개")
+					향상된 for문
+					varStatus="status"
+						${status.index} :반복순서번호(0부터 시작)
+						${status.count} :반복순서번호(1부터 시작)
+						${status.first} :반복순서처음인지
+						${status.last} :반복순서마지막인지
+				
+				- 콤마(,) 문자열 
+				- <c:forEach>액션의 items 애트리뷰트를 이용해서 처리할 수 있는 데이터
+					
+					-------------------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+					<h1>게시글 목록</h1>
+					<ul>
+					<c:forEach  var="item" items="${items}" >
+						<li>${item.seq} | ${item.subject} | ${item.poster} | ${item.content} | ${item.regDt}
+					</c:forEach>
+					</ul>
+					-------------------------------------------------------------
+					==============================================================
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+					<h1>게시글 목록</h1>
+					<ul>
+					<c:forEach  var="item" items="${items}" varStatus="status">
+						<li>${item.seq} | ${item.subject} | ${item.poster} | ${item.content} | ${item.regDt}
+							<div>
+								index: ${status.index} / count: ${status.count}
+								first: ${status.first} / last: ${status.last}<br>
+								current: ${status.current}
+							</div>
+						</li>
+					</c:forEach>
+					</ul>
+					>>
+					게시글 목록
+					1 | 제목1 | 작성자1 | 내용1 | 2024-06-14T16:53:05.419775900
+					index: 0 / count: 1 first: true / last: false
+					current: BoardData(seq=1, subject=제목1, content=내용1, poster=작성자1, regDt=2024-06-14T16:53:05.419775900)
+					2 | 제목2 | 작성자2 | 내용2 | 2024-06-14T16:53:05.419775900
+					index: 1 / count: 2 first: false / last: false
+					current: BoardData(seq=2, subject=제목2, content=내용2, poster=작성자2, regDt=2024-06-14T16:53:05.419775900)
+					3 | 제목3 | 작성자3 | 내용3 | 2024-06-14T16:53:05.419775900
+					index: 2 / count: 3 first: false / last: false
+					current: BoardData(seq=3, subject=제목3, content=내용3, poster=작성자3, regDt=2024-06-14T16:53:05.419775900)
+					4 | 제목4 | 작성자4 | 내용4 | 2024-06-14T16:53:05.419775900
+
+
+					-------------------------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+
+					<c:forEach var="item" items="Apple,Orange,Melon">
+						<div>${item}</div>
+					</c:forEach>
+					>>
+					Apple
+					Orange
+					Melon
+					-------------------------------------------------------------------
+
+			6) <c:forTokens>
+				- java.util.StringTokenizer 
+				
+				var="문자" items="문자열.." delim="구분패턴문자"
+					-------------------------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+
+					<c:forTokens var="item" items="Apple#Orange#Melon" delims="#+">
+					<div>${item}</div>
+					</c:forTokens>
+					>>
+					Apple
+					Orange
+					Melon
+					-------------------------------------------------------------------
+				
+			7) <c:catch>
+				- 자바 코드 없이 태그 방식으로 예외 처리 
+				- var : 예외가 발생하면 생성될 예외객체 변수명
+						- 예외가 없으면 null
+						
+			8) <c:redirect>
+						
+			9) <c:import>
+				
+				참고)
+					<jsp:include ... />
+			10) <c:url> 
+			11) <c:out> 	
+
+3. 포매팅(fmt) 라이브러리
+	uri="jakarta.tags.fmt" // JSTL 3.0
+	prefix="fmt"
+	
+	
+	JSTL 1.2
+	uri="http://java.sun.com/jsp/jstl/fmt"
+	
+1) fmt:formatDate 	
+2) fmt:formatNumber
+3) fmt:setLocale
+4) fmt:timeZone과 fmt:setTimeZone
+5) fmt:setBundle과 fmt:bundle
+6) fmt:requestEncoding
+
+4. 함수(functions) 라이브러리
+	uri="jakarta.tags.functions"
+
+
+커스텀 액션
+
+1. 커스텀 액션을 만드는 방법
+1) 태그 파일을 작성해서 만드는 방법
+2) 태그 클래스를 작성해서 만드는 방법
+
+2. 태그파일을 이용해서 커스텀 액션 만들기
+1) tag 지시자는 태그 파일에만 사용할 수 있는 지시자인데, 웹 컨테이너가 태그 파일을 처리할 때 필요한 여러가지 정보를 기술하는 역할을 합니다.
+2) tag 지시자는 page 지시자와 마찬가지로 <%@으로 시작해서 %>로 끝나야 합니다. 그리고 <%@ 바로 다음에는 지시자의 종류를 표시하는 tag라는 이름이 와야 합니다.
+3) 여러가지 정보를 이름="값" 또는 이름='값' 형태로 기술할 수 있습니다. 즉, 애트리뷰트 형태로 기술할 수 있습니다.
+
+3. 태그 파일에서 사용할 수 있는 지시어
+1) tag 지시자
+2) include 지시자
+3) taglib 지시자
+4) attribute 지시자
+5) variable 지시자
+ 
+4. 한글을 포함하는 태그 파일
+5. 애트리뷰트(속성)를 지원하는 태그 파일
+6. 태그 파일의 내장 변수
+7. 동적 애트리뷰트를 지원하는 태그 파일
+- dynamic-attributes
+
+8. 커스텀 액션의 본체를 처리하는 태그 파일
+9. 변수를 지원하는 커스텀 액션
+1) name-given
+2) variable-class
+3) scope 
+	- NESTED
+	- AT_BEGIN
+	- AT_END
+	
+
+10. 커스텀 액션의 본체 안에서 변수를 사용하는 예
+1)  name-from-attribute
+2)  alias
+
+11. 커스텀 액션 태그를 이용하여 레이아웃 구성하기
