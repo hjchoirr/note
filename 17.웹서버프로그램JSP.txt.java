@@ -1166,11 +1166,9 @@ JSP 생명 주기
 			
 			의존성 mvn repository -> 선택 주의 
 			Jakarta Standard Tag Library Implementation » 3.0.1
-			- api와 구현체 모두 포함되어 있음
 			
-			implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
-
-			
+			api : implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'  
+			구현체 : implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'  
 		
 	JSP의 주석 처리
 		<%-- 주석 --%> : 번역 X

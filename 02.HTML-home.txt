@@ -1,0 +1,472 @@
+HTML 메모
+
+시맨틱 웹(Semantic Web) : '의미론적인 웹'
+마크업 언어(Markup Language) 
+	: 문서가 화면에 표시되는 형식을 나타내거나 데이터의 논리적인 구조를 명시하기 위한 규칙들을 정의한 언어의 일종.
+	: 데이터를 기술한 언어
+마크다운(Markdown) 
+	: 마크업 언어의 일종으로
+	: 온갖 태그로 범벅된 HTML 문서 등과 달리, 읽기도 쓰기도 쉬운 문서 양식을 지향한다
+
+
+웹 표준
+ - 웹사이트를 만들 때 지켜야 하는 약속
+ 
+# vscode F5키 - web browser chrome선택 - 현재 에디팅중인 html 브라우저에서 보여주기 - 마우스 오른쪽 - 검사
+
+
+HTML 문서 기본 구조
+
+	<!DOCTYPE html> <!-- HTML 문서버전 html5 문서라는 뜻 -->
+	<html>
+	  <head>..</head> <!--페이지에 보이지 않는 정보 : title, script, meta(charset, name="description", link 스타일 등 -->
+
+	  <body>..</body> <!--보이는 부분 div id="wrap" 내에 일반적으로 header,container,footer -->
+								
+	</html> 
+
+# vscode tip
+	메뉴 - view - word warp - 긴문장 자동으로 여러줄로 보여줌
+	lorem 엔터 - 무작위 문장입력
+	
+# 크롬 검사 - 요소 문단태크 클릭 -> 스타일 칸에 적용된 스타일 볼 수 있음
+
+
+블럭요소(block element)와 인라인요소(inline element)란?
+
+	블럭요소 : 하나의 태그가 브라우저에서 좌우공간을 다 차지하면서 독립적인 덩어리 공간을 가지는 요소들
+		: <div>,<table>,<h1>~<h6>,<p>,<form>,<ul>,<ol>,<li>,<dl>,<dt>,<dd>,<pre>,<blockquote>등
+		: 너비, 높이 지정 가능, 외부여백(margin) 상하 좌우 적용가능
+		
+	인라인요소 
+		: 하나의 태그가 브라우저에서 실제로 코딩된 그 영역만 차지하여 좌우로 다른 태그가 나란히 위치할 수 있는 요소들
+		: 행 안의 일부분, 텍스트레벨 요소라고도 함
+		: <span>,<a>,<br>,<em>,<strong>,<input>,<label>,<img>
+		: 너비, 높이 지정못함, 외부여백(margin)  좌우만 적용가능
+
+
+텍스트를 덩어리로 묶어 주는 태그(block 레벨 태그)
+	<hn> 제목
+	<p> 단락 만들기-상하 여백
+	<hr> 분위기 전환을 위한 수평선
+	<blockquote> 인용문
+	<pre> 입력하는 그대로 표시
+		참고) <code> : 입력하는 그대로 화면에 표시하기, html태그 포함
+
+
+텍스트를 한 줄로 표시하는 태그(inline 레벨 태그)
+	<br>
+	<strong> 굵게 표시
+	<em>, <i> 이텔릭체 : emphasize(중요,강조)
+	<q> 인용 내용 표시 (참고)blockquote : 블록레벨
+	<mark> 형광펜 표과 내기
+	<span> 줄바꿈 없이 영역 묶기
+
+	참고)
+	   div : 블록레벨 태그
+	   span : 인라인레벨 태그
+
+기타 텍스트 관련 태그들
+	- 서식
+	- 취소선 
+	  <s> .. </s>
+	  <strike> .. </strike>
+	  <del> .. </del>
+	- 위첨자, 아래첨자
+	   <sup>...</sup>
+	   <sub>...</sub>
+
+목록태그
+<ul> <li> 순서 없는 목록
+	- unorderd list, ordered list, list item
+	- ul의 스타일 : list-style-type 
+		: disc 기본값, 채워진 원
+		: circle - 채워지지않은 원
+		: square - 네모
+		: none - 없음, 가장많이 사용함
+
+
+<ol> <li> 순서 목록
+	- ol의 type 속성	
+	  - 1 : 기본값 - 순서표기 1,2,3
+	  - A : A,B,C,...
+	  - a : a,b,c,....
+	  - I : I, II, III, IV,....
+
+   
+<dl>, <dt>, <dd> 태그 - 설명 목록 만들기
+	 - d : description
+
+	 <dl>
+		 <dt>..</dt> 항목제목
+		 <dd>..</dd> 항목내용
+	 </dl>
+
+
+표
+<table>, <tr>, <td>, <th>
+<th>제목셀
+colspan, rowspan 속성
+<caption> 태그, <figcaption> 태그 - 표에 제목 붙이기
+
+	- caption : table태그 안쪽 바로 아래 정의하기, 중앙정렬됨
+	- figcaption : caption과 다르게 중앙에 정렬 되지 않음 
+				 : table태그 바깥쪽에 정의하기
+
+<thead>, <tbody>, <tfoot> - 표 구조 정의하기
+<thead> : 표의 제목영역
+<tbody> : 표의 데이터영역
+<tfoot> : 표의 요약영역
+
+<col>, <colgroup> 태그 - 여러 열 묶어 스타일 지정하기
+	col
+	 - span : 예) span="2"  -> 2개열에 적용
+
+th, td 정렬
+	align - left : 좌측정렬 , right : 우측정렬, center : 가운데 정렬
+	vlign - top : 위쪽 정렬 bottom : 아래정렬, middle :가운데 정렬
+
+<img>
+	웹에서 사용하는 이미지 형식
+	1) GIF - 최대 256가지 색상, 이미지 파일 형식에 비해 파일 크기가 작음(아이콘 등으로 많이 사용). 움직이는 이미지 만들수 있음 
+	2) JPG - 사진을 위해 개발된 형식
+	3) PNG - 투명 배경도 가능, 네트워크용으로 개발	
+
+	src 속성
+	alt 속성 - 이미지 없을때 대체문구, for 화면낭독기
+	width, height 속성 
+	
+	<figure>, <figcaption> 
+
+	<figure>
+		<figcaption>그림캡션</figcaption>
+		<img src="images/img-02.png">
+	</figure>
+	또는
+	<figure>
+		<img src="images/img-02.png">
+		<figcaption>그림캡션</figcaption>
+	</figure>
+	
+
+<a> 링크
+	href 속성 
+	target 속성 
+	- _self : 현재창
+	- _blank : 새창
+	- _parent : 부모창(ifrmae...)
+	- _top : 가장 상위에 있는 창(ifrmae)
+	- iframe의 이름
+	
+	참고) iframe
+	     : 웹문서 안에 포함시킬 수 있는 웹브라우저
+		 : src - 웹페이지
+	
+	한 페이지 안에서 점프하는 앵커
+	해시코드 -> 검색 -> 유일무이 값이 검색에 유리
+	#키워드
+	
+	<a href="../#아이디명">..</a>
+	 id="아이디명" 위치로 이동
+	
+	
+	참고)선택을 위한 속성
+	    id속성 : 한개 선택시 
+		class속성 : 여러개 선택시
+		
+
+이미지 맵 : 모바일 웹에서의 문제로 요즘 많이 안씀
+
+	<map> 태그, <area> 태그, usemap 속성 - 이미지 맵 지정하기
+
+	<map name="맵이름">
+		<area>
+		<area>
+		...
+	</map>
+
+	<img src="이미지 파일" usemap="#맵이름">
+
+	https://www.image-map.net
+	-> 맵 영역 좌표 알려주는 사이트
+   
+
+<form>
+	form의 속성
+	method
+		-get(기본값)
+		  : 조회, url + 쿼리스트링
+		-post
+		  : 작성 - 데이터의 추가,변경
+	name
+		: javascript에서 많이 사용됨
+		: (크롬 검사->콘솔에서 확인) frm1.userId.value="user01"; 
+	action 양식제출 경로
+	target
+		: _self (기본값)
+		: _blank
+		: _parent
+		: _top
+		: _ifrmae name 
+			
+	autocomplete
+		: 자동완성 (on/off 기본값off )
+
+
+<label>
+	<label for="email">Email</label>
+	<input type="text" id="email" name="email">
+    <br>
+	<input type="radio" id="reading" name="hobby" value="독서">
+	<label for="hobby">독서</label>
+	<input type="radio" id="play" name="hobby" value="운동">
+	<label for="play">운동</label>
+	
+<fieldset>, <legend> - 폼 요소 그룹으로 묶기
+
+<input> 태그와 type 속성에서 사용 가능한 유형
+
+		type의 종류
+			text : 한줄텍스트
+			radio
+			- name속성이 같은 여러개 중에서 한개만 선택하도록 함
+			
+			label
+				- checkbox, radio의 각 항목을 감싸면 항목명을 눌러도 선택됨
+				  <label><input type="checkbox">취미1</label>
+				  
+				- 또는 checkbox, radio의 아이디 속성을 for="checkbox, radio의 아이디" 로 연결하고 
+				  항목명을 label로 감싸도 됨
+				  <input type="radio" name="grade" id="grade1"><label for="grade1">1학년</label>
+
+			submit - 양식제출
+			reset - 다시입력, 초기화
+			
+				참고) button 태그 type : submit(기본값)/reset/button
+				
+					<input type="reset" value="다시입력">
+					<input type="submit" value="가입하기">
+					동일함
+					<button type="reset">다시입력</button>
+					<button type="submit">가입하기</button>
+										 
+			
+		value : 입력값
+			checkbox, radio는 value값 미리 정의해야 함
+			<input type="checkbox" name="hobby" value="취미1">취미1
+			<input type="checkbox" name="hobby" value="취미2">취미2
+			<input type="checkbox" name="hobby" value="취미3">취미3
+			
+		name : 입력항목
+		
+<fom>의 기타 하위태그들 
+	1) hidden
+	2) text
+	3) search
+	4) tel
+	5) url
+	6) email
+	7) password
+	8) datetime : 날짜와 시간 - UTC /영국시간기준
+	9) datetime-local : 날짜와 시간 - 현재지역시간기준
+	10) date : 날짜 -> 달력이 팝업으로 노출
+	11) month 
+	12) week
+	13) time
+	14) number : 숫자로 입력을 제한, min, max 
+	15) range : 범위를 지정
+	16) color : 색상선택 - 색상표 팝업으로 노출
+	17) checkbox 
+	18) radio
+	19) file 
+		: 파일선택버튼
+		: multiple - 파일 여러개 선택
+	20) submit	
+	21) image : 이미지로 표현되는 버튼, src="이미지경로"
+	22) reset
+	23) button
+
+<input>의 속성
+	1. autofocus 속성 : 초기 커서위치
+	2. placeholder 속성 : 안내문구 
+	3. readonly 속성 : 변경불가, 데이터 전송은 됨
+		참고)disabled : 비활성화, 데이터 전송 배제
+	4. required 속성
+		- 필수항목
+		- 값 없으면 제출시 검증
+	5. min, max, step 속성
+		step:1 -> 1씩 변경 (nember, range 등에 적용가능)
+	6. size, minlength, maxlength 속성
+		size(칸의갯수)minlength(최소글자수)maxlength(최대글자수)
+	참고) checked : radio, checkbox
+
+
+여러 데이터 나열해 보여 주기
+1. <select>, <optgroup>, <option>
+	<select>
+		<optgroup label="공과대학">
+			<option value="값" selected>전자공학과</option>
+			<option>
+		</optgroup>
+	</select>
+
+	속성종류
+	- selected
+	- multiple : 다중선택가능
+	- size : 드롭다운리스트에 몇줄 보여주는지
+
+2. <datalist> 태그, <option> 태그
+	<datalist id="locationlist">
+		<option value="서울특별시"></option>
+		<option value="인천광역시"></option>
+		<option value="경기도"></option>
+	</datalist>
+	<input type="text" name="location" list="locationlist">
+
+3. <textarea> 태그
+	: cols, rows
+
+
+기타 다양한 폼 요소들
+1. <button> 태그
+	- type : submit(기본값), reset, button
+2. <output> 태그 : 결과값
+
+3. <progress> 태그 : 진행상태
+4. <meter> 태그 : 수치정도
+	<progress max="100" value="70"></progress>
+	<meter max="100" value="70"></meter>
+
+문서 구조를 위한 HTML5 시맨틱 태그
+
+시맨틱 태그 - 의미가 있는 태그
+<form>
+<table>
+
+시맨틱 태그가 아닌 태그
+div, span
+
+
+1. <header> : 사이트 상단
+2. <nav> : 메뉴
+3. <section> : 영역
+4. <article> : 영역안 내용
+5. <aside> : 측면
+6. <iframe> 
+	- src: 웹페이지 경로
+	- seamless :경계선 제외
+	- width, height
+	- scrolling - auto|yes|no
+	- name : target에 iframe name 지정하면 (부모창->자식창 이동)
+7. <footer> : 하단
+8. <address> : 사이트정보, 연락처, 주소 등
+
+
+모바일 기기와 웹 디자인
+1. 뷰포트 : 화면에서 실제 내용이 표시되는 영역
+2. 뷰포트 지정하기
+	<meta name="viewport" content="<속성1=값>, <속성2=값2>, ...">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	- width  : device-width
+	- height : device-height
+	- user-scalable : yes 여야 축소, 확대 가능
+	- initial-scale : 처음 로딩시 화면배율
+	- minimum-scale :축소가능배율 예) 0.5 -> 1/2 축소
+	- maximum-scale :확대 가능 배율 예) 3 -> 3배까지 확대 가능
+	
+미디어 쿼리
+
+1. 미디어 쿼리란?
+	-  사이트에 접속하는 장치에 따라 특정한 CSS 스타일을 사용하도록 해 줍니다
+
+2. 미디어 쿼리 구문
+
+@media [only | not] 미디어 유형 [and 조건] * [and 조건]
+
+- 너비가 200px이상이고 360px 이하일때 적용되는 스타일
+@media screen and (min-width: 200px) and (max-width: 360px) {
+
+}
+
+1) 미디어 유형의 종류
+	- all : 모든 미디어 유형
+	- print : 인쇄 장치
+	- screen : 컴퓨터 스크린(스마트폰 스크린 포함)
+
+2) 미디어 쿼리의 조건
+	- width, height
+	- min-width, min-height
+	- max-width, max-height
+	- orientation: 장비방향
+		portrait :세로 모드
+		landscape :가로 모드
+	
+	- 뷰포트의 너비가 600px 이상이고 959px 이하일 때
+	@media all (min-width: 600px) and (max-width: 959px) {
+    ...
+	}
+	
+
+        <style>
+            p {
+                font-size: 13px;
+            }
+            
+            @media screen and (min-width: 300px) { /* 300px이상일때 */
+                body {
+                    background: orange;
+                }
+            }
+            @media screen and (min-width: 600px) and (max-width:800px){ /* 600px이상 1000px 이하*/
+                body {
+                    background: blue;
+                }
+            }
+            
+            @media screen and (orientation: landscape) { /*가로모드일때*/
+                body {
+                    background: gray;
+                }
+            }
+        </style>
+	
+3. 미디어 쿼리 적용하기
+1) <link> 태그 사용하기
+- <link rel="stylesheet" media="미디어 쿼리 조건" href="css 파일 경로">
+	
+	<head>
+	<link rel="stylesheet" type="text/css" href="css/style.css" media="screen and (min-width:600px) and (max-width: 800px)">
+	</head>
+	
+- <link rel="stylesheet" media="screen and (max-width: 768px)" href="css/table.css">
+
+
+
+
+2) @import 구문 사용하기
+	- @import url(css 파일 경로) 미디어 쿼리 조건
+	- @import url("css/table.css") screen and (min-width: 321px) and (max-width: 768px);
+
+3) 웹 문서에서 직접 정의하기
+	<style media="미디어 쿼리 조건">
+		스타일 규칙들 
+	</style>
+
+	<style media="screen and (max-width: 320px)">
+		body {
+			background-color: orange;
+		}
+	</style>
+
+	<style>
+		@media 미디어 쿼리 조건 {
+			스타일 규칙들 
+		}
+	</style>
+
+	@media screen and (max-width: 320px) {
+		body {
+			background-color: orange;
+		}
+	}
