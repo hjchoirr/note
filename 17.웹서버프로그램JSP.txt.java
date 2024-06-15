@@ -1776,7 +1776,7 @@ JSP 내장객체
 			11) pageContext
 				- JSP 페이지의 주변 환경에 대한 정보를 제공하는 객체
 
--------------------------------------------------------------------------------------
+				-------------------------------------------------------------------------------------
 				User-Agent: ${header["User-Agent"]}<br>
 				JSESSIONID : ${cookie.JSESSIONID.getValue()}<br>
 				JSESSIONID : ${cookie.JSESSIONID.value}<br>
