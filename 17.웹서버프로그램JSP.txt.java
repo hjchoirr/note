@@ -2061,21 +2061,145 @@ JSTL - Jsp Standard Tag Library
 					Orange
 					Melon
 					-------------------------------------------------------------------
-				
+6/17 day05 계속
+
+
 			7) <c:catch>
 				- 자바 코드 없이 태그 방식으로 예외 처리 
 				- var : 예외가 발생하면 생성될 예외객체 변수명
 						- 예외가 없으면 null
+					----------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+
+
+					<c:catch var="e">
+					<%
+						String str = null;
+						str.toUpperCase();
+					%>
+					</c:catch>
+					<c:if test="${e != null}">
+						<%--에러메시지 : ${e.getMessage()} 아래줄과 동일-->
+						에러메시지 : ${e.message}
+					</c:if>
+					----------------------------------------------------
 						
 			8) <c:redirect>
-						
-			9) <c:import>
+				- 주소변경 <c:redirect url="ex03.jsp" />
+				- HttpServletRequest 의 sendRedirect(String location) 과 동일
+				- <c:param name="이름" value="값" /> : 쿼리스트링 형태로 URL에 파라미터 추가
 				
-				참고)
-					<jsp:include ... />
-			10) <c:url> 
-			11) <c:out> 	
+					----------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
+					<h1>ex02.jsp</h1>
+
+					<c:redirect url="ex03.jsp" />				
+					----------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+
+					<h1>ex02.jsp</h1>
+
+					<c:redirect url="ex03.jsp">
+						<c:param name="key1" value="value1" />
+						<c:param name="key2" value="value2" />
+					</c:redirect>					
+					----------------------------------------------------
+				
+			9) <c:import>
+				 : 서버쪽 자원 외에도 외부 자원도 버퍼에 추가 가능
+				 - url : 버퍼에 추가할 자원 주소
+				 - 어떤 값을 출력하는 태그의 경우 값을 EL식 속성으로 추가할 수  있는 속성 var
+				   var="변수" : 변수에 출력결과물 담을 수도 있다
+				   - <c:param name="이름" value="값" /> : 요청데이터에 추가도 할 수 있다
+				   
+				   ---------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+					<h1>ex04.jsp - 상단</h1>
+					<c:import var="html" url="inc.jsp" />
+					${html}
+					${html}
+					<h1>ex04.jsp - 하단</h1>				   
+					================================================
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+					<h1>ex04.jsp - 상단</h1>
+
+					<c:import url="inc.jsp" >
+						<c:param name="num1" value="20" />
+						<c:param name="num2" value="30" />
+					</c:import>
+					<h1>ex04.jsp - 하단</h1>
+					------------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+					<h1>inc.jsp</h1>
+
+					num1 : ${param.num1}<br>
+					num2 : ${param.num2}<br>
+					합계 : ${param.num1 + param.num2}
+					------------------------------------------------------
+				   
+				참고) 
+					<jsp:include ... /> 
+					  : 버퍼에 추가, 서버쪽 자원만 버퍼에 추가 가능
+					  : <jsp:param name="이름" value="값" /> : 요청데이터에 추가
+					------------------------------------------------------
+					
+			10) <c:url> 
+					- contextPath를 자동으로 붙여주는 태그 ==> 꼭 이렇게 url 시용할것 ****중요
+					- <c:param name="이름" value="값" /> : 요청데이터에 추가도 할 수 있다
+					
+					
+				참고) HttpServletRequest 의 	String getContextPath()
+				
+					---------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+					<a href="<c:url value='/member/login' />">로그인</a>			
+					----------------------------------------------------
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+					<c:url var="loginUrl" value='/member/login' />
+
+
+					<a href="${loginUrl}">로그인</a>
+					<a href="<c:url value='/member/join' />">회원가입</a>
+
+					<form method="POST" action="${loginUrl}" />
+						이메일 : <input type="text" name="email"><br>
+						비번 : <input type="password" name="password"><br>
+						<button type="submit">로그인</button>
+					</form>						
+					----------------------------------------------------
+			11) <c:out> 	
+			- Escape된 문자열로 출력
+			- Escape된 상태 : HTML 태그를 문자열로 변경하여 출력
+				<h1>제목</h1> - > lt;h1gt;제목lt;/h1gt;
+			- default :기본값
+			- escapeXml : true - 기본값(HTML -> 문자)
+						: false -> HTML로 인식
+				---------------------------------------------------------
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+				<c:set var="html" value="<script>alert('알림');</script>" />
+				<%--
+				${html}
+				--%> 
+				<c:out value="${html}" />  <%-- 보안적인 측면에서 사용: 자바스크립트를 실행시키지 않기 위해 --%>
+				<br>
+				<c:out value="${str}" default="값없음" />
+				<c:out value="<h1>제목</h1>" />
+				<c:out value="<h1>제목제목</h1>" escapeXml="false"/>
+				---------------------------------------------------------
+						
+			
+			
+			
 3. 포매팅(fmt) 라이브러리
 	uri="jakarta.tags.fmt" // JSTL 3.0
 	prefix="fmt"
@@ -2084,53 +2208,471 @@ JSTL - Jsp Standard Tag Library
 	JSTL 1.2
 	uri="http://java.sun.com/jsp/jstl/fmt"
 	
-1) fmt:formatDate 	
-2) fmt:formatNumber
-3) fmt:setLocale
-4) fmt:timeZone과 fmt:setTimeZone
-5) fmt:setBundle과 fmt:bundle
-6) fmt:requestEncoding
+	1) fmt:formatDate : 날짜 형식화 
+	  - Date 객체 기준
+	  - java.text.SimpleDateFormat
+	  - type :date(기본값) - 날짜만 표기
+			 time - 시간만 표기
+			 both - 날짜와 시간을 함께 표기
+	  - dateStyle : full, long, medium, short
+	  - timeStyle : full, long, mediaum, short
+	  - pattern : SimpleDateFormat 에 정의된 날짜, 시간 형식화 패턴
+			------------------------------------------------------------------------------------------------
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ page import="java.util.*" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+			<c:set var="date" value="<%=new Date()%>" />
+			${date}<br>
+			<fmt:formatDate value="${date}" /><br>
+			type: date - <fmt:formatDate value="${date}" type="date" /><br>
+			type : time - <fmt:formatDate value="${date}" type="time" /><br>
+			type : both - <fmt:formatDate value="${date}" type="both" /><br>
 
-4. 함수(functions) 라이브러리
-	uri="jakarta.tags.functions"
+			style : full - <fmt:formatDate type="both" value="${date}" dateStyle="full" timeStyle="full" /><br>
+			style: short - <fmt:formatDate type="both" value="${date}" dateStyle="short" timeStyle="short" /><br>
 
+			pattern : <fmt:formatDate type="both" value="${date}" pattern="yyyyMMdd HH:mm:ss" /><br>  
+			------------------------------------------------------------------------------------------------
+	  
+	2) fmt:formatNumber : 숫자 형식화 
+	  - java.text.DecimalFormat
+	  - groupingUsed : true(기본값) false( , 숫자 3자리마다 나누지 않기)
+	  - type : percent( 소수점표기 -> 퍼센트표기) | currency(지역에 맞는 총화 표기법)
+	  - currencySymbol="기호"
+	  - pattern 
+	  
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+
+			<c:set var="num1" value="100000000" />
+			<fmt:formatNumber value="${num1}" /><br>
+			<fmt:formatNumber value="${num1}" groupingUsed="false" /><br>
+			type - percent : <fmt:formatNumber value="0.25" type="percent" /><br>
+			type - currency : <fmt:formatNumber value="10000" type="currency" /><br>	
+			  
+			<c:set var="num" value="123000000.12" /><br>
+			#,###.##### : <fmt:formatNumber value="${num}" pattern="#,###.#####" /><br>
+			0,000.00000 : <fmt:formatNumber value="${num}" pattern="0,000.00000" /><br>
+
+	  
+	3) fmt:setLocale
+		:지역화 설정
+		- value : 언어코드(en, ko, ja, zn) 또는 언어코드_국가코드 (en_us, ko_kr, ja_jp)
+		
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ page import="java.util.*" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+
+			<c:set var="date" value="<%=new Date()%>" />
+			<h1>대한민국</h1>
+			<fmt:setLocale value="ko_kr" />
+			일시:<fmt:formatDate value="${date}" type="both" dateStyle="full" timeStyle="full" /><br>
+			금액:<fmt:formatNumber value="100000000" type="currency" /><br>
+
+			<h1>미국</h1>
+			<fmt:setLocale value="en_us" />
+			일시:<fmt:formatDate value="${date}" type="both" dateStyle="full" timeStyle="full" /><br>
+			금액:<fmt:formatNumber value="100000000" type="currency" /><br>
+
+			<h1>일본</h1>
+			<fmt:setLocale value="ja_jp" />
+			일시:<fmt:formatDate value="${date}" type="both" dateStyle="full" timeStyle="full" /><br>
+			금액:<fmt:formatNumber value="100000000" type="currency" /><br>
+
+
+	4) fmt:timeZone과 fmt:setTimeZone  -> 엣날 자바 라이브러리 사용하므로 잘 안씀 -> 커스텀 만들어 쓰기
+		- 시간대 
+		- value: Asia/Seoul
+		
+		- fmt:setTimeZone : 태그 적용후 하위 태그에 반영
+		- fmt:timeZone : 여는 태그, 덛는 태그, 태그 안쪽에 내용이 반영
+
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ page import="java.util.*" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+			<c:set var="date" value="<%=new Date()%>" />
+			서울 : <fmt:formatDate value="${date}" type="both" /><br>
+			<fmt:timeZone value="Europe/London">
+				런던 : <fmt:formatDate value="${date}" type="both" /><br>
+			</fmt:timeZone>
+
+			<fmt:timeZone value="America/New_York">
+				뉴욕 : <fmt:formatDate value="${date}" type="both" /><br>
+			</fmt:timeZone>
+
+			<fmt:setTimeZone value="Europe/London" />
+				런던 : <fmt:formatDate value="${date}" type="both" /><br>
+
+			<fmt:setTimeZone value="America/New_York" />
+				뉴욕 : <fmt:formatDate value="${date}" type="both" /><br>
+
+
+	
+	5) fmt:setBundle과 fmt:bundle
+		<fmt:message key="메시지키"/> 와 함께 사용
+	
+		- 메시지 관리, 문구관리
+		
+		- properties 파일형태로 관리 / 클래스 패스에 위치
+		   키=값
+		   키=값
+		
+		- properties 파일의 주석 : #
+		
+		- 클래스패스 : 클래스파일을 인식할 수 있는 경로
+			src/main/java
+			src/main/resource : 메시지파일(properties 파일)
+			webapp/WEB-INF/lib, webapp/WEB-INF/classes..
+			
+		<fmt:bundle basename="messages.commons">     ( messages.commons : properties 파일)
+			...
+		</fmt:bundle>
+		위 두줄 또는 아래 한줄
+		<fmt:setBundle basename="messages.commons" /> 
+		
+		
+		- 메시지 치환기능
+		- 메시지 작성시 {0} {1} {2} 
+
+		- 다국어설정 ( main/resources/messages/common_en.properties ) : 파일이름만으로 가능함
+			1. 요청 헤더 Accept-Language 헤더정보 : Locale객체
+			2. <fmt:setLocale>
+		
+			--------------------------------------------------------
+			---main/resources/messages/common.properties 파일 ------
+			# 로그인
+			EMAIL=이메일
+			PASSWORD=비밀번호
+			LOGIN=로그인
+			LOGIN_MSG={0}({1}) 님 로그인
+			--------------------------------------------------------
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+			<fmt:bundle basename="messages.common">
+			<form>
+				<fmt:message key="EMAIL" />
+				<input type="text" name="email"><br>
+
+				<frm:message key="PASSWORD" />
+				<input type="text" name="password"><br>
+
+				<button type="submit"><fmt:message key="LOGIN" /><button>
+			</form>
+			</fmt:bundle>
+			--------------------------------------------------------
+
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+			<fmt:setBundle basename="messages.commons" />
+			<form>
+				<fmt:message key="EMAIL" />
+				<input type="text" name="email"><br>
+
+				<frm:message key="PASSWORD" />
+				<input type="text" name="password"><br>
+
+				<button type="submit"><fmt:message key="LOGIN" /><button>
+			</form>
+
+				<fmt:message key="LOGIN_MSG">
+					<fmt:param>값1</fmt:param>
+					<fmt:param>값2</fmt:param>
+				</fmt:message>
+			--------------------------------------------------------
+			이메일=이메일
+			비밀번호=비밀번호
+			로그인=로그인
+			로그인_메시지={0}({1}) 님 로그인
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+			-------------------------------------------------
+			<c:if test="${!empty param.lang}">
+				<fmt:setLocale value="${param.lang}" />
+			</c:if>
+
+			<fmt:setBundle basename="messages.common" />
+
+			<a href="?lang=ko">한국어</a>
+			<a href="?lang=en">English</a>
+
+			<form>
+				<fmt:message key="이메일" />
+				<input type="text" name="email"><br>
+
+				<frm:message key="비밀번호" />
+				<input type="text" name="password"><br>
+
+				<button type="submit"><fmt:message key="로그인" />
+				</button>
+			</form>
+			<hr>
+			<h1>
+				<fmt:message key="로그인_메시지">
+					<fmt:param>이이름</fmt:param>
+					<fmt:param>aaa@bbb.com</fmt:param>
+				</fmt:message>
+			</h1>
+			
+			-------------------------------------------------
+			
+	CTRL + SHIFT + N : 크롬 시크릿 모드
+	
+		6) fmt:requestEncoding
+			<fmt:requestEncoding value="UTF-8" />
+		
+			참고)서블릿 4버전까지 적용 필요
+			request.setCharacterEncoding("...");
+			
+
+	4. 함수(functions) 라이브러리
+		uri="jakarta.tags.functions"
+		prefix="fn"
+		
+		 - 문자열 가공 편의 함수
+		 - EL식 내에서 적용 가능 ${fn:concat(...)}
+		 
+			-----------------------------------------------------------
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+			<c:set var="str" value="Apple,Melon,Orange,Grape" />
+
+			<c:set var="fruits" value="${fn:split(str,',')}" />
+			str : ${str} <br>
+			fruits : ${fruits} <br>
+
+			<c:forEach var="fruit" items="${fruits}">
+			${fruit}<br>
+			</c:forEach>
+
+			str2 : ${fn:join(fruits, '#')}<br>
+			-----------------------------------------------------------
 
 커스텀 액션
 
-1. 커스텀 액션을 만드는 방법
-1) 태그 파일을 작성해서 만드는 방법
-2) 태그 클래스를 작성해서 만드는 방법
+	1. 커스텀 액션을 만드는 방법
+		1) 태그 파일을 작성해서 만드는 방법
+			확장자 .tag 
+			<%@ taglib prefix=".." tagdir="경로" %>
+			
+				---태그정의 : main/webapp/WEB-INF/tags/utils/line.tag 파일-----------
+				<%@ tag body-content="empty" %>
+				.....................................................
 
-2. 태그파일을 이용해서 커스텀 액션 만들기
-1) tag 지시자는 태그 파일에만 사용할 수 있는 지시자인데, 웹 컨테이너가 태그 파일을 처리할 때 필요한 여러가지 정보를 기술하는 역할을 합니다.
-2) tag 지시자는 page 지시자와 마찬가지로 <%@으로 시작해서 %>로 끝나야 합니다. 그리고 <%@ 바로 다음에는 지시자의 종류를 표시하는 tag라는 이름이 와야 합니다.
-3) 여러가지 정보를 이름="값" 또는 이름='값' 형태로 기술할 수 있습니다. 즉, 애트리뷰트 형태로 기술할 수 있습니다.
+				---만든태그 사용-----------------------------------------------------
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+				<util:line />
 
-3. 태그 파일에서 사용할 수 있는 지시어
-1) tag 지시자
-2) include 지시자
-3) taglib 지시자
-4) attribute 지시자
-5) variable 지시자
- 
-4. 한글을 포함하는 태그 파일
-5. 애트리뷰트(속성)를 지원하는 태그 파일
-6. 태그 파일의 내장 변수
-7. 동적 애트리뷰트를 지원하는 태그 파일
-- dynamic-attributes
 
-8. 커스텀 액션의 본체를 처리하는 태그 파일
-9. 변수를 지원하는 커스텀 액션
-1) name-given
-2) variable-class
-3) scope 
-	- NESTED
-	- AT_BEGIN
-	- AT_END
+		2) 태그 클래스를 작성해서 만드는 방법 (많이 안씀)
+			SimpleTag 인터페이스
+			SimpleTagSupport 클래스
+
+	2. 태그파일을 이용해서 커스텀 액션 만들기
+		1) tag 지시자는 태그 파일에만 사용할 수 있는 지시자인데, 웹 컨테이너가 태그 파일을 처리할 때 필요한 여러가지 정보를 기술하는 역할을 합니다.
+		2) tag 지시자는 page 지시자와 마찬가지로 <%@으로 시작해서 %>로 끝나야 합니다. 그리고 <%@ 바로 다음에는 지시자의 종류를 표시하는 tag라는 이름이 와야 합니다.
+		3) 여러가지 정보를 이름="값" 또는 이름='값' 형태로 기술할 수 있습니다. 즉, 애트리뷰트 형태로 기술할 수 있습니다.
+
+	3. 태그 파일에서 사용할 수 있는 지시어
+		1) tag 지시자
+			- page 지시자와 유사, 태그의 정보 정의
+			- body-content 
+			
+				: empty - 단일 테그 형태로 사용하는 경우, 예) <util:line />
+				: scriptless - 여는 태그, 닫는 태그, 태그 안쪽 내용물에 자바코드 사용불가, EL식과 가른 태그 사용 가능
+				: tagdependent - 여는 태그, 닫는 태그, 태그 안쪽 내용물은 모두 문자로 인식(자바코드, EL식, 모든태그 사용불가)
+				
+			- pageEncoding : 태그 인코딩 설정
+			- import:자바패키지 추가
+			- trimDirectiveWhitespaces : true - 태그 앞뒤 공백을 제거하고 출력
+			
+		2) include 지시자
+			- <%@ include file="파일경로" %>
+			
+		3) taglib 지시자
+			- 태그 파일 내에서도 다른 태그 라이브러리 기능 사용가능함
+			
+		4) attribute 지시자
+			<%@ attribute name="속성명" %>
+			- 속성명으로 지역변수 생성
+			- 속성명으로 EL식 속성 추가됨
+			
+			- type : 자료형(기본값-java.lang.String)
+			       : 기본자료형은 사용 X,  래퍼클래스 형태로만 설정
+				   (int -> Integer)
+			- required : false(기본값) - 없어도 될때
+			             true - 필수(설정하지 않으면 경고표시)
+						 
+				--------------------------------------------------------   
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+				<util:line color="blue" size="30"/>
+				<util:line color="orange" size="100" />
+
+				<%@ tag body-content="empty" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+				<%@ attribute name="color" %>
+				<%@ attribute name="size" type="java.lang.Integer" required="true" %>
+				<%--
+				<%=color%>
+				${color}
+				--%>
+				<div style="color: ${color};">
+				<%
+					for(int i = 0; i < size; i++) {
+						out.write("-");
+					}
+				%>
+				</div>
+			
+				
+				
+
+		5) variable 지시자
+		 
+	4. 한글을 포함하는 태그 파일
+	5. 애트리뷰트(속성)를 지원하는 태그 파일
+	6. 태그 파일의 내장 변수
+	7. 동적 애트리뷰트를 지원하는 태그 파일
+	- dynamic-attributes
+			=======================================================
+			다이나믹 속성 예제
+			<%@ page contentType="text/html; charset=UTF-8" %>
+			<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+			<util:starline  color="blue" size="30" />				
+			--------------------------------------------------------   
+			<%@ tag body-content="empty" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+			<%@ tag import="java.util.*" %>
+			<%@ tag dynamic-attributes="attrs" %>
+			<%--
+			${attrs.size}
+			${attrs.color}
+			--%>
+			<%
+				Map<String, String> attrs = (Map<String, String>) jspContext.getAttribute("attrs");
+				String _size = attrs.getOrDefault("size", "0");
+				int size = Integer.parseInt(_size);
+			%>
+			<div style="color: ${attrs.color};">
+			<%
+				for(int i = 0; i < size; i++) {
+					out.write("*");
+				}
+			%>
+			</div>
+			--------------------------------------------------------   
 	
+	8. 커스텀 액션의 본체를 처리하는 태그 파일
+		tag body-content="scriptless"
+		<jsp:doBody />
+	
+			---------------------------------------------------------	
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+			<util:linebox color="blue">
+				<h1>안녕하세요</h1>
+			</util:linebox>	
+			---------------------------------------------------------	
+			<%@ tag body-content="scriptless" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+			<%@ attribute name="color" %>
+			<div style="border: 1px double ${color}; padding:30px;">
+				<jsp:doBody />
+			</div>
+			---------------------------------------------------------	
+	
+	
+	9. 변수를 지원하는 커스텀 액션
+		@variable : 변수
+		
+		예) <c:set var="변수명" value="..." />
+	
+		1) name-given : 속성명 - EL식 변수
+		2) variable-class : EL식 변수의 자료형, 문자(java.lang.String - 기본값)
+		3) scope 
+			- NESTED :여는 태그, 닫는 태그 형식, 태그 내부에서 EL식 변수를 접근
+			- AT_BEGIN : 여는 태그 바로 아래쪽에서 접근
+			- AT_END : 주로 단일 태그에서 많이 사용하고, 닫는 태그 아래쪽에 접근 가능
 
-10. 커스텀 액션의 본체 안에서 변수를 사용하는 예
-1)  name-from-attribute
-2)  alias
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+<util:max num1="100" num2="200" />
+${maximum}
 
-11. 커스텀 액션 태그를 이용하여 레이아웃 구성하기
+<%@ tag body-content="empty" %>
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ attribute name="num1" type="java.lang.Integer" required="true" %>
+<%@ attribute name="num2" type="java.lang.Integer" required="true" %>
+<%@variable name-given="maximum" variable-class="java.lang.Integer" scope="AT_END" %>
+<%
+    int max = num1 > num2 ? num1 : num2;
+%>
+<c:set var="maximum" value="<%=max%>" />
+
+
+	10. 커스텀 액션의 본체 안에서 변수를 사용하는 예
+		1)  name-from-attribute
+		2)  alias
+
+- 변수명 속성의 필수조건
+	- name 속성이 [var] 이며 그 값은 name-from-attribute의 값인) java.lang.String 타입이어야 하고
+	  required 여야 하며, "rtexprvalue"가 되어서는 안됩니다.
+
+		----------------------------------------------------------
+		<%@ page contentType="text/html;charset=UTF-8" %>
+		<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+		<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+		<util:min var="min" num1="100" num2="200" />
+		${min}
+		----------------------------------------------------------
+		min.tag
+		<%@ tag body-content="empty" %>
+		<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+		<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+		<%@ attribute name="num1" type="java.lang.Integer" required="true" %>
+		<%@ attribute name="num2" type="java.lang.Integer" required="true" %>
+		<%@ attribute name="var" required="true" rtexprvalue="false"%>
+		<%@ variable name-from-attribute="var" alias="minimum" variable-class="java.lang.Integer" scope="AT_END" %>
+
+		<%
+			int min = num1 < num2 ? num1 : num2;
+		%>
+		<c:set var="minimum" value="<%=min%>" />
+		----------------------------------------------------------
+
+	11. 커스텀 액션 태그를 이용하여 레이아웃 구성하기
+
+		---------------------------------------------------------------
+		<%@ page contentType="text/html;charset=UTF-8" %>
+		<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+		<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+		<util:min var="min" num1="100" num2="200" />
+		${min}
+		<br>
+		<util:forEach var="a" begin="10" end="20">
+			${a} 번째<br>
+		</util:forEach>
+
+		-------forEach.tag---------------------------------------------
+		<%@ tag body-content="scriptless" %>
+		<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+		<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+		<%@ attribute name="var" required="true" rtexprvalue="false" %>
+		<%@ attribute name="begin" type="java.lang.Integer" required="true" %>
+		<%@ attribute name="end" type="java.lang.Integer" required="true" %>
+		<%@ variable name-from-attribute="var" alias="cnt" variable-class="java.lang.Integer" scope="NESTED" %>
+
+		<% for(int i = begin; i <= end; i++ ) { %>
+			<c:set var="cnt" value="<%=i%>" />
+			<jsp:doBody />
+		<% } %>
+
+		---------------------------------------------------------------
