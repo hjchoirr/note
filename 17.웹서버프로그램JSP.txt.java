@@ -2197,9 +2197,6 @@ JSTL - Jsp Standard Tag Library
 				<c:out value="<h1>제목제목</h1>" escapeXml="false"/>
 				---------------------------------------------------------
 						
-			
-			
-			
 3. 포매팅(fmt) 라이브러리
 	uri="jakarta.tags.fmt" // JSTL 3.0
 	prefix="fmt"
@@ -2328,11 +2325,11 @@ JSTL - Jsp Standard Tag Library
 			src/main/resource : 메시지파일(properties 파일)
 			webapp/WEB-INF/lib, webapp/WEB-INF/classes..
 			
-		<fmt:bundle basename="messages.commons">     ( messages.commons : properties 파일)
+		<fmt:bundle basename="messages.common">     ( resource/messages/common.properties 파일)
 			...
 		</fmt:bundle>
 		위 두줄 또는 아래 한줄
-		<fmt:setBundle basename="messages.commons" /> 
+		<fmt:setBundle basename="messages.common" /> 
 		
 		
 		- 메시지 치환기능
@@ -2369,7 +2366,7 @@ JSTL - Jsp Standard Tag Library
 			<%@ page contentType="text/html;charset=UTF-8" %>
 			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 			<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-			<fmt:setBundle basename="messages.commons" />
+			<fmt:setBundle basename="messages.common" />
 			<form>
 				<fmt:message key="EMAIL" />
 				<input type="text" name="email"><br>
@@ -2385,14 +2382,22 @@ JSTL - Jsp Standard Tag Library
 					<fmt:param>값2</fmt:param>
 				</fmt:message>
 			--------------------------------------------------------
+			---main/resources/messages/common.properties 파일 ------
 			이메일=이메일
 			비밀번호=비밀번호
 			로그인=로그인
 			로그인_메시지={0}({1}) 님 로그인
+			
+			---main/resources/messages/common_en.properties 파일 ------
+			이메일=Email
+			비밀번호=Password
+			로그인=Login
+			로그인_메시지={0}({1}) !! Logged in..			
+			
+			---jsp파일----------------------------------------------
 			<%@ page contentType="text/html;charset=UTF-8" %>
 			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 			<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-			-------------------------------------------------
 			<c:if test="${!empty param.lang}">
 				<fmt:setLocale value="${param.lang}" />
 			</c:if>
@@ -2600,31 +2605,31 @@ JSTL - Jsp Standard Tag Library
 			- AT_BEGIN : 여는 태그 바로 아래쪽에서 접근
 			- AT_END : 주로 단일 태그에서 많이 사용하고, 닫는 태그 아래쪽에 접근 가능
 
-<%@ page contentType="text/html;charset=UTF-8" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
-<util:max num1="100" num2="200" />
-${maximum}
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+			<util:max num1="100" num2="200" />
+			${maximum}
 
-<%@ tag body-content="empty" %>
-<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ attribute name="num1" type="java.lang.Integer" required="true" %>
-<%@ attribute name="num2" type="java.lang.Integer" required="true" %>
-<%@variable name-given="maximum" variable-class="java.lang.Integer" scope="AT_END" %>
-<%
-    int max = num1 > num2 ? num1 : num2;
-%>
-<c:set var="maximum" value="<%=max%>" />
+			<%@ tag body-content="empty" %>
+			<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ attribute name="num1" type="java.lang.Integer" required="true" %>
+			<%@ attribute name="num2" type="java.lang.Integer" required="true" %>
+			<%@variable name-given="maximum" variable-class="java.lang.Integer" scope="AT_END" %>
+			<%
+				int max = num1 > num2 ? num1 : num2;
+			%>
+			<c:set var="maximum" value="<%=max%>" />
 
 
 	10. 커스텀 액션의 본체 안에서 변수를 사용하는 예
 		1)  name-from-attribute
 		2)  alias
 
-- 변수명 속성의 필수조건
-	- name 속성이 [var] 이며 그 값은 name-from-attribute의 값인) java.lang.String 타입이어야 하고
-	  required 여야 하며, "rtexprvalue"가 되어서는 안됩니다.
+			- 변수명 속성의 필수조건
+				- name 속성이 [var] 이며 그 값은 name-from-attribute의 값인) java.lang.String 타입이어야 하고
+				  required 여야 하며, "rtexprvalue"가 되어서는 안됩니다.
 
 		----------------------------------------------------------
 		<%@ page contentType="text/html;charset=UTF-8" %>
@@ -2676,3 +2681,389 @@ ${maximum}
 		<% } %>
 
 		---------------------------------------------------------------
+6/18 레이아웃 구성 강의 
+	day09 
+	- tags/layouts/common.tag
+	- exam10/ex01.jsp
+
+		<%@ page contentType="text/html;charset=UTF-8" %>
+		<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+		<layout:common>
+			<jsp:attribute name="header"> <%-- attribute는 윗쪽에.. header,footer 모두 --%>
+				<h1>상단영역(교체)</h1>
+			</jsp:attribute>
+			<jsp:attribute name="footer">
+				<h1>하단영역(교체)</h1>
+			</jsp:attribute>
+			<jsp:body>
+				<h1>내용영역..<h1>
+			</jsp:body>
+		</layout:common>
+
+		<%@ tag body-content="scriptless" %>
+		<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+		<%@ attribute name="header" fragment="true" %>
+		<%@ attribute name="footer" fragment="true" %>
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<meta charset="UTF-8">
+				<title>레이아웃연습</title>
+			</head>
+			<body>
+				<header>
+					<jsp:invoke fragment="header" />
+				</header>
+				<main>
+					<jsp:doBody />
+				</main>
+			</body>
+			<footer>
+				<jsp:invoke fragment="footer" />
+			</footer>
+		</html>
+
+매우 중요한 body-content
+
+<%@ tag body-content="..." %> 
+	body-content 3가지 ( ==> 태그를 사용할때, 태그를 만들때가 아니고.. )
+		- empty : 단일 태그 형태로 사용하겠다 예) <c:set var="num" value="100" />
+		- scriptless : 태그 안쪽에 내용물이 있고 자바코드 사용불가, EL식 사용가능, 다른 태그 사용가능함
+		- tagdependent : 태그 안쪽에 내용물이 있고 내용물을 문자열로만 인식
+	
+	
+List<String>, String[]
+Set<String>
+
+속성명 addCss -> 반복 -> 태그추가
+속성명 addScript -> 반복 -> 태그추가
+
+
+@WebServlet("/board/list/*")
+public class BoardListController extends HttpServlet {
+    @Override
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        BoardInfoService service = new BoardInfoService();
+        List<BoardData> items = service.getList();
+
+        req.setAttribute("items", items);
+        
+        //속성 설정은 RequestDispatcher 보다 위에 넣기 
+        req.setAttribute("addCss", new String[] { "board/style.css", "board/list.css"});
+        req.setAttribute("addScript", List.of("board/common.js", "board/list.js"));
+        
+        RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/templates/board/list.jsp");
+        rd.forward(req,resp);
+    }
+}
+list.jsp
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<layout:main>
+<h1>게시글 목록</h1>
+<ul>
+<c:forEach  var="item" items="${items}" varStatus="status">
+    <li>${item.seq} | ${item.subject} | ${item.poster} | ${item.content} | ${item.regDt}
+        <div>
+            index: ${status.index} / count: ${status.count}
+            first: ${status.first} / last: ${status.last}<br>
+            current: ${status.current}
+        </div>
+    </li>
+</c:forEach>
+</ul>
+</layout:main>
+
+====================================================================================
+controller
+@WebServlet("/board/list/*")
+public class BoardListController extends HttpServlet {
+    @Override
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        BoardInfoService service = new BoardInfoService();
+        List<BoardData> items = service.getList();
+
+        req.setAttribute("items", items);
+
+        //속성 설정은 RequestDispatcher 보다 위에 넣기
+        req.setAttribute("addCss", new String[] { "board/style", "board/list"});
+        req.setAttribute("addScript", List.of("board/common", "board/list"));
+
+        RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/templates/board/list.jsp");
+        rd.forward(req,resp);
+    }
+}
+--list.jsp----------------------------------------------------
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<layout:main>
+    <h1>내용영역..</h1>
+</layout:main>
+
+---common.tag-----------------------------------------
+<%@ tag body-content="scriptless" %>
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ attribute name="header" fragment="true" %>
+<%@ attribute name="footer" fragment="true" %>
+<%@ attribute name="commonCss" fragment="true" %>
+<%@ attribute name="commonJs" fragment="true" %>
+<c:url var="cssUrl" value="/static/css/" />
+<c:url var="jsUrl" value="/static/js/" />
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>레이아웃연습</title>
+        <link rel="stylesheet" type="text/css" href="${cssUrl}style.css">
+        <jsp:invoke fragment="commonCss" />
+        <c:if test="${addCss != null}">
+            <c:forEach var="cssFile" items="${addCss}">
+                <link rel="stylesheet" type="text/css" href="${cssUrl}${cssFile}.css" >
+            </c:forEach>
+        </c:if>
+        <script src="${jsUrl}common.js"></script>
+        <jsp:invoke fragment="commonJs" />
+        <c:if test="${addScript != null}">
+            <c:forEach var="jsFile" items="${addScript}">
+                <script src="${jsUrl}${jsFile}.js"></script>
+            </c:forEach>
+        </c:if>
+    </head>
+    <body>
+        <header>
+            <jsp:invoke fragment="header" />
+        </header>
+        <main>
+            <jsp:doBody />
+        </main>
+    </body>
+    <footer>
+        <jsp:invoke fragment="footer" />
+    </footer>
+</html>
+----main.tag-----------------------------------------
+<%@ tag body-content="scriptless" %>
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<c:url var="cssUrl" value="/static/css/" />
+<c:url var="jsUrl" value="/static/js/" />
+<layout:common>
+    <jsp:attribute name="header">
+        <h1>메인레이아웃 상단영역!</h1>
+    </jsp:attribute>
+    <jsp:attribute name="footer">
+        <h1>메인레이아웃 하단영역!</h1>
+    </jsp:attribute>
+    <jsp:attribute name="commonCss">
+        <link rel="stylesheet" type="text/css" href="${cssUrl}main.css">
+    </jsp:attribute>
+    <jsp:attribute name="commonJs">
+        <script src="${jsUrl}main.js"></script>
+    </jsp:attribute>
+    <jsp:body>
+        <jsp:doBody />
+    </jsp:body>
+</layout:common>
+
+
+
+
+쿠키
+	- 개인서비스를 제공하기위한 목적
+	- 사용자 개인을 어떻게 구분하는지? 
+	- 개개인을 구분할 수 있는 데이터를 웹 브라우저에 저장 :  브라우저 기준
+	- 쿠키 데이터가 필요한 주체는 서비스를 제공하는 서버
+	- 데이터는 브라우저에 있고 
+	- 매 요청시 마다 요청헤더에 쿠키 데이터를 서버에게 전송 
+	
+	쿠키 조회
+		HttpServletRequest
+			Cookie[] getCookies()
+	쿠키등록
+		HttpServletResponse
+			void addCookie(Cookie cookie)
+			  - 응답헤더 : Set-Cookie: 이름=값;이름=값;.. 추가
+			  - 브라우저가 응답헤더를 바탕으로 쿠키값을 등록
+
+	
+	1. 쿠키의 동작과정
+		1) 쿠키 생성단계
+			- 서버 -> 응답헤더(Set-Cookie: 키=값;키=값;...)
+			
+		2) 쿠키 저장단계
+			- 응답헤더(Set-Cookie: 키=값;키=값;...) -> 브라우저가 도메인별로 저장
+			
+		3) 쿠키 전송단계
+			- 매 요청시 마다 요청헤더 Cookie를 통해서 서버로 전송
+
+	2. Cookie 클래스의 메서드 종류
+		setMaxAge(..) :쿠키 유호시간을 설정
+		setHttpOnly(..) 
+			: false 
+				- 서버쪽 조회 가능(HttpServletRequest - Cookie[] getCookies())
+				- 브라우저 자바 스크립트 document 객체를 통해서 조회 가능 (document.cookie)
+			: true	
+				- 서버쪽에서만 조회 가능(HttpServletRequest - Cookie[] getCookies())
+				- 브라우저 자바 스크립트로는 조회 불가
+					<%@ page contentType="text/html;charset=UTF-8" %>
+					<%
+						Cookie cookie = new Cookie("key3", "value3");
+						cookie.setPath(request.getContextPath());
+						cookie.setHttpOnly(true);
+						response.addCookie(cookie);
+					%>				
+				
+	3. 쿠키 객체 얻기
+	4. 쿠키 객체의 정보 얻기
+	5. 쿠키 삭제
+		setMaxAge(0) -> 1970. 1. 1 0:0:0
+		
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%
+				Cookie cookie = new Cookie("key2", "value2");
+				//cookie.setMaxAge(60 * 60 * 24 * 7); // 쿠키 일주일동안 유지
+				cookie.setMaxAge(0);  // 쿠키 삭제
+				response.addCookie(cookie);
+			%>
+
+
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%
+				Cookie cookie1 = new Cookie("key1", "value1");
+				response.addCookie(cookie1);
+			%>
+
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%
+				Cookie[] cookies = request.getCookies();
+				for(Cookie cookie : cookies) {
+					String name = cookie.getName();
+					String value = cookie.getValue();
+					System.out.printf("name=%s, value=%s%n", name, value);
+				}
+			%>
+
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%
+				Cookie cookie = new Cookie("key2", "value2");
+				cookie.setMaxAge(60 * 60 * 24 * 7);
+				//cookie.setMaxAge(0);
+				response.addCookie(cookie);
+			%>
+
+			<%@ page contentType="text/html;charset=UTF-8" %>
+			<%
+				Cookie cookie = new Cookie("key3", "value3");
+				cookie.setPath(request.getContextPath());
+				response.addCookie(cookie);
+			%>
+
+세션
+	- 쿠키로는 안되니까..
+	- 쿠키는 매 요청시마다 요청헤더를 통해서 개인 데이터가 전송됨 : 보안에 취약
+	- 매번 네트워크를 통해서 전송되므로, 네트워크에 부담
+	
+	- 개인데이터를 서버에 저장하는 기술 : 세션
+	- 개인데이터를 서버에 저장하므로 브라우저가 보내줄 필요 없다
+	- 쿠키에 세션용 ID 만들어서 세션정보를 서버에서 관리함
+	
+
+	1. session 내장객체 메서드 종류
+		HttpSession
+		
+	2. 세션 생성
+		void setAttribute(String name, Object value);
+		
+	3. 세션 정보
+		void getAttribute(String name);
+		
+	4. 세션 삭제
+		void removeAttribute(String name);
+		invalidate();  // 세션데이터 비우기 / 주로 로그아웃시에 사용
+		
+	5. 세션 유효 시간 설정
+	- setMaxInactiveInterval
+
+	쿠키와 세션의 차이
+
+	회원가입, 로그인 구현하기
+
+---------------------------------------------------------------------------
+package board.controllers;
+import board.entities.BoardData;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+
+@WebServlet("/board/view")
+public class BoardViewController extends HttpServlet {
+    @Override
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession();
+        BoardData board = (BoardData) session.getAttribute("board");
+        String title = (String) session.getAttribute("title");
+
+        System.out.println(board);
+        System.out.println(title);
+    }
+}
+
+---------------------------------------------------------------------------
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page import="board.entities.*" %>
+<%
+    BoardData board = BoardData.builder()
+        .subject("제목")
+        .content("내용")
+        .build();
+
+    session.setAttribute("board", board);
+    session.setAttribute("title", "제목!");
+%>
+---------------------------------------------------------------------------
+
+http://localhost:3000/day05/board/view
+
+>>
+BoardData(seq=0, subject=제목, content=내용, poster=null, regDt=null)
+제목!
+---------------------------------------------------------------------------
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%
+    //session.removeAttribute("title");  // 세션정보중 title 만 지우기
+	session.invalidate(); // // 세션데이터 모두 비우기 / 주로 로그아웃시에 사용
+%>
+>>
+BoardData(seq=0, subject=제목, content=내용, poster=null, regDt=null)
+null
+
+>>
+null
+null
+---------------------------------------------------------------------------
+6/18 PM 3:59 day07 -
+
+
+
+
+
+
+
+
+
+파일 업로드
+
+	1. 의존성 추가 
+		commons-fileupload2-jakarta
+
+	2. multipart
+
+	3. JakartaServletDiskFileUpload
+	4. DiskFileItem
