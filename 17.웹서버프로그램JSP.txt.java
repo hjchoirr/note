@@ -2581,7 +2581,7 @@ JSTL - Jsp Standard Tag Library
 			---------------------------------------------------------	
 			<%@ page contentType="text/html;charset=UTF-8" %>
 			<%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
-			<util:linebox color="blue">
+<util:linebox color="blue">
 				<h1>안녕하세요</h1>
 			</util:linebox>	
 			---------------------------------------------------------	
@@ -2682,7 +2682,7 @@ JSTL - Jsp Standard Tag Library
 
 		---------------------------------------------------------------
 6/18 레이아웃 구성 강의 
-	day09 
+	day05 
 	- tags/layouts/common.tag
 	- exam10/ex01.jsp
 
