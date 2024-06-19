@@ -129,6 +129,27 @@ mybatis-config.xml
 			- JoinValidator
 			- MemberMapper : DAO
 			
+        <mapper resource="org/choongang/member/mapper/MemberMapper.xml" />
+		
+		
+RequiredValidator 
+	- 필수항목체크 인터페이스 : default 메서드 :  default checkRequired 
+	
+	
+비밀번호 암호화 처리
+	- 암호화 
+	   : 양방향 암호화 : 암호화 - 복호화 AES256, ARIA ..
+	   : 일방향 암호화 : 해시(Hash) - 복호화 불가
+	     -  고정해시 - 같은 값에 대해서 같은 해시값 - (md5, sha1,) sha256, sha512
+		 -  유동해시 - 같은 값에 대해서도 만들때 마다 변경되는 해시 / 예측 불가능성
+			BCrypt 
+	
+	jbcrypt
+		: hashpw(..)
+		: checkpw(..)
+	- 의존성추가 (jbcrypt 검색)
+		implementation 'org.mindrot:jbcrypt:0.4'
+ 
 
 			
 			
