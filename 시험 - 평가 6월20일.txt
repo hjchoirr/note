@@ -23,4 +23,26 @@
 
 이번에도 배우는데 목적을 둔다, 제공된 구조를 먼저 공부한다.
 
+구조 설명
+6/18 9시 동영상
+6/19 9시 동영상
+
+	- 소스 쳐보기, readme 읽어보기 
+	
+BeanContainer
+
+Handler
+
+Adapter
+
+PathVariable 경로변수
+
+
+HandlerAdapter - 실행해준다 형변환 할 필요없이 쓴다
+
+
+난해한 3개
+	BeanContainer
+	HandlerMapping
+	HandlerAdapter
 
