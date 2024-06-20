@@ -200,9 +200,9 @@ th, td 정렬
 링크 만들기
 1. <a> 태그, href 속성 
 2. target 속성 
-	- _self : 현재창
+	- self : 현재창
 	- _blank : 새창
-	- _parent : 부모창(ifrmae...)
+	- parent : 부모창(ifrmae...)
 	- _top : 가장 상위에 있는 창(ifrmae)
 	- iframe의 이름
 	
@@ -258,7 +258,7 @@ th, td 정렬
 	4) target
 		: _self (기본값)
 		: _blank
-		: _parent
+		: parent
 		: _top
 		: _ifrmae name 
 			
