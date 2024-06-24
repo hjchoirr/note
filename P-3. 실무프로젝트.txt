@@ -1,0 +1,142 @@
+실무프로젝트(P-3)
+
+6/24 구조설명
+
+	스프링프레임워크 : 개발자 대신 객체를 관리해 줌 
+	 - Class 클래스 이용, 동적으로 인스턴스 생성 해줌 : getInstance() 메서드
+	 
+
+1. 사용자 요청
+
+2. DispatcherServlet(모든 요청과 응답의 창구)
+	@WebServlet("/")
+	
+	public void service() 
+	
+	
+3. BeanContainer::loadBeans() : 모든 관리 객체 로드(객체 생성 및 의존성 주입)
+	특정 에너테이션이 있는 객체를 자동 생성, 의존하는 객체 주입
+	- @Controller   : 컨트롤러역할 객체
+	- @RestController : 컨트롤러역할 객체 - 응답시 JSON 형태로 응답
+	- @Service : 
+	- @Componet
+	- @ControllerAdvice : @Controller의 공통처리 
+	- @RestControllerAdvice @RestController의 공통처리 
+	
+	getClass().getResource(...) : 현재 클래스(BeanContainer)파일의 물리적 경로
+		build/../BeanContainer.class
+		
+		org/choongang 경로에서  .global.config.containers 제거하고 
+		시작하여 재귀적으로 모든 파일 스캔하여 ( getClassNames() 메서드 )
+		에노테이션 체크함
+		
+		updateObject : 싱글톤을 쓰면 안되는, 매번 업데이트되어야할 객체의 경우 .. request, mapper 등
+		
+		컨테이너가 관리할 객체라면 생성자 매개변수의 의존성을 체크하고 의존성이 있다면 해당 객체를 생성하고 의존성을 해결한다. - 생성자는 한개만 정의해야함 -- 중요 ***
+		
+		
+		
+	
+4. HandlerMapping - HandlerMappingImpl : 요청에 맞는 컨트롤러 객체 및 메서드 조회 
+
+	@Controller, @RestController 에 엊ㅇ의된 하기 에너테이션
+	- @RequestMapping  : 모든 요청 메서드에 매칭
+	- @GetMapping : Get요청 메서드에 매칭
+	- @PostMappng : Posat요청 메서드에 매칭 
+	- @PatchMapping
+	- @PutMapping
+	- @DeleteMapping
+	
+	
+	http://.../member/join 요청에대한 메서드 찾아준다
+	
+		게시글 보기 
+		/board/view/게시글번호
+		/board/view/1
+		/board/view/2
+
+
+5. HandlerAdapter - HandlerAdapterImpl 
+
+	1) 찾은 컨트롤러의 메서드 실행하여 유입된 요청을 처리
+		
+	2) 각 컨트롤러의 반환값 
+		- @Controller인 경우 : 템플릿(/WEB-INF/templates/ + 반환값 + ".jsp")로 경로 찾아 출력 버퍼 교체  
+			- 예) return "member/join";
+			
+		- @RestController인 경우 : 반환값은 자바 객체가 되며 JSON 형태({"이름": "값", "이름" : "값" .. })으로 출력
+		
+	3) 컨트롤러를 찾지 못한 경우 ( 첫번째는 컨트롤러에서 찾고 , 없으면 ..)
+	
+		- StaticResourceMapping - StaticResourceMappingImpl - 웹 정적 경로인 /webapp/static/에서 파일이 있는지 체크 하고 출력 ( css나 js 파일 )
+		
+		- 웹 정적 경로에서도 못찾는다면 설정한 파일 업로드 경로에서 찾음 
+			resource의 application.properties 에 정의된 file.upload.path="..."
+			
+		- 그래도 못찾으면 404 에러  - templates/errors/404.jsp
+		
+		
+		 
+		@RequestParam("이름") : 요청데이터 - 쿼리스트링이나 폼 태그 입력값 둘다 해당
+		
+		
+
+
+D:\P-3\boardProject>git init
+D:\P-3\boardProject>git remote add origin https://github.com/hjchoirr/BoardProject.git 
+D:\P-3\boardProject>git add .
+D:\P-3\boardProject>git commit -m "초기 업로드"
+D:\P-3\boardProject>git push origin master
+		
+
+6/24 12시 
+
+설정파일
+ - 다음엔 설정파일 yml 예정
+
+application.properties
+
+	# 파일 업로드 경로
+	file.upload.path=D:/uploads
+
+	# 파일 업로드 URL
+	file.upload.url=/uploads
+ 
+application-prod.properties  
+ - 실제 서비스 서버 
+ 
+	# 파일 업로드 경로
+	file.upload.path=/home/ubuntu/uploads
+
+	# 파일 업로드 URL
+	file.upload.url=/uploads
+
+global/App.config.java
+
+	public class AppConfig {
+		private final static ResourceBundle bundle;
+		private final static Map<String, String> configs;
+		static {
+			// 환경 변수 mode에 따라 설정파일을 분리 예) prod이면 application-prod.properties로 읽어온다.
+			String mode = System.getenv("mode");
+			mode = mode == null || mode.isBlank() ? "":"-" + mode;
+
+			bundle = ResourceBundle.getBundle("application" + mode);
+			configs = new HashMap<>();
+			Iterator<String> iter = bundle.getKeys().asIterator();
+			while(iter.hasNext()) {
+				String key = iter.next();
+				String value = bundle.getString(key);
+				configs.put(key, value);
+			}
+		}	
+		
+확인 http://localhost:3000/project/member
+
+
+
+스타일
+ border-box; 경계선에 여백 없이
+ 
+전체 기본 폰트 
+ 
