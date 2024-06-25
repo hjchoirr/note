@@ -1,5 +1,86 @@
 실무프로젝트(P-3)
 
+ 
+ 구조 설명
+6/18 9시 동영상
+6/19 9시 동영상
+
+	- 소스 쳐보기, readme 읽어보기 
+	
+BeanContainer
+
+Handler
+
+Adapter
+
+PathVariable 경로변수
+
+
+HandlerAdapter - 실행해준다 형변환 할 필요없이 쓴다
+
+
+난해한 3개
+	BeanContainer
+	HandlerMapping
+	HandlerAdapter
+
+
+
+MapperProvider
+bean 갱신이 필요한 객체 - 요청시마다 갱신, 매퍼도
+
+mapper.xml -> 인터페이스로 가져옴
+
+
+포트폴리오 틀 강의  6/21 PM 2:54
+
+실무 프로젝트 P-3
+
+BeanContainer.java
+	- 객체조립기, 객체 자동 스캔 및 생성
+	- 스캔방법은 어노테이션 - @Controller, @RestController, @Component @Service 있으면 객체 생성
+	
+@Controller :요청시 유입되는 컨트롤러 / 출력을 JSP
+@RestController :요청시 유입되는 컨트롤러 / 출력을 JSON - { "이름":"값" }
+	
+DispatcherServlet : 모든 요청과 응답의 창구 /
+
+HandlerMapping - HandlerMappingImpl
+	: 요청주소와 요청방식(Method - Get, Post, Patche, Put, DELETE) 정보를 가지고
+	콘트롤러객체 (@Controller, @RestController)와 요청 메서드를 찾아주는 역할
+	
+	
+	
+	GET /member/join
+	
+	@Controller
+	public class MemberController {
+	
+		@GetMapping("/member/join")
+		public String join(RequestJoin form) {
+			...
+		}
+	
+	}
+	
+	HandlerAdapter - HandlerAdapterImpl
+		:찾는 컨트롤러 객체의 매서드를 실행
+		
+		 - 요청메서드에 정의된 매개변수 유형에 따라 요청데이터를 자료형에 맞게 자동 주입 -> 실행
+		 - 서블릿 기본객체도 매개변수에 정의되어 있으면 자동 주입(HttpServletRequest, HttpServletResponse, HttpSession)
+		 
+		 
+	객체 관리의 자동화 -> Reflection API
+	  - 동적 객체의 생성, 동적 메서드 호출, 동적 변수값 설정
+	  
+	  Class 클래스 -> 각 구성요소인 Constructor 객체, Method객체, Field 객체..
+	  
+	  Class
+		Constructor[] getConstructors() : public 범위의 생성자 메서드 조회
+		Constructor[] getDeclaredConstructors() : 모든 범위의 생성자 메서드 조회
+	  
+
+
 6/24 구조설명
 
 	스프링프레임워크 : 개발자 대신 객체를 관리해 줌 
@@ -140,3 +221,32 @@ global/App.config.java
  
 전체 기본 폰트 
  
+
+style CSS 
+- style.css : 공통적인 CSS - common.tag
+- main.css -> main 페이지 CSS - main.tag
+
+xeiconds https://xpressengine.github.io/XEIcon/ -> get started -> 설치하기
+
+
+게시판 강의 6/25 PM2시
+
+	mybatis.xml
+    <typeHandlers>
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler" javaType="org.choongang.member.constants.UserType" />
+    </typeHandlers>
+	
+	
+	MemberMapper.xml
+	<resultMap id="memberMap" type="org.choongang.member.entities.Member">
+        <result column="USER_NO" property="userNo" />
+        <result column="EMAIL" property="email" />
+        <result column="PASSWORD" property="password" />
+        <result column="USER_NAME" property="userName" />
+        <result column="USER_TYPE" property="userType" />
+        <result column="REG_DT" property="regDt" />
+        <result column="MOD_DT" property="modDt" />
+    </resultMap>
+	
+	
+4:19분 강의 -- exception -> Advice 설명

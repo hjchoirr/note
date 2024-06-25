@@ -431,6 +431,6 @@ parent.location.replace("주소")  => history 남지 않아 뒤로가기 불가�
 			Expires : 0 -> 만료시간 없음
 			
 			파일전체용량 :Content-length
-			파일형식: Content-Type
+파일형식: Content-Type
 			
 			
