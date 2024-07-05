@@ -250,3 +250,123 @@ xeiconds https://xpressengine.github.io/XEIcon/ -> get started -> 설치하기
 	
 	
 4:19분 강의 -- exception -> Advice 설명
+
+6/26 
+ReflectionApi - 메서드 호출
+  - 예외발생시
+  - 리플렉션 API로 동적 메서드 호출 시 : InvocationTargetException - 발생한 예외를 Wrapping하는 예외 객체가
+  
+	redirectUrl 값이 요청 데이터에 있으면 
+  
+  예외처리 alert 자바스크립트 설명 9:30 전후
+  CommonControllerAdvice 
+  
+  
+
+
+ModelAttribute 설명 2:38
+
+
+,jdbcType=CLOB
+
+
+
+
+
+포켓몬 강의 6/26 PM 6
+
+jdbcType="CLOB" javaType="java.lang.String" 
+
+
+
+게시판관리자 
+ - 서브메뉴 : admin/advice
+ 
+ - 게시판 설정 : 설정 1개 - 게시판 1개
+
+	게시판 아이디
+	게시판 이름
+	게시판 권한통제
+	게시판 분류
+	기타설정
+	
+ - 게시글 저장소 : 게시판 별 게시글은 게시판 아이디로 구분
+ 
+ 
+ 
+ input[type='textarea'] {
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    width: 100%;
+    height: 45px;
+    border-radius: 3px;
+}
+input[type=file] {
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    width: 100%;
+    height: 45px;
+    border-radius: 3px;
+}
+
+
+textarea {
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-height: 100px;
+    width: 100%;
+    resize: none;
+    border-radius: 3px;
+}
+
+
+
+7/1 프레임워크 변경사항 설명
+
+1. 마이바티스 매퍼갱신
+2. 매핑오류
+
+3. 페이징 
+
+
+	1,2교시 게시판
+	3,4 회원정보수정, 랜덤 포켓몬 추추르 프로필 반영
+
+	포켓몬 테이블 수정 type1, type2
+	포켓몬 매퍼 xml 수정
+	
+	
+	 
+ckeditor5  6/28 금요일 저녁
+
+ajax 설명 PM5:30
+
+
+파일첨부 - 7/3 11:30
+
+	- 파일정보
+		GID
+		LOCATION : 같은 그룹에서 파일을 구분하기 위한 값
+		예) editor : 에디터에 첨부하는 이미지
+			attach : 다운로드 첨부파일
+
+	파일정보테이블
+	FILE_INFO
+
+	SEQ : 일련번호 - 서버에 올라가는 파일명으로 활용 / 중복 방지위함
+	GID :  그룹ID
+	LOCATION : 그룹에서 배치하는 위치
+	FILE_NAME
+	EXTENSION
+	CONTENT_TYPE
+	DONE :  파일첨부와 관련된 그룹 작업 완료 여부 - 예) 게시글 작성 완료 : 1
+	REG_DT : 파일 업로드 일시
+
+159117df-2be1-4d7b-80d4-f95d49f6d6e0
+
+
+1. 오류가 나서 해결한 상황은 그룹 깃허브 이슈에 작성
+2. 본인 도메인 핵심 코드는 위키에 페이지 새로 파서 작성
+
+
+List<Board> getList(int pNo, int pSz, String keyword

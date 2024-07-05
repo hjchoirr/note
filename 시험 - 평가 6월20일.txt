@@ -36,4 +36,88 @@
 
 이번에도 배우는데 목적을 둔다, 제공된 구조를 먼저 공부한다.
 
-	  
+
+CREATE TABLE BOARD (
+   ART_NO NUMBER(10) PRIMARY KEY,
+   ART_TITLE VARCHAR2(200) NOT NULL,
+   USER_NO NUMBER(10) NOT NULL,
+   ART_BODY CLOB,
+   FILE_NAME VARCHAR2(50),
+   READ_CNT NUMBER(10) DEFAULT 0,
+   REG_DT DATE DEFAULT SYSDATE,
+   MOD_DT DATE
+);
+CREATE SEQUENCE SEQ_BOARD;
+
+CREATE TABLE POKEMON (
+   SEQ NUMBER(10) PRIMARY KEY,
+   NAME VARCHAR2(60) NOT NULL,
+   NAME_KR VARCHAR2(60),
+   WEIGHT NUMBER(7) DEFAULT 0,
+   HEIGHT NUMBER(7) DEFAULT 0,
+   BASE_EXPERIENCE NUMBER(10) DEFAULT 0,
+   FRONT_IMAGE VARCHAR2(150),
+   BACK_IMAGE VARCHAR2(150),
+   RAW_DATA CLOB,
+   DESCRIPTION VARCHAR2(1000)
+);
+
+
+파일업로드용 의존성
+implementation 'org.apache.commons:commons-fileupload2-jakarta-servlet6:2.0.0-M2'
+
+인텔리제이 터미널에서  git config pull.rebase false 이거 입력해주시면 merge & pull 수월하게 된다고 합니다
+
+user01@test.com
+
+
+
+<result column="ART_BODY" property="artBody" jdbcType="CLOB" javaType="java.lang.String"/>
+
+
+    <insert id="register">
+        INSERT INTO BOARD (ART_NO, ART_TITLE, USER_NO, FILE_NAME, ART_BODY)
+            VALUES (SEQ_BOARD.NEXTVAL, #{artTitle}, #{userNo}, #{fileName}, #{artBody:CLOB})
+    </insert>
+	
+
+	<if test="artBody != null">
+		<bind name="sArtBody" value="'%' + _parameter.getArtBody() + '%'" />
+		AND b.artBody like #{sArtBody}
+	</if>	
+	
+	
+	WHERE RNUM > (#{pageNo}-1) * #{pageSize}
+	
+	
+package org.choongang.file.models;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.choongang.global.config.annotations.Component;
+
+
+@Component
+public class FileInfoUtil {
+
+    FileInfo fileInfo = new FileInfo();
+    public String getUrl(HttpServletRequest request) {
+        String url = request.getContextPath() + "/static/upload/" + (fileInfo.getId() % 10) + "/" + fileInfo.getId();
+        if (fileInfo.getExtension() != null && !fileInfo.getExtension().isBlank()) url += "." + fileInfo.getExtension();
+
+        return url;
+    }
+
+    public String getPath(HttpServletRequest request) {
+        String uploadPath = request.getServletContext().getRealPath("/static/uploads");
+
+        String path = uploadPath + "/" + (fileInfo.getId() % 10) + "/" + fileInfo.getId();
+        if (fileInfo.getExtension() != null && !fileInfo.getExtension().isBlank()) path += "." + fileInfo.getExtension();
+
+        return path;
+    }
+
+}
+	
+	
+ Error parsing Mapper XML. The XML location is 'org/choongang/file/models/FileInfoMapper.xml'. Cause: org.apache.ibatis.builder.BuilderException: Error resolving class. Cause: org.apache.ibatis.type.TypeException: Could not resolve type alias 'file.models.FileInfo'.  Cause: java.lang.ClassNotFoundException: Cannot find class: file.models.FileInfo [in thread "http-nio-3000-exec-1"]
+	org.apache.ibatis.exceptions.ExceptionFactory.wrapException(ExceptionFactory.java:30)
