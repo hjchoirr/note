@@ -306,7 +306,7 @@ CSS 기초
         <div class="box">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit natus consectetur modi ullam doloremque cumque dignissimos. Sequi, sint recusandae, ducimus dolores harum veniam exercitationem in, libero vero quidem accusamus qui?
         </div>	
-		<div class
+		
 
 	참고)
 		overflow  (가로 한정된 영역안의 텍스트에 white-space:nowrap 인 상태에서 적용)

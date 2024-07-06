@@ -1,0 +1,27 @@
+MVC 기본 경로 생성
+템플릿 경로 생성 : src/main/webapp/WEB-INF/templates
+사이트 전체 설정 경로 : src/main/java/org/choongang/global/config
+라우터 설정 경로 : src/main/java/org/choongang/global/router
+
+
+src/main/webapp/WEB-INF/templates             템플릿 경로
+src/main/java/org/choongang/global/config     사이트 전체 설정 
+src/main/java/org/choongang/global/router     라우터 설정
+
+
+@Component, @Controller, @RestController, @Service
+
+@component
+@Controller
+@Service
+@RestController
+@Service
+
+
+BeanContainer
+
+http://localhost:4000/project/member/login/test/2?seq=5&email=user04@test.com&password=PPP&aaa=bbb&regDt=2024-06-22%2011:10:00&termsAgree=true
+
+mode=login, seq=5, num=2
+RequestJoin(email=user04@test.com, password=PPP, confirmPassword=null, aaa=bbb, termsAgree=true, num1=0, num2=0, num3=0, num4=0, num5=0.0, num6=0.0, num11=null, num22=null, num33=null, num44=null, num55=null, num66=null, regDt=2024-06-22T11:10)
+org.apache.ibatis.binding.MapperProxy@5b0dddcf
