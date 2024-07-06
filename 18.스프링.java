@@ -396,7 +396,7 @@
 		1) 멤버변수 위에 정의
 		2) setter 메사드 위에 정의
 		3) Optional 정의된 멤버변수, 메서드의 매개변수에도 있어도 주입
-		4) 자동 스캔 적용 (@CompoetScan) 시
+		4) 자동 스캔 적용 (@CompoentScan) 시
 			- @Autowired 미적용방식
 			- 생성자 매개변수로 정의 / 기본생성자가 정의 되지 않아야 한다
 			=> 또는 lombok  RequiredArgsConstructor 쓰고 멤버변수에 final이나 notNull 로...
@@ -572,7 +572,7 @@
 		
 	3. 기본 스캔 대상
 		- 
-		@Component - 작은 기능들 .. validator, utils
+		@Component - 작은 기능들 .. validator, utils (Service의 구성요소..)
 		@Service - 큰 기능
 		
 		- 툭정 기능과 관련된 에노테이션
@@ -618,7 +618,7 @@
 				}
 			}
 			
-			@Component("memberDao2")  
+			@Component("memberDao2")  //이름 바꾸는 방법
 				public class MemberDao {
 			}
 
