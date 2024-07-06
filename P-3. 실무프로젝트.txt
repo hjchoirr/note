@@ -1,0 +1,372 @@
+실무프로젝트(P-3)
+
+ 
+ 구조 설명
+6/18 9시 동영상
+6/19 9시 동영상
+
+	- 소스 쳐보기, readme 읽어보기 
+	
+BeanContainer
+
+Handler
+
+Adapter
+
+PathVariable 경로변수
+
+
+HandlerAdapter - 실행해준다 형변환 할 필요없이 쓴다
+
+
+난해한 3개
+	BeanContainer
+	HandlerMapping
+	HandlerAdapter
+
+
+
+MapperProvider
+bean 갱신이 필요한 객체 - 요청시마다 갱신, 매퍼도
+
+mapper.xml -> 인터페이스로 가져옴
+
+
+포트폴리오 틀 강의  6/21 PM 2:54
+
+실무 프로젝트 P-3
+
+BeanContainer.java
+	- 객체조립기, 객체 자동 스캔 및 생성
+	- 스캔방법은 어노테이션 - @Controller, @RestController, @Component @Service 있으면 객체 생성
+	
+@Controller :요청시 유입되는 컨트롤러 / 출력을 JSP
+@RestController :요청시 유입되는 컨트롤러 / 출력을 JSON - { "이름":"값" }
+	
+DispatcherServlet : 모든 요청과 응답의 창구 /
+
+HandlerMapping - HandlerMappingImpl
+	: 요청주소와 요청방식(Method - Get, Post, Patche, Put, DELETE) 정보를 가지고
+	콘트롤러객체 (@Controller, @RestController)와 요청 메서드를 찾아주는 역할
+	
+	
+	
+	GET /member/join
+	
+	@Controller
+	public class MemberController {
+	
+		@GetMapping("/member/join")
+		public String join(RequestJoin form) {
+			...
+		}
+	
+	}
+	
+	HandlerAdapter - HandlerAdapterImpl
+		:찾는 컨트롤러 객체의 매서드를 실행
+		
+		 - 요청메서드에 정의된 매개변수 유형에 따라 요청데이터를 자료형에 맞게 자동 주입 -> 실행
+		 - 서블릿 기본객체도 매개변수에 정의되어 있으면 자동 주입(HttpServletRequest, HttpServletResponse, HttpSession)
+		 
+		 
+	객체 관리의 자동화 -> Reflection API
+	  - 동적 객체의 생성, 동적 메서드 호출, 동적 변수값 설정
+	  
+	  Class 클래스 -> 각 구성요소인 Constructor 객체, Method객체, Field 객체..
+	  
+	  Class
+		Constructor[] getConstructors() : public 범위의 생성자 메서드 조회
+		Constructor[] getDeclaredConstructors() : 모든 범위의 생성자 메서드 조회
+	  
+
+
+6/24 구조설명
+
+	스프링프레임워크 : 개발자 대신 객체를 관리해 줌 
+	 - Class 클래스 이용, 동적으로 인스턴스 생성 해줌 : getInstance() 메서드
+	 
+
+1. 사용자 요청
+
+2. DispatcherServlet(모든 요청과 응답의 창구)
+	@WebServlet("/")
+	
+	public void service() 
+	
+	
+3. BeanContainer::loadBeans() : 모든 관리 객체 로드(객체 생성 및 의존성 주입)
+	특정 에너테이션이 있는 객체를 자동 생성, 의존하는 객체 주입
+	- @Controller   : 컨트롤러역할 객체
+	- @RestController : 컨트롤러역할 객체 - 응답시 JSON 형태로 응답
+	- @Service : 
+	- @Componet
+	- @ControllerAdvice : @Controller의 공통처리 
+	- @RestControllerAdvice @RestController의 공통처리 
+	
+	getClass().getResource(...) : 현재 클래스(BeanContainer)파일의 물리적 경로
+		build/../BeanContainer.class
+		
+		org/choongang 경로에서  .global.config.containers 제거하고 
+		시작하여 재귀적으로 모든 파일 스캔하여 ( getClassNames() 메서드 )
+		에노테이션 체크함
+		
+		updateObject : 싱글톤을 쓰면 안되는, 매번 업데이트되어야할 객체의 경우 .. request, mapper 등
+		
+		컨테이너가 관리할 객체라면 생성자 매개변수의 의존성을 체크하고 의존성이 있다면 해당 객체를 생성하고 의존성을 해결한다. - 생성자는 한개만 정의해야함 -- 중요 ***
+		
+		
+		
+	
+4. HandlerMapping - HandlerMappingImpl : 요청에 맞는 컨트롤러 객체 및 메서드 조회 
+
+	@Controller, @RestController 에 엊ㅇ의된 하기 에너테이션
+	- @RequestMapping  : 모든 요청 메서드에 매칭
+	- @GetMapping : Get요청 메서드에 매칭
+	- @PostMappng : Posat요청 메서드에 매칭 
+	- @PatchMapping
+	- @PutMapping
+	- @DeleteMapping
+	
+	
+	http://.../member/join 요청에대한 메서드 찾아준다
+	
+		게시글 보기 
+		/board/view/게시글번호
+		/board/view/1
+		/board/view/2
+
+
+5. HandlerAdapter - HandlerAdapterImpl 
+
+	1) 찾은 컨트롤러의 메서드 실행하여 유입된 요청을 처리
+		
+	2) 각 컨트롤러의 반환값 
+		- @Controller인 경우 : 템플릿(/WEB-INF/templates/ + 반환값 + ".jsp")로 경로 찾아 출력 버퍼 교체  
+			- 예) return "member/join";
+			
+		- @RestController인 경우 : 반환값은 자바 객체가 되며 JSON 형태({"이름": "값", "이름" : "값" .. })으로 출력
+		
+	3) 컨트롤러를 찾지 못한 경우 ( 첫번째는 컨트롤러에서 찾고 , 없으면 ..)
+	
+		- StaticResourceMapping - StaticResourceMappingImpl - 웹 정적 경로인 /webapp/static/에서 파일이 있는지 체크 하고 출력 ( css나 js 파일 )
+		
+		- 웹 정적 경로에서도 못찾는다면 설정한 파일 업로드 경로에서 찾음 
+			resource의 application.properties 에 정의된 file.upload.path="..."
+			
+		- 그래도 못찾으면 404 에러  - templates/errors/404.jsp
+		
+		
+		 
+		@RequestParam("이름") : 요청데이터 - 쿼리스트링이나 폼 태그 입력값 둘다 해당
+		
+		
+
+
+D:\P-3\boardProject>git init
+D:\P-3\boardProject>git remote add origin https://github.com/hjchoirr/BoardProject.git 
+D:\P-3\boardProject>git add .
+D:\P-3\boardProject>git commit -m "초기 업로드"
+D:\P-3\boardProject>git push origin master
+		
+
+6/24 12시 
+
+설정파일
+ - 다음엔 설정파일 yml 예정
+
+application.properties
+
+	# 파일 업로드 경로
+	file.upload.path=D:/uploads
+
+	# 파일 업로드 URL
+	file.upload.url=/uploads
+ 
+application-prod.properties  
+ - 실제 서비스 서버 
+ 
+	# 파일 업로드 경로
+	file.upload.path=/home/ubuntu/uploads
+
+	# 파일 업로드 URL
+	file.upload.url=/uploads
+
+global/App.config.java
+
+	public class AppConfig {
+		private final static ResourceBundle bundle;
+		private final static Map<String, String> configs;
+		static {
+			// 환경 변수 mode에 따라 설정파일을 분리 예) prod이면 application-prod.properties로 읽어온다.
+			String mode = System.getenv("mode");
+			mode = mode == null || mode.isBlank() ? "":"-" + mode;
+
+			bundle = ResourceBundle.getBundle("application" + mode);
+			configs = new HashMap<>();
+			Iterator<String> iter = bundle.getKeys().asIterator();
+			while(iter.hasNext()) {
+				String key = iter.next();
+				String value = bundle.getString(key);
+				configs.put(key, value);
+			}
+		}	
+		
+확인 http://localhost:3000/project/member
+
+
+
+스타일
+ border-box; 경계선에 여백 없이
+ 
+전체 기본 폰트 
+ 
+
+style CSS 
+- style.css : 공통적인 CSS - common.tag
+- main.css -> main 페이지 CSS - main.tag
+
+xeiconds https://xpressengine.github.io/XEIcon/ -> get started -> 설치하기
+
+
+게시판 강의 6/25 PM2시
+
+	mybatis.xml
+    <typeHandlers>
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler" javaType="org.choongang.member.constants.UserType" />
+    </typeHandlers>
+	
+	
+	MemberMapper.xml
+	<resultMap id="memberMap" type="org.choongang.member.entities.Member">
+        <result column="USER_NO" property="userNo" />
+        <result column="EMAIL" property="email" />
+        <result column="PASSWORD" property="password" />
+        <result column="USER_NAME" property="userName" />
+        <result column="USER_TYPE" property="userType" />
+        <result column="REG_DT" property="regDt" />
+        <result column="MOD_DT" property="modDt" />
+    </resultMap>
+	
+	
+4:19분 강의 -- exception -> Advice 설명
+
+6/26 
+ReflectionApi - 메서드 호출
+  - 예외발생시
+  - 리플렉션 API로 동적 메서드 호출 시 : InvocationTargetException - 발생한 예외를 Wrapping하는 예외 객체가
+  
+	redirectUrl 값이 요청 데이터에 있으면 
+  
+  예외처리 alert 자바스크립트 설명 9:30 전후
+  CommonControllerAdvice 
+  
+  
+
+
+ModelAttribute 설명 2:38
+
+
+,jdbcType=CLOB
+
+
+
+
+
+포켓몬 강의 6/26 PM 6
+
+jdbcType="CLOB" javaType="java.lang.String" 
+
+
+
+게시판관리자 
+ - 서브메뉴 : admin/advice
+ 
+ - 게시판 설정 : 설정 1개 - 게시판 1개
+
+	게시판 아이디
+	게시판 이름
+	게시판 권한통제
+	게시판 분류
+	기타설정
+	
+ - 게시글 저장소 : 게시판 별 게시글은 게시판 아이디로 구분
+ 
+ 
+ 
+ input[type='textarea'] {
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    width: 100%;
+    height: 45px;
+    border-radius: 3px;
+}
+input[type=file] {
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    width: 100%;
+    height: 45px;
+    border-radius: 3px;
+}
+
+
+textarea {
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-height: 100px;
+    width: 100%;
+    resize: none;
+    border-radius: 3px;
+}
+
+
+
+7/1 프레임워크 변경사항 설명
+
+1. 마이바티스 매퍼갱신
+2. 매핑오류
+
+3. 페이징 
+
+
+	1,2교시 게시판
+	3,4 회원정보수정, 랜덤 포켓몬 추추르 프로필 반영
+
+	포켓몬 테이블 수정 type1, type2
+	포켓몬 매퍼 xml 수정
+	
+	
+	 
+ckeditor5  6/28 금요일 저녁
+
+ajax 설명 PM5:30
+
+
+파일첨부 - 7/3 11:30
+
+	- 파일정보
+		GID
+		LOCATION : 같은 그룹에서 파일을 구분하기 위한 값
+		예) editor : 에디터에 첨부하는 이미지
+			attach : 다운로드 첨부파일
+
+	파일정보테이블
+	FILE_INFO
+
+	SEQ : 일련번호 - 서버에 올라가는 파일명으로 활용 / 중복 방지위함
+	GID :  그룹ID
+	LOCATION : 그룹에서 배치하는 위치
+	FILE_NAME
+	EXTENSION
+	CONTENT_TYPE
+	DONE :  파일첨부와 관련된 그룹 작업 완료 여부 - 예) 게시글 작성 완료 : 1
+	REG_DT : 파일 업로드 일시
+
+159117df-2be1-4d7b-80d4-f95d49f6d6e0
+
+
+1. 오류가 나서 해결한 상황은 그룹 깃허브 이슈에 작성
+2. 본인 도메인 핵심 코드는 위키에 페이지 새로 파서 작성
+
+
+List<Board> getList(int pNo, int pSz, String keyword
