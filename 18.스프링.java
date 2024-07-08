@@ -564,7 +564,7 @@
 	-------------------------------------------------------------------------------
 		
 
-컴포넌트 스캔
+컴포넌트 스캔 
 
 	1. @Component
 	2. @ComponentScan   
@@ -583,6 +583,7 @@
 		@ControllerAdvice
 		@RestControllerAdvice
 		@Aspect
+		@Repository : DAO에 주로 정의 
 		
 
 			@Configuration
@@ -604,9 +605,9 @@
 			@Component("memberDao2")   <-- 이름 지정
 			
 			
-		2)  수동 등록한 빈과 충돌
+		2) 수동 등록한 빈과 충돌
+		
 		3) excludeFilters
-
 
 			@Configuration
 			@ComponentScan("exam01.member")
@@ -622,37 +623,409 @@
 				public class MemberDao {
 			}
 
+		3) excludeFilters
+
+ 
+				 스캔 배제 Filter
+
+				@Configuration
+				@ComponentScan(
+				basePackages="member",
+				excludeFilters = @ComponentScan.Filter(type= FilterType.ANNOTATION, classes = ManualBean.class))  // ManualBean 에노테이션 붙어있는거 배제
+				public class AppCtx {
+				} 
+
+				package global.annotations;
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Retention;
+				import java.lang.annotation.RetentionPolicy;
+				import java.lang.annotation.Target;
+
+				@Target(ElementType.TYPE)
+				@Retention(RetentionPolicy.RUNTIME)
+				public @interface ManualBean {
+
+				}
+
+				
+				@Repository
+				@ManualBean
+				public class MemberDao { // memberDao - 빈 이름
+
+					private static Map<String, Member> members = new HashMap<>();
+
+					public void register(Member member) {
+						members.put(member.getEmail(), member);
+					}
+
+					public Member get(String email) {
+						return members.get(email);
+					}
+
+					public List<Member> getList() {
+						List<Member> data = new ArrayList<>(members.values());
+
+						return data;
+					}
+				}
+				@ComponentScan(
+				basePackages="member",
+				excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {MemberDao.class, JoinService.class})) // 클래스명 명시하여 배제
+				public class AppCtx {
+
+				}
+
+				Ant pattern Filter - 제일 간단함
+				
+				  mvn reposi : aspectjweaver 검색
+				  의존성 : runtimeOnly 'org.aspectj:aspectjweaver:1.9.22.1'
+				          -> 
+						  implementation 'org.aspectj:aspectjweaver:1.9.22.1'
+
+					@ComponentScan(
+					basePackages="member",
+					excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern="member.*Dao"))
+					public class AppCtx {
+
+
+					}
+
+
+
+
+스프링 컨테이너( AnnotationConfigApplicationContext ) 가 하는 일
+
+ - 스프링 설정 클래스를 가지고 
+	- @Configuration 에노테이션이 붙어있는 클래스 를 가지고 
+	- @ComponentScan("스캔범위")
+	
+ - 객체생성
+ 
+	- 기본 스캔 대상에 해당하는 클래스이면 객체 생성
+	  (@Component, @Service...)
+	
+ - 의존성주입
+ 
+	- @Autowired 사용하는 방법
+	
+		1) 멤버변수 위에
+		2) setter 메서드위에 
+		3) Optional 형태로 감싼 구조의 멤버변수, setter메서드 위에
+		
+	- @Autowired 사용하지 않는 방법
+	
+		4) 생성자매개변수에 의존성을 주입하는 방법 (+ 기본생성자 없어야함)
+		   : 객체 생성 시 의존성 강제 주입 
+		
+			- lombok @RequiredArgsConstructor 와 함께 많이 쓴다
+			  : 초기화가 반드시 필요한 멤버변수를 생성자매개변수에
+			  final 의 경우는 반드시 초기화값 필요 : 생성자 매개변수에 초기화 강제  
+			  -> final은 상수이므로 값을 못바꾸므로 -> 그래서 @NonNull을 맴버버변수위에 넣으면 final로 안해도 됨
+
+
+					@Service
+					@RequiredArgsConstructor
+					public class JoinService {
+
+						private final JoinValidator validator;  //이렇게해도 강제주입 됨 @RequiredArgsConstructor +  final
+
+						@NonNull
+						private MemberDao memberDao;   //이렇게해도 강제주입 됨 @RequiredArgsConstructor + @NonNull
+
+						public void process(RequestJoin form) {
+							...
+						}
+					}
+
+
+7/8 11시, 12시 부터
 
 빈 라이프 사이클과 범위
 	1. 컨테이너 초기화 : 빈 객체의 생성, 의존 주입, 초기화
-
+	
 	2. 컨테이너 종료 : 빈 객체의 소멸
+	
 
 	3. 빈 객체의 라이프 사이클
 		1) 객체 생성 -> 의존 설정 -> 초기화 -> 소멸
+			초기화 : 객체가 완전히 생성되고 조립된 다음에 처리할 작업을 정의하면 실행되는 단계
+			소멸 : ctx.close() - 객체 소멸, 소멸전에 처리할 작업을 정의하면 실행하는 단계
+			
+			스프링컨테이너 생성시 진행되는 부분 : (객체 생성 -> 의존 설정 -> 초기화)
+			
 		2) InitializingBean
+			 - afterPropertiesSet 메서드 : 초기화 단계시 실행됨 ( 객체가 완전히 도립되고 생성된 후에 처리할 작업을 정의)
+			 
 		3) DisposableBean
+			- destroy 메서드 
+			   : 컨테이너에 있는 객체가 소멸되기 전에 실행
+			     (주로 객체 소멸전에 할 작업 예) - 자원 해제 등...)
+				 
+
+			@Service
+			public class BoardService implements InitializingBean, DisposableBean {
+				public void write() {
+					System.out.println("글쓰기!");
+				}
+
+				@Override
+				public void afterPropertiesSet() throws Exception {
+					System.out.println("afterPropertiesSet()!");
+				}
+
+				@Override
+				public void destroy() throws Exception {  // ctx.close() 호출시만 동작함
+					System.out.println("destroy()!");
+				}
+			}
+			
+			
 
 	4.  빈 객체의 초기화와 소멸 : 커스텀 메서드
+		- 외부 라이브러리, 자바JDK 기본 클래스, 스프링 프레임워크 기본 클래스 등등..
+		
 		1) initMethod 
 		2) destroyMethod 
+		
+		@Bean
+		initMethod
+		 - InitializingBean : afterPropertiesSet 와 동일시점 실행
+		
+		destroyMethod
+		 - DisposableBean
+
+		@Configuration
+		@ComponentScan(basePackages={"member","board"})
+		public class AppCtx {
+
+			@Bean(initMethod = "init", destroyMethod = "destroy")
+			public BoardService2 boardService2() {
+				return new BoardService2();
+			}
+		}
+
 
 	5. 빈 객체의 생성과 관리 범위
 	@Scope 
+		- @Scope("singleton") : 정의하지 않아도 기본은 싱글턴 패턴으로 관리
+		- @Scope("prototype") : 매번 조회시 마다 새로운 객체를 샐성
+			- 스프링 객체관리는 기본이 싱글턴이지만 "prototype" 은 일부기능에 제한적으로 사용가능
 
-AOP 프로그래밍
-(Aspect Oriented Programming)
+			@Configuration
+			@ComponentScan(basePackages={"member","board"})
+			public class AppCtx {
+
+				@Scope("prototype")
+				@Bean(initMethod = "init", destroyMethod = "destroy")
+				public BoardService2 boardService2() {
+					return new BoardService2();
+				}
+			}
+
+AOP 프로그래밍(Aspect Oriented Programming : 관점지향 프로그래밍)
+
+ - 관점 : 개발자의 공통적인 관심사
+ - 공통기능, 핵심기능 분리 기술
+
+	공통기능 : 스프링이 대신수행
+	핵심기능 : 개발자 정의
+	
+	 - 데코레이터 패턴과 유사하고,  대신 해준다는 의미로  AOP를 프록시 라고 함.
+		(버퍼드스트림)
+		
+		
+		=> 공통기능과 핵심기능 분리하기 ( 데코레이터 패턴 )
+
+			public interface Calculator {
+				long factorial(long num);
+			}		
+
+			public class ImplCalculator implements Calculator{
+
+				@Override
+				public long factorial(long num) {
+					long result = 1L;
+
+					for(long i = 1L; i <= num; i++) {
+						result *= i;
+					}
+					return result;
+				}
+			}
+
+			public class RecCalculator implements Calculator{
+
+				@Override
+				public long factorial(long num) {
+					if(num < 1L) {
+						return 1L;
+					}
+					return num * factorial(num - 1L);
+				}
+			}
+
+			// ImplCalculator, RecCalculator 둘다 대신 수행 해 줄 수 있는 프록시 클래스 (데코레이터 패턴)
+			public class ProxyCalculator implements Calculator{
+
+				private Calculator calculator;
+
+				public ProxyCalculator(Calculator calculator) {
+					this.calculator = calculator;
+				}
+
+				@Override
+				public long factorial(long num) {
+					long stime = System.nanoTime();
+
+					try {
+						long result = calculator.factorial(num); //다른 계산기의 factorial 연산을 대신 수행  ==> Proxy
+						return result;
+					} finally {
+						long etime = System.nanoTime();
+						System.out.println("걸린시간 : " + (etime - stime));
+					}
+				}
+			}
+
+			@Test 
+			void test1() { // 프록시 사용 안한 경우
+				long stime = System.nanoTime();   //공통기능
+				RecCalculator cal2 = new RecCalculator();
+				long result2 = cal2.factorial(10L);  //핵심기능
+				long etime = System.nanoTime();
+				System.out.println("cal2=" + result2 + " 걸린시간:" + (etime - stime));
+
+				stime = System.nanoTime(); //공통기능
+				ImplCalculator cal1 = new ImplCalculator();
+				long result1 = cal1.factorial(10L);  //핵심기능
+				etime = System.nanoTime();
+				System.out.println("cal1=" + result1 + " 걸린시간:" + (etime - stime));
+
+			}
+			
+			=> 공통기능과 핵심기능 분리하기 ( 데코레이터 패턴 )
+			
+			@Test // 프록시 사용
+			void test2() {
+				ProxyCalculator cal1 = new ProxyCalculator(new ImplCalculator());
+				long result1 = cal1.factorial(10L);
+				System.out.println("cal1:" + result1);
+
+
+				ProxyCalculator cal2 = new ProxyCalculator(new RecCalculator());
+				long result2 = cal2.factorial(10L);
+				System.out.println("cal2:" + result2);
+			}
+			
+			=> 이렇게 거 많이 씀 : 알게 모르게 
+			
+			@Test
+			void test2() {
+				Calculator cal1 = new ProxyCalculator(new ImplCalculator());
+				long result1 = cal1.factorial(10L);
+				System.out.println("cal1:" + result1);
+
+
+				Calculator cal2 = new ProxyCalculator(new RecCalculator());
+				long result2 = cal2.factorial(10L);
+				System.out.println("cal2:" + result2);
+			}			
+			
+			이런 프록시 너무 많이 만들어야 하므로
+			
+			=> 동적 프록시 => AOP
+			
+			동적프록시 
+			java.lang.reflect.Proxy
+			
+				InvocationHandler
+				: 인터페이스를 통한 프록시 / 인터페이스 정의가 필수 
+				
+
+package exam02;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+
+public class CalculatorHandler implements InvocationHandler {
+
+    private Object obj;
+    public CalculatorHandler(Object obj) {
+        this.obj = obj;
+    }
+    /**
+     * @param proxy the proxy instance that the method was invoked on
+     * @param method : 호출한 메서드의 정보
+     *               : 동적 메서드 호출 method.invoke
+     * @param args : 메서드 호출시 넘겨준 값(인수)
+     * @return
+     * @throws Throwable
+     */
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        System.out.println(proxy.getClass());
+
+        long stime = System.nanoTime(); //공통기능
+
+        try {
+
+            Object result = method.invoke(obj, args); //핵심기능
+            return result;
+        } finally {
+            long etime = System.nanoTime();
+            System.out.println("걸린시간: " + (etime - stime));
+        }
+    }
+}
+
+public class Ex02 {
+    @Test
+    void test1() {
+        Object obj = Proxy.newProxyInstance(
+                Calculator.class.getClassLoader(),
+                new Class[] {Calculator.class},
+                new CalculatorHandler(new ImplCalculator()));
+
+        Calculator cal = (Calculator) obj;
+        long result = cal.factorial(10L);
+        System.out.println(result);
+    }
+}
+			
 spring-aop API 
 aspectjweaver
+
+
+스프링 의존성 추가
+implementation 'org.springframework:spring-context:6.1.10'
+
+aspectjweaver 검색 - 구현체
+
+	runtimeOnly 'org.aspectj:aspectjweaver:1.9.22.1'
+	->변경
+	implementation 'org.aspectj:aspectjweaver:1.9.22.1'
+
+ 
 
 	1. 프록시(proxy)
 
 	2. AOP
 		1) @Aspect 
-		2) @Pointcut 
-			- execution 명시자
+		
+			- 공통기능이 정의된 클래스위에
 			
-		3) @Around
+		2) @Pointcut 
+			- execution 명시자 - Ant패턴
+			
+			- 공통기능이 적용될 패키지 범위, 메서드 패턴
+			
+		3) 공통기능을 수행할 메서드 위에 
+		
+		  @Before : 메서드가 호출되기 전 공통기능
+		  @After : 메서드가 호출된 후 공통기능 
+		  @AfterReturning : 반환값을 내보낸 후 공통기능
+		  @AfterThrowing : 예외가 발생한 후 공통기능
+		  @Around : 메서드 호출 전, 후 공통기능
 
 	3. @Order
 
