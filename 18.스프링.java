@@ -939,61 +939,67 @@ AOP 프로그래밍(Aspect Oriented Programming : 관점지향 프로그래밍)
 			java.lang.reflect.Proxy
 			
 				InvocationHandler
-				: 인터페이스를 통한 프록시 / 인터페이스 정의가 필수 
+				: 인터페이스를 통한 프록시이므로 인터페이스 정의가 필수 
 				
+			동적프록시 예제
+				package exam02;
+				import java.lang.reflect.InvocationHandler;
+				import java.lang.reflect.Method;
 
-package exam02;
+				public class CalculatorHandler implements InvocationHandler {
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
+					private Object obj;
+					public CalculatorHandler(Object obj) {
+						this.obj = obj;
+					}
+					/**
+					 * @param proxy the proxy instance that the method was invoked on
+					 * @param method : 호출한 메서드의 정보
+					 *               : 동적 메서드 호출 method.invoke
+					 * @param args : 메서드 호출시 넘겨준 값(인수)
+					 * @return
+					 * @throws Throwable
+					 */
+					@Override
+					public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+						System.out.println(proxy.getClass());
 
-public class CalculatorHandler implements InvocationHandler {
+						long stime = System.nanoTime(); //공통기능
 
-    private Object obj;
-    public CalculatorHandler(Object obj) {
-        this.obj = obj;
-    }
-    /**
-     * @param proxy the proxy instance that the method was invoked on
-     * @param method : 호출한 메서드의 정보
-     *               : 동적 메서드 호출 method.invoke
-     * @param args : 메서드 호출시 넘겨준 값(인수)
-     * @return
-     * @throws Throwable
-     */
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        System.out.println(proxy.getClass());
+						try {
 
-        long stime = System.nanoTime(); //공통기능
+							Object result = method.invoke(obj, args); //핵심기능
+							return result;
+						} finally {
+							long etime = System.nanoTime();
+							System.out.println("걸린시간: " + (etime - stime));
+						}
+					}
+				}
 
-        try {
+				public class Ex02 {
+					@Test
+					void test1() {
+						Object obj = Proxy.newProxyInstance(
+								Calculator.class.getClassLoader(),
+								new Class[] {Calculator.class},
+								new CalculatorHandler(new ImplCalculator()));
 
-            Object result = method.invoke(obj, args); //핵심기능
-            return result;
-        } finally {
-            long etime = System.nanoTime();
-            System.out.println("걸린시간: " + (etime - stime));
-        }
-    }
-}
-
-public class Ex02 {
-    @Test
-    void test1() {
-        Object obj = Proxy.newProxyInstance(
-                Calculator.class.getClassLoader(),
-                new Class[] {Calculator.class},
-                new CalculatorHandler(new ImplCalculator()));
-
-        Calculator cal = (Calculator) obj;
-        long result = cal.factorial(10L);
-        System.out.println(result);
-    }
-}
+						Calculator cal = (Calculator) obj;
+						long result = cal.factorial(10L);
+						System.out.println(result);
+					}
+				}
 			
-spring-aop API 
-aspectjweaver
+AOP 의존성
+spring-aop API  : spring-context 만 추가하면 AOP 따라온다
+aspectjweaver : 구현체
+
+스프링에 제공하는 모든 관리기능의 전제조건?
+	- 스프링이 관리하는 객체만 관리기능을 제공한다
+	- 스프링컨테이너 안에 있는 객체만 적용 가능
+
+
 
 
 스프링 의존성 추가
@@ -1006,10 +1012,34 @@ aspectjweaver 검색 - 구현체
 	implementation 'org.aspectj:aspectjweaver:1.9.22.1'
 
  
+day03 7/9 
 
 	1. 프록시(proxy)
+	
+		BufferedInputStream 도 대표적인 데코레이터 패턴
+		
+		Class BufferedInputStream extends InputStream {
+			private InputStream in;
+			
+			public BufferedInputStream(InputStream in) {
+				this.in = in;
+			}
+			
+			public int read() {
+			
+				//버퍼추가 기능 - 공통기능
+				
+				int byte = in.read(); //핵심기능을 inputStream 대신 수행 
+				
+				//버퍼추가 기능 - 공통기능
+				return byte;
+			}
+		}
+		
 
-	2. AOP
+	2. AOP (Aspect Oriented Programming)
+		- 관점 : 공통기능이 공통 관심사.. 
+	
 		1) @Aspect 
 		
 			- 공통기능이 정의된 클래스위에
@@ -1027,7 +1057,510 @@ aspectjweaver 검색 - 구현체
 		  @AfterThrowing : 예외가 발생한 후 공통기능
 		  @Around : 메서드 호출 전, 후 공통기능
 
+			- ProceedingJoinPoint
+				Object proceed() 핵심기능을 대신 수행해줌
+				Signature getSignature() : 호출한 메서드 정보
+				 - getTarget() : 실제 메서드를 호출한 객체(RecCalculator..)
+				 - Object[] getArgs() : 인수목록
+				 
+			- Signature
+				String getName()
+				String toLongString()
+				String toShortString()
+				
+		Ant 패턴
+		 - exam01.* -> exam01 패키지의 클래스 
+		 - exam01..* -> exam01 패키지 포함 하위 패키지 모든 클래스
+		 
+		 
+		 execution(* aopex.*.*()) : 모든 반환값의 aopex 패키지의 모든 하위 패키지의 매개변수없는 모든 메서드
+		 execution(* aopex..*.*(..)) : 모든 반환값의  aopex 패키지 포함 모든 하위 패키지의 모든 매개변수의 모든 메서드
+		  = execution(* aopex..*(..))
+
+		 execution(* get*(*)) -> get으로 시작하는 매개변수 1개짜리 모든 메서드 
+		 execution(* get*(*,*)) -> get으로 시작하는 매개변수 2개짜리 모든 메서드 
+		 
+		 execution(* read*(Integer, ..)) -> 매서드명이 read로 시작하고 첫번째 매개변수는 Integer 이고 나머지 매개변수는 0개 이상 아무거나 
+
+
+			@Configuration
+			@EnableAspectJAutoProxy // AOP 자동설정 에너테이션 : 동적 프록시
+			public class AppCtx {
+
+				@Bean
+				public ProxyCalculator2 proxyCalculator() {
+					return new ProxyCalculator2();
+				}
+
+				@Bean
+				public Calculator calculator() {
+					return new RecCalculator();
+				}
+			}
+
+			@Aspect
+			public class ProxyCalculator {
+
+				@Pointcut("execution(* exam01..*(..))")  //공통기능이 적용될 범위 : exam01 패키지의 모든 메서드->
+				public void publicTarget() {
+				}
+
+				@Before("publicTarget()")
+				public void before(JoinPoint joinPoint) {
+					System.out.println("Before..");
+				}
+
+				@After("publicTarget()")
+				public void after(JoinPoint joinPoint) {
+					System.out.println("After..");
+				}
+				@AfterReturning(value= "publicTarget()", returning = "returnValue")
+				public void afterReturning(JoinPoint joinPoint, Object returnValue) throws Throwable{
+					System.out.println("AfterReturning.." + returnValue);
+				}
+
+
+				@AfterThrowing(value="publicTarget()", throwing = "e")
+				public void afterThrowing(JoinPoint joinPoint, Throwable e) {
+					System.out.println("AfterThrowing..");
+					e.printStackTrace();
+				}
+				@Around("publicTarget()") //publicTarget() 메서드에 정의한 Pointcut에 공통 기능을 적용한다는 것을 의미
+				public Object process(ProceedingJoinPoint joinPoint) throws Throwable {
+					
+					Signature sig = joinPoint.getSignature();
+					System.out.println("joinPoint.getSignature() :" + sig.toLongString());
+
+					Object[] args = joinPoint.getArgs();
+					System.out.println("joinPoint.getArgs() :" + Arrays.toString(args));
+
+					Object obj = joinPoint.getTarget();
+					System.out.println("joinPoint.getTarget() : " + obj.getClass());
+					
+					long stime = System.nanoTime();    //공통기능
+					try {
+						Object result = joinPoint.proceed(); // 핵심기능을 대신 수행해줌
+						return result;
+					}finally {
+						long etime = System.nanoTime();  //공통기능
+						System.out.println("걸린시간:" + (etime - stime));
+					}
+				}
+			}
+
+
+			public class Ex02 {
+				@Test
+				void test1() {
+					AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppCtx.class);
+
+					Calculator cal = ctx.getBean(Calculator.class);
+					long result = cal.factorial(10L);
+					System.out.println(result);
+
+					ctx.close();
+				}
+			}
+
+			>>>
+			joinPoint.getSignature() :public abstract long exam01.Calculator.factorial(long)
+			joinPoint.getArgs() :[10]
+			joinPoint.getTarget() : class exam01.RecCalculator
+			Before..
+			AfterReturning..3628800
+			After..
+			걸린시간:203000
+			3628800
+
+	** 서브클래스 기반의 프록시 **
+	
+			@Configuration
+			@EnableAspectJAutoProxy(proxyTargetClass = true) // 서브클래스 기반의 프록시
+			public class AppCtx {
+
+				@Bean
+				public ProxyCalculator2 proxyCalculator() {
+					return new ProxyCalculator2();
+				}
+
+				@Bean
+				public Calculator calculator() {
+					return new RecCalculator();
+				}
+			}
+
+			@Aspect
+			public class ProxyCalculator2 {
+
+				@Pointcut("execution(* exam01..*(..))")
+				public void publicTarget() {
+
+				}
+
+				@Around("publicTarget()")
+				public Object process(ProceedingJoinPoint joinPoint) throws Throwable {
+					long stime = System.nanoTime();
+
+					try {
+						Object result = joinPoint.proceed();
+						return result;
+					}finally {
+						long etime = System.nanoTime();
+						System.out.println("걸린시간 : " + (etime - stime));
+					}
+				}
+			}
+
+			@Test
+			void test2() {
+				AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppCtx.class);
+
+				RecCalculator cal = ctx.getBean(RecCalculator.class);
+				long result = cal.factorial(10L);
+				System.out.println(result);
+
+				ctx.close();
+			}
+
 	3. @Order
 
-		4. 프록시 생성방식
-		5. @Around의 Pointcut 설정과 @Pointcut 재사용
+		ProxyCache -> ProxyCalculator
+		
+		-> 프록시의 적용 순서, 숫자가 작은 순서 부터 적용
+
+			@Configuration
+			@EnableAspectJAutoProxy // AOP 자동설정 에너테이션 : 동적 프록시
+			public class AppCtx {
+
+				@Bean
+				public  ProxyCache proxyCache() {
+					return new ProxyCache();
+				}
+
+				@Bean
+				public ProxyCalculator2 proxyCalculator() {
+					return new ProxyCalculator2();
+				}
+
+				@Bean
+				public Calculator calculator() {
+					return new RecCalculator();
+				}
+			}
+					
+			@Aspect
+			@Order(1)
+			public class ProxyCache {
+				private Map<Long, Object> data = new HashMap<>();
+
+				@Pointcut("execution(* exam01..*(..))")
+				public void publicTarget() {
+
+				}
+				@Around("publicTarget()")
+				public Object process(ProceedingJoinPoint joinPoint) throws Throwable {
+					Object[] args = joinPoint.getArgs();
+					Long num = (Long)args[0];
+
+					if(data.containsKey(num)) {
+						System.out.println("Cache 사용..");
+						Object result = data.get(num);
+						return result;
+					}
+
+					Object result = joinPoint.proceed();
+					data.put(num, result);
+					System.out.println("Cache 저장..");
+					return result;
+				}
+			}
+			@Aspect
+			@Order(2)
+			public class ProxyCalculator2 {
+
+				@Pointcut("execution(* exam01..*(..))")
+				public void publicTarget() {
+
+				}
+
+				@Around("publicTarget()")
+				public Object process(ProceedingJoinPoint joinPoint) throws Throwable {
+					long stime = System.nanoTime();
+
+					try {
+						Object result = joinPoint.proceed();
+						return result;
+					}finally {
+						long etime = System.nanoTime();
+						System.out.println("걸린시간 : " + (etime - stime));
+					}
+				}
+			}
+
+			@Test
+			void test1() {
+				AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppCtx.class);
+
+				Calculator cal = ctx.getBean(Calculator.class);
+				long result = cal.factorial(10L);
+				System.out.println(result);
+
+				result = cal.factorial(10L);
+				System.out.println(result);
+
+				result = cal.factorial(10L);
+				System.out.println(result);
+
+				result = cal.factorial(10L);
+				System.out.println(result);
+
+				ctx.close();
+			}
+		
+		
+	4. 프록시 생성방식
+	5. @Around의 Pointcut 설정과 @Pointcut 재사용
+	
+		@Around("execution(* exam01..*(..))") 
+		
+		또는
+		
+		@Aspect
+		public class CommonPointcut {
+			@Pointcut("execution(* exam01..*(..))")
+			public void pointcut() {}
+		}
+		
+		+ 
+		
+		@Around("config.CommonPointcut.publicTarget()")   // 같은 패키지명이라면 패키지명 생략도 가능함
+		
+		
+
+
+JdbcTemplate
+	DataAccessException 
+
+	1. 설치 및 설정 (의존성)
+		1) spring-jdbc  ( spring과 동일버전 )
+			implementation 'org.springframework:spring-jdbc:6.1.10'
+
+		2) tomcat-jdbc
+			implementation 'org.apache.tomcat:tomcat-jdbc:10.1.25'
+
+			- 커넥션 풀 
+				- 미리 연결 객체를 여러개 생성해서 필요할때마다 빌려주고, 회수하는 방식 
+				- 반응성, 성능 향상의 효과 
+				
+				- DataSource interface 사용 (javax.sql.DataSource)
+				
+				- HikariCp 
+
+		
+		+ spring-context
+		+ lombok
+		+ spring-test
+		  testImplementation 'org.springframework:spring-test:6.1.10'
+
+		+ ojdbc11
+		  implementation 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+		  -> 
+				runtimeOnly 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+
+			--------------------------------------------------------------------------
+			build.gradle
+			--------------------------------------------------------------------------
+			ext {
+			   springVersion = '6.1.10'
+			}
+			dependencies {
+				implementation "org.springframework:spring-context:$springVersion"
+				implementation "org.springframework:spring-jdbc:$springVersion"
+				implementation 'org.apache.tomcat:tomcat-jdbc:10.1.25'
+				runtimeOnly 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+
+				compileOnly 'org.projectlombok:lombok:1.18.34'
+				annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+				testImplementation "org.springframework:spring-test:$springVersion"
+				testImplementation platform('org.junit:junit-bom:5.10.0')
+				testImplementation 'org.junit.jupiter:junit-jupiter'
+			}
+			--------------------------------------------------------------------------
+
+
+	2. DataSource 설정 
+		- javax.sql.DataSource
+		- 연결 유효성 체크 관련 메서드 - TomcatJDBC
+			SQL> create user SPRING identified by oracle quota unlimited on users;
+			SQL> grant connect, resource to SPRING;
+			
+			CREATE TABLE MEMBER (
+				SEQ number(11) PRIMARY KEY,
+				EMAIL varchar2(60) NOT NULL UNIQUE,
+				PASSWORD VARCHAR2(65) NOT NULL,
+				USER_NAME VARCHAR2(40) NOT NULL,
+				REG_DT DATE DEFAULT SYSDATE
+			);
+			
+			CREATE SEQUENCE seq_member;
+			
+			
+
+	3. JdbcTemplate을 이용한 쿼리실행 
+	
+		1) query() : select문
+		
+		- List query(String sql, RowMapper rowMapper)
+		- List query(String sql, Object[] args, RowMapper rowMapper)
+		- List query(String sql, RowMapper rowMapper, Object... args)
+
+		2) queryForObject() : 단일 데이터 조회시
+			- 조회 결과가 반드시 한개 레코드 이어야 함, 0이거나 복수면 에러 -> try.. catch 쓰기
+			
+
+		3) update() : insert, update, delete : 반환값 : 반영된 레코드 갯수
+		
+			- int update(String sql)
+			- int update(String sql, Object... args)  
+				: PreparedStatement 방식으로 쿼리 작성
+				: 값 바인딩 ?, ?, ?
+			
+		로거
+		
+		slf4j-api/logback classic 의존성
+		
+		implementation 'org.slf4j:slf4j-api:2.0.13'
+		testImplementation 'ch.qos.logback:logback-classic:1.5.6' 
+		-> implementation 'ch.qos.logback:logback-classic:1.5.6'
+
+		src/main/resources/logback.xml
+
+			<?xml version="1.0" encoding="UTF-8" ?>
+			<configuration>
+				<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+					<encoder>
+						<pattern>%d %5p %c{2} - %m%n</pattern> // 5p : 로그레벨, m: 로그메세지 
+					</encoder>
+				</appender>
+				<root level="INFO">
+					<appender-ref ref="stdout" />
+				</root>
+				
+				<logger name="org.springframework.jdbc" level="TRACE" />  // 로그레벨 자세한 TRACE(DEBUG) 레벨로
+			</configuration>
+				
+			
+
+			@Data
+			@Builder
+			public class Member {
+				private long seq;
+				private String email;
+				private String password;
+				private String userName;
+				private LocalDateTime regDt;
+			}
+			package config;
+
+			import org.apache.tomcat.jdbc.pool.DataSource;
+			import org.springframework.context.annotation.Bean;
+			import org.springframework.context.annotation.Configuration;
+			import org.springframework.jdbc.core.JdbcTemplate;
+
+			@Configuration
+			public class AppCtx {
+
+				@Bean(destroyMethod = "close")
+				public DataSource dataSource() {
+					DataSource ds = new DataSource();
+					ds.setUrl("jdbc:oracle:thin:@localhost:1521:XE");
+					ds.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+					ds.setUsername("SPRING");
+					ds.setPassword("oracle");
+
+					ds.setTestWhileIdle(true); //유휴 객체 유효성 체크
+					ds.setInitialSize(2);
+					ds.setMaxActive(10);
+					ds.setTimeBetweenEvictionRunsMillis(10 * 1000); //10초마다 연결 상태 체크
+					ds.setMinEvictableIdleTimeMillis(60 * 1000); //유휴객체 생존시간
+
+					return ds;
+				}
+
+				@Bean
+				public JdbcTemplate jdbcTemplate() {
+					return new JdbcTemplate(dataSource());
+				}
+			}
+
+			@ExtendWith(SpringExtension.class)
+			@ContextConfiguration(classes = AppCtx.class)
+			public class DBConnectionTest {
+				@Autowired
+				private DataSource dataSource;
+
+				@Test
+				void test1() throws SQLException {
+					Connection conn = dataSource.getConnection();
+					System.out.println(conn);
+				}
+			}
+
+			@ExtendWith(SpringExtension.class)
+			@ContextConfiguration(classes = AppCtx.class)
+			public class Ex01 {
+				@Autowired
+				private JdbcTemplate jdbcTemplate;
+
+				@Test
+				void test1() {
+					String sql = "insert into member (seq, email, password, user_name) " +
+							" values (SEQ_MEMBER.NEXTVAL, ?, ?, ?)";
+
+					int result = jdbcTemplate.update(sql, "user03@test.com", "123456", "사용자03");
+					System.out.println(result);
+				}
+
+				@Test
+				void test2() {
+					List<Member> members = jdbcTemplate.query("select * from member",
+						this::mapper);
+					System.out.println(members);
+				}
+
+				@Test
+				void test3() {
+					String email = "user05@test.com";
+					try {
+						Member member = jdbcTemplate.queryForObject("select * from member where email = ?",
+								(rs, num) -> mapper(rs, num), email);
+						System.out.println(member);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				private Member mapper(ResultSet rs, int num) throws SQLException {
+					return  Member.builder().seq(rs.getLong("seq"))
+							.email(rs.getString("email"))
+							.password(rs.getString("password"))
+							.userName(rs.getString("user_name"))
+							.regDt(rs.getTimestamp("reg_dt").toLocalDateTime())
+							.build();
+				}
+
+				@Test
+				void test4() {
+					int total = jdbcTemplate.queryForObject("select count(*) from member", int.class);
+					System.out.println(total);
+				}
+			}
+
+	4. PreparedStatementCreator를 이용한 쿼리 실행
+	5. INSERT 쿼리 실행 시 KeyHolder를 이용해서 자동 생성 키값 구하기
+	6. 스프링의 익셉션 변환 처리
+		- 각 연동 기술에 따라 발생하는 익셉션을 스프링이 제공하는 익셉션으로 변환함으로써 다음과 같이 구현 기술에 상관없이 동일한 코드로 익셉션을 처리할 수 있게 된다.
+		SQLExcpetion, HibernateException, PersistenceException ->  DataAccessException(RuntimeException)
+		
+	7. 트랜잭션 처리
+	- @Transactional
