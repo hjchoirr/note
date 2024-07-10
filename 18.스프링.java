@@ -1425,7 +1425,7 @@ JdbcTemplate
 			- int update(String sql, Object... args)  
 				: PreparedStatement 방식으로 쿼리 작성
 				: 값 바인딩 ?, ?, ?
-			
+
 		로거
 		
 		slf4j-api/logback classic 의존성
@@ -1556,11 +1556,484 @@ JdbcTemplate
 				}
 			}
 
+
+day04 7/10
+
+
+
+
 	4. PreparedStatementCreator를 이용한 쿼리 실행
+		-> connection 객체을 매개변수로 .. 정의된 메서드를 통해 사용가능함
+		-> 증감번호 등 자동생성되는 숫자타입의 PK 가져올 때 사용
+		
 	5. INSERT 쿼리 실행 시 KeyHolder를 이용해서 자동 생성 키값 구하기
+	
 	6. 스프링의 익셉션 변환 처리
 		- 각 연동 기술에 따라 발생하는 익셉션을 스프링이 제공하는 익셉션으로 변환함으로써 다음과 같이 구현 기술에 상관없이 동일한 코드로 익셉션을 처리할 수 있게 된다.
 		SQLExcpetion, HibernateException, PersistenceException ->  DataAccessException(RuntimeException)
 		
-	7. 트랜잭션 처리
-	- @Transactional
+	7. 트랜잭션 처리 - 수동관리
+	
+		- @Transactional
+		  : 클래스명 위에, 메서드명 위에
+		  : 테스트에 쓰면 자동 롤백됨
+		
+			Connection - setAutoCommit(false);  // 공통기능
+			SQL1.. //핵심기능
+			SQL2..
+			SQL2..
+			Connection - commit();
+	
+		  : 필요한 설정 
+			@EnableTransactionManagement : AppCtx 클래스에 추가
+			
+			@Bean
+			public PlatformTransactionManager transactionManager() {
+				DataSourceTransactionManager tm = new DataSourceTransactionManager();
+				tm.setDataSource(dataSource());
+				return tm;
+			}
+			
+스프링 데이터 프레임워크
+	의존성 spring data JDBC 검색 -> Spring Data JDBC » 3.3.1
+	implementation 'org.springframework.data:spring-data-jdbc:3.3.1'
+
+	문서 spring data api docs 구글링 
+	
+	@EnableJdbcRepositories 에너테이션 추가 - AppCtx.java
+	
+	Member 클래스의 seq위에 @Id 붙이기
+	
+	
+	Spring Data JDBC
+	 - 쿼리 메서드
+	 -CrudRepository 
+	
+
+JDBC와 커넥션 풀 설정
+	1. JDBC 연결
+
+	2. 커넥션 풀 설정
+	1) Tomcat JDBC를 사용한 설정
+	2) HikariCP를 사용한 설정
+
+
+MyBatis와 스프링 연동
+
+	1. MyBatis 관련 라이브러리 추가
+	
+		1) spring-jdbc/spring-tx 
+		
+		2) mybatis/mybatis-spring
+		
+			의존성 추가 
+			implementation 'org.mybatis:mybatis:3.5.16'
+			implementation 'org.mybatis:mybatis-spring:3.0.3'
+
+
+
+	2. SQLSessionFactory
+		mybatis-spring
+		  SqlSessionFactory -> setDataSource(..)
+		  
+		  @Bean
+
+		@Bean
+		public SqlSessionFactory sqlSessionFactory() throws Exception {
+			SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+			sqlSessionFactoryBean.setDataSource(dataSource());
+
+			SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBean.getObject();
+			return sqlSessionFactory;
+		}
+		
+		public interface MemberMapper {
+			
+			@Select("select count(*) from member")   //간단한 쿼리는 mapper.xml 안쓰고 이렇게 가능함
+			long getTotal();
+		}
+
+		@ExtendWith(SpringExtension.class)
+		@ContextConfiguration(classes = AppCtx.class)
+		public class Ex03 {
+			@Autowired
+			private MemberMapper memberMapper;
+
+			@Test
+			void test1() {
+				long total = memberMapper.getTotal();
+				System.out.println(total);
+			}
+		}
+
+	3. 스프링과의 연동 처리
+		1) Mapper 인터페이스
+		2) XML 매퍼와 함께 사용
+		
+		
+		jbcrypt 의존성 implementation 'org.mindrot:jbcrypt:0.4'
+
+			@Configuration
+			@EnableTransactionManagement
+			@MapperScan("mappers")
+			@ComponentScan("member")
+			public class AppCtx {
+
+				@Bean(destroyMethod = "close")
+				public DataSource dataSource() {
+					DataSource ds = new DataSource();
+					ds.setUrl("jdbc:oracle:thin:@localhost:1521:XE");
+					ds.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+					ds.setUsername("SPRING");
+					ds.setPassword("oracle");
+
+					ds.setTestWhileIdle(true); //유휴 객체 유효성 체크
+					ds.setInitialSize(2);
+					ds.setMaxActive(10);
+					ds.setTimeBetweenEvictionRunsMillis(10 * 1000); //10초마다 연결 상태 체크
+					ds.setMinEvictableIdleTimeMillis(60 * 1000); //유휴객체 생존시간
+
+					return ds;
+				}
+
+				@Bean
+				public JdbcTemplate jdbcTemplate() {
+					return new JdbcTemplate(dataSource());
+				}
+
+				@Bean
+				public PlatformTransactionManager transactionManager() {
+					DataSourceTransactionManager tm = new DataSourceTransactionManager();
+					tm.setDataSource(dataSource());
+					return tm;
+				}
+				@Bean
+				public SqlSessionFactory sqlSessionFactory() throws Exception {
+					SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+					sqlSessionFactoryBean.setDataSource(dataSource());
+
+					SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBean.getObject();
+					return sqlSessionFactory;
+				}
+			}
+
+			public interface MemberMapper {
+
+				@Select("select count(*) from member")
+				long getTotal();
+
+				int register(Member member);
+				Member get(String email);
+				int exists(String email);
+			}
+
+			MemberMapper.xml
+
+			<?xml version="1.0" encoding="UTF-8" ?>
+			<!DOCTYPE mapper
+					PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+					"https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+			<mapper namespace="mappers.member.MemberMapper">
+				<resultMap id="memberMap" type="member.entities.Member">
+					<result column="seq" property="seq" />
+					<result column="email" property="email"/>
+					<result column="password" property="password"/>
+					<result column="user_name" property="userName"/>
+					<result column="reg_dt" property="regDt"/>
+				</resultMap>
+
+				<insert id="register">
+					insert into member (seq, email, password, user_name)
+					values (seq_member.nextval, #{email}, #{password}, #{userName})
+				</insert>
+
+				<select id="get" resultMap="memberMap">
+					select seq, email, password, user_name, reg_dt from member where email = #{email}
+				</select>
+
+				<select id="exists" resultType="int">
+					select count(*) from member where email = #{email}
+				</select>
+			</mapper>
+
+			@Transactional
+			@ExtendWith(SpringExtension.class)
+			@ContextConfiguration(classes = AppCtx.class)
+			public class Ex04 {
+
+				@Autowired
+				private JoinService joinService;
+
+				@Test
+				void test1() {
+					RequestJoin form = new RequestJoin();
+					form.setEmail("user99@test.com");
+					form.setPassword("12345678");
+					form.setConfirmPassword("12345678");
+					form.setUserName("사용자99");
+					form.setAgree(true);
+					joinService.process(form);
+				}
+			}		
+
+	4. slf4j 설정
+			<?xml version="1.0" encoding="UTF-8" ?>
+			<configuration>
+				<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+					<encoder>
+						<pattern>%d %5p %c{2} - %m%n</pattern>
+					</encoder>
+				</appender>
+				<root level="INFO">
+					<appender-ref ref="stdout" />
+				</root>
+
+				<logger name="org.springframework.jdbc" level="TRACE" />
+				<logger name="mappers" level="DEBUG" />
+			</configuration>
+
+Mybatis 활용하기
+
+
+스프링 MVC 시작하기
+
+	의존성
+	- servlet-api
+	- servlet.jsp-api
+	- jstl-impl
+	- jstl 구현체
+	
+	-> spring webmvc : 위의 4가지 모두 포함됨
+	 implementation 'org.springframework:spring-webmvc:6.1.10'
+		-> 변경 implementation "org.springframework:spring-webmvc:$springVersion"
+		   context... 지우기 ( 포함됨)
+
+	jakarta servlet api compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+	Jakarta Server Pages API  compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1'
+	Jakarta Standard Tag Library API  implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+	Jakarta Standard Tag Library Implementation implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
+
+
+		dependencies {
+			implementation "org.springframework:spring-webmvc:$springVersion"
+
+			implementation "org.springframework:spring-jdbc:$springVersion"
+			implementation 'org.springframework.data:spring-data-jdbc:3.3.1'
+			implementation 'org.apache.tomcat:tomcat-jdbc:10.1.25'
+			runtimeOnly 'com.oracle.database.jdbc:ojdbc11:23.4.0.24.05'
+			implementation 'org.mybatis:mybatis:3.5.16'
+			implementation 'org.mybatis:mybatis-spring:3.0.3'
+			implementation 'org.mindrot:jbcrypt:0.4'
+			compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+			compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1'
+			implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+			implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
+
+			compileOnly 'org.projectlombok:lombok:1.18.34'
+			annotationProcessor 'org.projectlombok:lombok:1.18.34'
+			implementation 'org.slf4j:slf4j-api:2.0.13'
+			implementation 'ch.qos.logback:logback-classic:1.5.6'
+
+			testImplementation "org.springframework:spring-test:$springVersion"
+			testImplementation platform('org.junit:junit-bom:5.10.0')
+			testImplementation 'org.junit.jupiter:junit-jupiter'
+
+		}
+
+		main/webapp/WEB-INF/ 만들면 톰캣 서버 설정 가능해짐
+		
+		web.xml -> 아파치에서 namespace 가져오기
+			
+			<?xml version="1.0" encoding="UTF-8" ?>
+			<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+					 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					 xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+								  https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+					 version="6.0">
+				<servlet>
+					<servlet-name>dispatcher</servlet-name>
+					<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+					<init-param>
+						<param-name>contextClass</param-name>
+						<param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+					</init-param>
+					<init-param>
+						<param-name>contextConfigLocation</param-name>
+						<param-value>
+							config.MvcConfig
+							config.ControllerConfig
+						</param-value>
+					</init-param>
+				</servlet>
+				<servlet-mapping>
+					<servlet-name>dispatcher</servlet-name>
+					<url-pattern>/</url-pattern>
+				</servlet-mapping>
+				<filter>
+					<filter-name>encodingFilter</filter-name>  //<!-- spring 4까지는 인코딩 필수 -->
+					<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+					<init-param>
+						<param-name>encoding</param-name>
+						<param-value>UTF-8</param-value>
+					</init-param>
+				</filter>
+				<filter-mapping>
+					<filter-name>encodingFilter</filter-name>
+					<url-pattern>/*</url-pattern>  ...*/
+				</filter-mapping>
+			</web-app>
+			
+			package configs;
+			@Configuration
+			@EnableWebMvc
+			@ComponentScan("member")
+			@Import(DBConfig.class)
+			public class MvcConfig implements WebMvcConfigurer {
+				@Override
+				public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+					configurer.enable();  // 디폴트경로 "/" 에 들어왔을때 
+				}
+
+				@Override
+				public void configureViewResolvers(ViewResolverRegistry registry) {
+					registry.jsp("/WEB-INF/templates/", ".jsp");
+				}
+			}
+
+			package configs;
+			import org.apache.ibatis.session.SqlSessionFactory;
+			import org.apache.tomcat.jdbc.pool.DataSource;
+			import org.mybatis.spring.SqlSessionFactoryBean;
+			import org.mybatis.spring.annotation.MapperScan;
+			import org.springframework.context.annotation.Bean;
+			import org.springframework.context.annotation.Configuration;
+			import org.springframework.jdbc.core.JdbcTemplate;
+			import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+			import org.springframework.transaction.PlatformTransactionManager;
+			import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+			@Configuration
+			@MapperScan("mappers")
+			@EnableTransactionManagement
+			public class DBConfig {
+
+				@Bean(destroyMethod = "close")
+				public DataSource dataSource() {
+					DataSource ds = new DataSource();
+					ds.setUrl("jdbc:oracle:thin:@localhost:1521:XE");
+					ds.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+					ds.setUsername("SPRING");
+					ds.setPassword("oracle");
+
+					ds.setTestWhileIdle(true); //유휴 객체 유효성 체크
+					ds.setInitialSize(2);
+					ds.setMaxActive(10);
+					ds.setTimeBetweenEvictionRunsMillis(10 * 1000); //10초마다 연결 상태 체크
+					ds.setMinEvictableIdleTimeMillis(60 * 1000); //유휴객체 생존시간
+
+					return ds;
+				}
+
+				@Bean
+				public JdbcTemplate jdbcTemplate() {
+					return new JdbcTemplate(dataSource());
+				}
+
+				@Bean
+				public PlatformTransactionManager transactionManager() {
+					DataSourceTransactionManager tm = new DataSourceTransactionManager();
+					tm.setDataSource(dataSource());
+					return tm;
+				}
+				@Bean
+				public SqlSessionFactory sqlSessionFactory() throws Exception {
+					SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+					sqlSessionFactoryBean.setDataSource(dataSource());
+
+					SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBean.getObject();
+					return sqlSessionFactory;
+				}
+
+			}		
+			
+			@Controller
+			public class MemberController {
+
+				@Autowired
+				private HttpServletRequest request;
+
+				@Autowired
+				private HttpServletResponse response;
+
+				@Autowired
+				private HttpSession session;
+
+				@GetMapping("/member/join")
+				public String join(@RequestParam(name="name", required=false, defaultValue = "기본값") String name) {
+					System.out.println("name:" + name);
+					return "member/join";
+				}
+
+				@PostMapping("/member/join")
+				public String joinPs(RequestJoin form, HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model, Errors errors) {
+
+					System.out.println("form:" + form);
+					return "member/join";
+				}
+			}
+
+	1. 스프링 MVC를 위한 설정
+		1) 컨트롤러 구현
+		2) JSP 구현
+
+	2. 스프링 MVC 프레임워크 동작 방식
+		요청(/hello) -> DispatcherServlet -> HandlerMapping -> 컨트롤러 빈(스프링 컨테이너) -> HandlerAdapter -> 컨트롤러 빈 -> 실행 -> ModelAndView
+		HandlerAdapter : 컨트롤러 빈의 종류가 다양하기 때문에 맞춰서 실행하기 위한 목적 
+							   @Controller, Controller 인터페이스의 구현체, HttpRequestHandler 인터페이스 구현체
+
+
+	ModelAndView :
+		1) Model : 데이터 (EL 속성으로 추가된 데이터)
+		2) View : 출력 템플릿 경로 정보 
+
+	3. WebMvcConfigurer 인터페이스와 설정
+
+	4. 정리
+		1) DispatcherServlet 	
+			: 요청과 응답의 창구 역할을 하는 서블릿 클래스 
+			- 스프링 컨테이너 생성 
+			
+		2) HandlerMapping	
+			: 요청 방식 + 주소 -> 스프링 컨테이너에 있는 컨트롤러 빈을 검색
+			
+		3) HandlerAdapter 			
+			: 형태가 다양한 컨트롤러 빈(@Controller, Controller 인터페이스, HttpRequestHandler 인터페이스) -> 실행 -> ModelAndView로 반환 
+			
+			참고) ModelAndView 
+						- addObject(String name, String value) : EL 속성으로 추가되는 속성 
+						- setViewName(...) : 뷰 경로 
+			
+			요청메서드의 반환값이 String 이미지만 -> HandlerAdpter에서 실행시 ModelAndView 객체로 변환
+			
+		4) ViewResolver
+			: ModelAndView 정보 -> 출력을 위한 View 객체 검색 
+			
+			
+	5. 요청 처리에 대한 편의 기능 제공 
+		1) 요청 데이터의 이름과 동일한 매개변수를 요청 메서드에 정의하면 자동으로 주입 
+		2) 정의한 변수의 자료형으로 자동 형변환 
+		3) 요청 데이터의 이름과 요청 메서드에 정의한 이름이 다른 경우
+			@RequestParam("요청 데이터의 이름")
+				- required : true(기본값) : 요청 파라미터의 필수
+				
+				
+		요청 데이터 
+			GET : ?이름=값&이름=값
+			POST : 요청 바디 이름=값&이름=값 
+			
+			HttpServletRequest 
+				String getParameter(String name)
+				String[] getParameterValues(String name);
+
+			커맨드 객체
