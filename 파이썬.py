@@ -228,7 +228,7 @@ https://www.python.org/downloads/
     print(id(a))  # 문자열 a의 주소 140706637937960
 
 
-    a = a + "1234"  # 다른 주소의 새 문자열 생성됨
+    a = a + "1234"  # 문자열은 불변이므로 다른 주소를 가진 새 문자열 생성됨
     print(a)     # ABC1234
     print(id(a)) # 2715684060880
 
@@ -256,5 +256,134 @@ https://www.python.org/downloads/
   - 한줄주석 #
   - 여러줄 주석 : 따옴표 3개 열고 닫고
   
-  
-  
+    C:> python
+
+    >>> import os        
+    >>> os.system('cls')
+
+      
+    %10s -> 10자리 확보, 남는 공간은 왼쪽 공백 채워진다
+    %-10s -> 10자리 확보, 남는 공간은 오른쪽 공백 채워진다    
+      
+    a = "(%10s)" % "AB"  # (        AB)
+    print(a)
+
+    a = "(%-10s)" % "AB" # (AB        )
+    print(a)
+
+
+
+    %10.2f -> 총 10자리 중 소수점 2자리
+
+    a = "(%10.2f)" % 10.123456789  # (     10.12)
+    print(a)
+
+    a = "(%0.2f)" % 10.123456789  # (10.12)
+    print(a)
+
+    a = "(%.2f)" % 10.123456789  # (10.12)
+    print(a)
+    
+    
+8. format 함수를 사용한 포매팅
+    1) 숫자 바로 대입하기
+    
+    
+    2) 문자열 바로 대입하기
+    3) 숫자 값을 가진 변수로 대입하기
+    4) 2개 이상의 값 넣기
+    5) 이름으로 넣기
+    
+        a = "I love {0} students".format(24)
+        print(a)
+
+        a = "I love {0} students".format("스물 넷")
+        print(a)
+
+        a = "I like {0} and {1}".format("java","python")
+        print(a)
+
+        a = "I have {number} pens and {days} days".format(number=10, days=5)
+        print(a)
+            
+        >>>
+            
+        I love 24 students
+        I love 스물 넷 students
+        I like java and python
+        I have 10 pens and 5 days    
+        
+    
+    6) 인덱스와 이름을 혼용해서 넣기
+    7) 왼쪽 정렬   {0:<10}
+    8) 오른쪽 정렬 {0:>10}
+    9) 가운데 정렬 {0:^10}
+    
+        a = "({0:<10})".format("AB")   # (AB        )
+        print(a)
+
+        a = "({0:>10})".format("AB")   # (        AB)
+        print(a)    
+
+        a = "({0:^10})".format("AB")   # (    AB    )
+        print(a)
+
+        a = "({0:*<10})".format("AB")   # (AB********)
+        print(a)
+
+    10) 공백 채우기
+        11) 소수점 표현하기
+        12) { 또는 } 문자 표현하기
+
+
+        a = "({0:0.4f})".format(10.12345678)   # (10.1235)
+        print(a)        
+
+        a = "{{0:0.4f}}".format(10.12345678)   # {0:0.4f}
+        print(a)
+
+
+    9. f 문자열 포매팅
+
+        name = "이이름"
+        age = 40
+        a = f'이름:{name}, 나이:{age}'   
+        print(a)
+        >>> 이름:이이름, 나이:40
+        
+        data = {"name": "이이름", "age": 40 }
+        a = f"이름: {data['name']}, 나이 : {data['age']}"  # 딕셔너리
+        print(a)
+
+        >>> 이름: 이이름, 나이 : 40
+        
+        a = "abc1234def"
+        b = a.find('2')   # 4  : 위치찾기
+        print(b)
+
+        b = a.find('9')   # -1 : 못찾으면
+        print(b)
+
+        a = "abc1234def"
+        b = a.index('2')   # 4  : 위치찾기
+        print(b)
+
+        b = a.index('9')   # error : 못찾으면
+        print(b)
+
+        a = ("  abc  ").strip()  # abc
+        print(a)
+
+
+10. 문자열 관련 함수들
+    1) 문자 개수 세기 - count
+    2) 위치 알려 주기 1 - find
+    3) 위치 알려 주기 2 - index
+    4) 문자열 삽입 - join
+    5) 소문자를 대문자로 바꾸기 - upper
+    6) 대문자를 소문자로 바꾸기 - lower
+    7) 왼쪽 공백 지우기 - lstrip
+    8) 오른쪽 공백 지우기 - rstrip
+    9) 양쪽 공백 지우기 - strip
+    10) 문자열 바꾸기 - replace
+    11) 문자열 나누기 - split    

@@ -1793,6 +1793,7 @@ MyBatis와 스프링 연동
 			</configuration>
 
 Mybatis 활용하기
+7/10 day04  
 
 
 스프링 MVC 시작하기
@@ -2012,7 +2013,7 @@ Mybatis 활용하기
 			
 			참고) ModelAndView 
 						- addObject(String name, String value) : EL 속성으로 추가되는 속성 
-						- setViewName(...) : 뷰 경로 
+- setViewName(...) : 뷰 경로 
 			
 			요청메서드의 반환값이 String 이미지만 -> HandlerAdpter에서 실행시 ModelAndView 객체로 변환
 			
@@ -2037,3 +2038,403 @@ Mybatis 활용하기
 				String[] getParameterValues(String name);
 
 			커맨드 객체
+
+
+7/11 어제꺼 복습
+
+	스프링mvc 의존성
+	
+		spring webmvc  
+		servlet-api			jakarta servlet api 6.0
+		servlet.jsp-api		Jakarta Servlet JSP
+		
+		jstl-api 			Jakarta Standard Tag Library API
+		jstl-impl			glassfish jstl implement
+		
+		tomcat-jdbc
+		spring-jdbc
+		spring-data jdbc ( 연습위함 -> 나중엔 JPA 사용 예정)
+		ojdbc11
+		
+		mybatis
+		mybatis-spring
+		
+		lombok
+		
+		slf4j-api
+		logback classic
+		
+		spring-test
+		
+		
+	main/java/org/choongang 
+	main/resource/org/choongang 
+	main/webapp/WEB-INF/templates/
+	main/webapp/WEB-INF/web.xml
+	
+	
+	CrudRepository 인터페이스
+	
+	repositories  : 스프링에서 DAO(매퍼) 대신		
+		
+		
+		
+	Spring 쿼리메서드 
+	  :  @Query 에노테이션
+	
+	페이징 Pageable  인터페이스
+	PageRequest 구현클래스  PageRequest.of(페이지번호, 페이지사이즈) : 페이지번호 0페이지 부터
+	
+		Page 자료형
+	
+
+			@Configuration
+			@EnableTransactionManagement
+			@MapperScan("org.choongang")
+			@EnableJdbcRepositories("org.choongang")
+			public class DBConfig extends AbstractJdbcConfiguration {
+				@Bean(destroyMethod = "close")
+				public DataSource dataSource()  {
+					DataSource ds = new DataSource();
+					ds.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+					ds.setUrl("jdbc:oracle:thin:@localhost:1521:XE");
+					ds.setUsername("SPRING");
+					ds.setPassword("oracle");
+					ds.setInitialSize(2);
+					ds.setMaxActive(10);
+					ds.setMaxIdle(10);
+					ds.setTestWhileIdle(true);
+					ds.setMinEvictableIdleTimeMillis(60 * 1000); // default 60 sec
+					ds.setTimeBetweenEvictionRunsMillis(5 * 1000); // default 5 sec
+					return ds;
+				}
+
+				@Bean
+				public JdbcTemplate jdbcTemplate()  {   // 마이바티스만 쓸땐 이거 필요 없음
+					return new JdbcTemplate(dataSource());
+				}
+				@Bean
+				public PlatformTransactionManager transactionManager()  {
+					return new DataSourceTransactionManager(dataSource());
+				}
+
+				@Bean
+				public SqlSessionFactory sqlSessionFactory() throws Exception {  // 마이바티스 쓸때 필요함
+					SqlSessionFactoryBean sqlsessionFactoryBean = new SqlSessionFactoryBean();
+					sqlsessionFactoryBean.setDataSource(dataSource());
+					return sqlsessionFactoryBean.getObject();
+				}
+
+				@Bean
+				public NamedParameterJdbcOperations namedParameterJdbcTemplate(DataSource dataSource)  {
+					return new NamedParameterJdbcTemplate(dataSource);
+				}
+			}	
+					
+			@Configuration
+			@EnableWebMvc
+			@ComponentScan("org.choongang")
+			@Import(DBConfig.class)
+			public class MvcConfig implements WebMvcConfigurer {
+				@Override
+				public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+					configurer.enable();
+				}
+
+				@Override
+				public void configureViewResolvers(ViewResolverRegistry registry) {
+					registry.jsp("/WEB-INF/templates/", ".jsp");
+				}
+			}
+
+			@Data
+			@Builder
+			@NoArgsConstructor 
+			@AllArgsConstructor
+			public class Member {
+				@Id
+				private Long seq;
+				private String email;
+				private String password;
+				private String userName;
+				private LocalDateTime regDt;
+			}
+					
+			public interface MemberRepository extends CrudRepository<Member, Long> {
+				Member findByEmail(String email);
+				//List<Member> findByUserNameContaining(String keyword);
+				Page<Member> findByUserNameContaining(String keyword, Pageable pageable);
+				List<Member> findByUserNameAndEmailContainingOrderByRegDt(String key1, String key2);
+
+				@Query("select * from member where user_name like :param1 and email like :param2 order by reg_dt desc")
+				List<Member> getMembers(@Param("param1") String key1, @Param("param2") String key2);
+
+			}
+
+
+			@SpringJUnitWebConfig
+			@ContextConfiguration(classes = MvcConfig.class)
+			public class MemberRepositoryTest {
+
+				@Autowired
+				private MemberRepository repository;
+
+				@Test
+				void test1() {
+					List<Member> members = (List<Member>) repository.findAll();
+					members.forEach(System.out::println);
+				}
+
+				@Test
+				void test2() {
+					Member member = Member.builder()
+						.seq(23L)
+						.email("user06@test.com")
+						.password("12345")
+						.userName("사용자06")
+						.build();
+					repository.save(member);
+				}
+
+				@Test
+				void test3() {
+					Member member = repository.findById(1L).orElse(null);
+					System.out.println(member);
+				}
+
+				@Test
+				void test4() {
+					Member member = repository.findByEmail("user06@test.com");
+					System.out.println(member);
+				}
+
+				@Test
+				void test5() {
+					Pageable pageable = PageRequest.of(0,3);
+					Page<Member> members = repository.findByUserNameContaining("사용", pageable);
+					members.forEach(System.out::println);
+				}
+				@Test
+				void test6() {
+					List<Member> members = repository.findByUserNameAndEmailContainingOrderByRegDt("사용", "user");
+					members.forEach(System.out::println);
+
+				}
+				@Test
+				void test7() {
+					List<Member> members = repository.getMembers("%용자%", "%user%");
+					members.forEach(System.out::println);
+				}
+				@Test
+				void test8() {
+					//Pageable pageable = PageRequest.of(1,3);
+					//Pageable pageable = PageRequest.of(0,3, Sort.by(Sort.Order.desc("regDt")));
+					Pageable pageable = PageRequest.of(0,3, Sort.by(desc("regDt"), asc("email")));
+					Page<Member> data = repository.findByUserNameContaining("사용", pageable);
+
+					List<Member> members = data.getContent();
+
+					long total = data.getTotalElements();
+					int pages = data.getTotalPages();
+
+					members.forEach(System.out::println);
+					System.out.printf("total=%d pages=%d\n", total, pages);
+
+				}
+			}
+
+
+			=====================================================
+			@Data
+			@Builder
+			@NoArgsConstructor   // repository 사용시 필요함
+			@AllArgsConstructor  // repository 사용시 필요함
+			@Table("CH_MEMBER")   // 테이블명이 클래스명과 다를 때
+			public class Member {
+				@Id
+				@Column("ID")   // 컬럼명이 다를 때
+				private Long seq;
+				private String email;
+				private String password;
+				private String userName;
+				private LocalDateTime regDt;
+			}
+			=====================================================
+
+
+
+DispatcherServlet   스프링 컨테이너 
+
+	-> HandlerMapping : 요청 url에 맞는 컨트롤러 찾기
+	-> HandlerAdapter : 컨트롤러 실행결과를 ModelAndView로 변환해서 리턴
+	-> ViewResolver : 컨트롤러의 실행결과를 가지고 view 검색
+	
+	
+	
+				
+Model - request 범위
+
+
+	addAttribute(키, 값)
+	addAllAttribute(Map ...)
+	
+	Attribute : 속성
+	
+	ModelAndView 에서 Model 은 View에서 보여줄 데이터
+	
+		@Controller
+		public class MemberController {
+			
+			@GetMapping("/member/join")
+			public String join(Model model){
+				model.addAttribute("message", "안녕하세요?");
+				return "member/join";
+			}
+		}
+
+		//위 아래 동일함
+
+		@Controller
+		public class MemberController {
+		
+			@GetMapping("member/join")
+			public ModelAndView join() {
+				ModelAndView mv = new ModelAndView();
+				mv.addObject("message", "안녕하세요");
+				mv.setViewName("member/join");
+				return mv;
+			}
+		}	
+	
+	
+	정적 경로 (Ant 패턴)
+	
+		@Configuration
+		@EnableWebMvc
+		@ComponentScan("org.choongang")
+		@Import(DBConfig.class)
+		public class MvcConfig implements WebMvcConfigurer {
+			@Override
+			public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+				configurer.enable();
+			}
+
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+				registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");  // 정적 경로 설정 
+			}
+
+			@Override
+			public void configureViewResolvers(ViewResolverRegistry registry) {
+				registry.jsp("/WEB-INF/templates/", ".jsp");
+			}
+		}	
+	
+	**  예) /board/** -> /board 경로의 모든 파일과 하위 경로 포함 모든 파일 */
+			/board/*  -> /board 경로의 모든 파일 ( 하위 경로 포함하지 않음 ) */
+			
+	?  : 문자 1개  /m?01   
+	
+	
+
+스프링 MVC : 요청 매핑, 커맨드 객체, 리다이렉트, 폼 태그, 모델
+
+1. 요청 매핑 애노테이션을 이용한 경로 매핑
+	- GET, DELETE
+	- POST, PATCH, PUT
+
+	@RequestMapping : 모든 요청 매서드에 매핑, method 설정에 GET POST DELETE 등 설정 가능
+	
+	(spring 4.3)
+	@GetMapping
+	@PostMapping
+	@PatchMapping
+	@PutMapping
+	@DeleteMapping
+
+
+		@Controller
+		@RequestMapping
+		public class MemberController {
+
+			@RequestMapping(path="/member/join", method = {RequestMethod.GET, RequestMethod.POST})
+			public String join(Model model, HttpServletRequest request){
+				model.addAttribute("message", "안녕하세요?");
+
+				System.out.println("method : " + request.getMethod());
+				return "member/join";
+			}
+		}
+
+
+
+		@Controller
+		@RequestMapping("/member")
+		public class MemberController {
+
+			@GetMapping("/join")
+			public String join(Model model, HttpServletRequest request){
+				return "member/join";
+			}
+			
+			@PostMapping("/join")
+			public String joinPs(RequestJoin form) {
+				
+				return "redirect:/member/login";
+			}
+		}
+		
+		
+		
+2. 요청 파라미터 접근
+1) @RequestParam 
+2) 커맨드 객체를 이용해서 요청 파라미터 사용하기
+
+
+3. 뷰 JSP 코드에서 커맨드 객체 사용하기
+
+4. @ModelAttribute 애노테이션으로 커맨드 객체 속성 이름 변경
+
+5. 커맨드 객체와 스프링 폼 연동
+
+1) <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+2) <form:form>
+3) <form:input>
+4) <form:password> 
+
+
+6. 컨트롤러 구현 없는 경로 매핑
+
+7. 커맨드 객체 : 중첩 · 콜렉션 프로퍼티
+
+8. Model을 통해 컨트롤러에서 뷰에 데이터 전달하기
+
+9. ModelAndView를 통한 뷰 선택과 모델 전달
+
+10. GET 방식과 POST 방식에 동일 이름 커맨드 객체 사용하기
+
+
+주요 폼 태그 설명
+1. <form> 태그를 위한 커스텀 태그: <form:form>
+2. <input> 관련 커스텀 태그 : <form:input>, <form:password>, <form:hidden>
+3. <select> 관련 커스텀 태그 : <form:select>, <form:options>, <form:option>
+4. 체크박스 관련 커스텀 태그 : <form:checkboxes>, <form:checkbox>
+5. 라디오버튼 관련 커스텀 태그: <form:radiobuttons>, <form:radiobutton>
+6. <textarea〉 태그를 위한 커스텀 태그 : <form:textarea>
+
+
+CSS 및 HTML 태그와 관련된 공통 속성
+1. cssClass: HTML의 class 속성값
+2. cssErrorClass : 폼 검증 에러가 발생했을 때 사용할 HTML의 class 속성값
+3. cssStyle: HTML의 style 속성값
+
+HTML 태그가 사용하는 다음 속성도 사용 가능하다.
+1. id, title, dir
+2. disabled, tabindex
+3. onfocus, onblur, onchange onclick, ondblclick
+4. onkeydown, onkeypress, onkeyup
+5. onmousedown, onmousemove, onmouseup
+6. onmouseout, onmouseover
+
+
+각 커스텀 태그는 htmlEscape 속성을 사용해서 커맨드 객체의 값에 포함된 HTML 특수 문자를 엔티티 레퍼런스로 변환할지를 결정할 수 있다.
