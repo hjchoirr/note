@@ -2086,7 +2086,6 @@ Mybatis 활용하기
 	PageRequest 구현클래스  PageRequest.of(페이지번호, 페이지사이즈) : 페이지번호 0페이지 부터
 	
 		Page 자료형
-	
 
 			@Configuration
 			@EnableTransactionManagement
@@ -2171,7 +2170,6 @@ Mybatis 활용하기
 
 			}
 
-
 			@SpringJUnitWebConfig
 			@ContextConfiguration(classes = MvcConfig.class)
 			public class MemberRepositoryTest {
@@ -2211,12 +2209,12 @@ Mybatis 활용하기
 				@Test
 				void test5() {
 					Pageable pageable = PageRequest.of(0,3);
-					Page<Member> members = repository.findByUserNameContaining("사용", pageable);
+					Page<Member> members = repository.findByUserNameContaining("사용자", pageable);
 					members.forEach(System.out::println);
 				}
 				@Test
 				void test6() {
-					List<Member> members = repository.findByUserNameAndEmailContainingOrderByRegDt("사용", "user");
+					List<Member> members = repository.findByUserNameAndEmailContainingOrderByRegDt("사용자", "user");
 					members.forEach(System.out::println);
 
 				}
@@ -2335,7 +2333,7 @@ Model - request 범위
 			
 	?  : 문자 1개  /m?01   
 	
-	
+7/12 day05 계속	
 
 스프링 MVC : 요청 매핑, 커맨드 객체, 리다이렉트, 폼 태그, 모델
 
@@ -2386,55 +2384,524 @@ Model - request 범위
 		
 		
 		
-2. 요청 파라미터 접근
-1) @RequestParam 
-2) 커맨드 객체를 이용해서 요청 파라미터 사용하기
+	2. 요청 파라미터 접근
+		params : 오청 파리메터를 한정하여 매핑
+		headers : 요청헤더 데이터 체크
+		consumes : 요청쪽 content-Type 체크
+		produces : 응답 헤더쪽 content-Type 설정
+	
+		@Controller
+		@RequestMapping("/member")
+		public class MemberController {
+
+			@GetMapping(path="/join", params={"mode=join"})  // request parameter mode = join  있어야먼 유입됨
+			public String join(Model model, HttpServletRequest request){
+
+				System.out.println("mode=join");
+
+				return "member/join";
+			}
+		}
+	
+		@Controller
+		@RequestMapping("/member")
+		public class MemberController {
+
+			@GetMapping("/join")  // 파라미터 없을때는 여기로 유입됨
+			public String joinNoParam(Model model, HttpServletRequest request){
+
+				System.out.println("mode없음");
+
+				return "member/join";
+			}
+
+			@GetMapping(path="/join", params={"mode=join"}) // mode=join 있으면 여기로 매핑됨
+			public String join(Model model, HttpServletRequest request){
+
+				System.out.println("mode=join");
+
+				return "member/join";
+			}
+		}
+		
+		
+		(참고) 로거 사용
+		
+		private final Logger log = LoggerFactory.getLogger(MemberController.class);  //slf4 import
+		
+		또는  @Slf4j(롬복) 사용
+		
+			log.fatal(..)
+			log.error(..)
+			log.warn(..)
+			log.info(..)
+			log.debug(..)
+			log.trace(..)
+		
+			lombok 활용시 다음 에너테이션 사용 하면 로거 연동 코드 자동 생성 변수명은 log
+			@slf4j 
+			@log4j 
+			@log4j2  
+	
+		통합테스트
+		MockMvc - 컨트롤러 테스트
+		
+			@Slf4j
+			@Controller
+			@RequestMapping("/member")
+			public class MemberController {
+			 
+				//@PostMapping(path="/join", headers="appKey=1234", consumes = "application/json") //요청헤더 인증키, content-Type:json 인 것만 응답함
+				@PostMapping(path="/join", headers="appKey=1234", consumes = MediaType.APPLICATION_JSON_VALUE) //요청헤더 인증키, content-Type:json 인 것만 응답함
+				public String joinPs(RequestJoin form) {
+					log.info("joinPs 실행..");
+					return "redirect:/member/login";
+				}
+			}		
+
+			@SpringJUnitWebConfig
+			@ContextConfiguration(classes = MvcConfig.class)
+			public class MemberControllerTest {
+
+				@Autowired
+				private WebApplicationContext ctx;
+				private MockMvc mockMvc;
 
 
-3. 뷰 JSP 코드에서 커맨드 객체 사용하기
+				@BeforeEach
+				void init() {
+					mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
+				}
 
-4. @ModelAttribute 애노테이션으로 커맨드 객체 속성 이름 변경
+				@Test
+				void test1() throws Exception{
+					mockMvc.perform(
+						post("/member/join")
+							.header("appKey", "1234") //요청헤더
+							//.contentType("application/json")
+							.contentType(MediaType.APPLICATION_JSON_VALUE)
+						).andDo(print());
+				}
 
-5. 커맨드 객체와 스프링 폼 연동
+			}
+			
+		================================================================
+		@PostMapping("/join") 
+		public String joinPs(RequestJoin form){
+			// redirect: 스프링 문법(앞에 contextPath 붙여서..) 응답헤더의 Location 에.. 페이지 이동
+			return "redirect:/member/login";     setting하여 처리됨 
+			
+		}
+	
+	반환값 
+	  : redirect : 주소 - 헤더 location에 ..
+	  : forward  : 주소 - 주소의 출력 데이터로 버퍼를 치환
+	
+			
+		1) @RequestParam 
+		2) 커맨드 객체를 이용해서 요청 파라미터 사용하기
+			커맨드 객체 클래스명 -> EL 속성으로 자동 추가
+			예) RequestJoin -> requestJoin
+			
+				@Slf4j
+				@Controller
+				@RequestMapping("/member")
+				public class MemberController {
 
-1) <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-2) <form:form>
-3) <form:input>
-4) <form:password> 
+					@GetMapping("/join")
+					public String join(Model model) { //
+
+						RequestJoin form = new RequestJoin();
+						model.addAttribute("requestJoin", form); //join.jsp 에 form에서 커맨드 객체 requestJoin  사용하므로 빈거라도 있어야
+						return "member/join";
+					}
+					@PostMapping("/join")
+					public String joinPs(RequestJoin form){
+
+						log.info(form.toString());
+						return "member/join";
+					}
+				}
+				<%@ page contentType="text/html; charset=UTF-8" %>
+				<%@ taglib prefix="c" uri="jakarta.tags.core"%>
+				<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+				<c:url var="actionUrl" value="/member/join" />
+				<h1>회원가입</h1>
+				${requestJoin}
+				<form:form method="post" action="${actionUrl}" autocomplete="off" modelAttribute="requestJoin">
+					<dl>
+						<dt>이메일</dt>
+						<dd><form:input path="email" /></dd>
+					</dl>
+					<dl>
+						<dt>약관동의</dt>
+						<dd>
+							<form:checkbox path="agree" value="true" label="회원가입 약관에 동의합니다"/>
+						</dd>
+					</dl>
+					<button type="submit">가입 하기</button>
+				</form:form>
+
+	3. 뷰 JSP 코드에서 커맨드 객체 사용하기
+
+	4. @ModelAttribute 애노테이션으로 커맨드 객체 속성 이름 변경
+	
+		1) 커맨드객체가 없으면 빈 커맨드 객체 생성
+		2) 커맨드객체 속성이름 변경
+		
+		
+		    @GetMapping("/join")
+			public String join(@ModelAttribute RequestJoin form) {
+
+				return "member/join";
+			}
+			
+		3) 공통데이터(속성) 으로 사용할 데이터 지정
+			Controller, RestController
+			ControllerAdvice, RestControllerAdvice - 지정된 패키지
+			
+			@Slf4j
+			@Controller
+			@RequestMapping("/member")
+			public class MemberController {			
+	
+				@ModelAttribute("commonValue")    // ****
+				public String commonValue() {
+					return "공통 속성값..";
+				}
+				@GetMapping("/join")
+				public String join(@ModelAttribute RequestJoin form) {
+
+					return "member/join";
+				}
+
+				@PostMapping("/join")
+				public String joinPs(RequestJoin form){
+
+					log.info(form.toString());
+					return "member/join";
+				}
+			}
+
+	5. 커맨드 객체와 스프링 폼 연동
+
+		1) <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+		2) <form:form>
+		3) <form:input>
+		4) <form:password> 
 
 
-6. 컨트롤러 구현 없는 경로 매핑
+	6. 컨트롤러 구현 없는 경로 매핑
+		- 컨트롤러 구성을 할 필요 없는 간단한 페이지 구성 시
+		WebMvcConfigurer
+		- addViewControllers 설정
+			@Configuration
+			@EnableWebMvc
+			@ComponentScan("org.choongang")
+			@Import(DBConfig.class)
+			public class MvcConfig implements WebMvcConfigurer {
 
-7. 커맨드 객체 : 중첩 · 콜렉션 프로퍼티
+				@Override
+				public void addViewControllers(ViewControllerRegistry registry) {
+					registry.addViewController("/").setViewName("main/index"); 
+					registry.addViewController("/mypage/**").setViewName("mypage/index");
+				}
+			}		
+			
+		- Spring6(jdk17 이상) 
+		- 커맨드 객체에서 사용가능한 거 또 Record(VO) 클래스  
+		
+			public record RequestLogin2(
+				String email,
+				String password
+			) {}		
 
-8. Model을 통해 컨트롤러에서 뷰에 데이터 전달하기
+	7. 커맨드 객체 : 중첩 · 콜렉션 프로퍼티
+	
+			@Data
+			public class RequestJoin {
+				private String email;
+				private String password;
+				private String confirmPassword;
+				private String userName;
+				//private String[] hobby;
+				//private Set<String> hobby;
+				private List<String> hobby;
+				//private String hobby;
+				private boolean agree;
+			}
 
-9. ModelAndView를 통한 뷰 선택과 모델 전달
+			@ModelAttribute("hobbies")
+			public List<String> hobbies() {
+				return List.of("취미1", "취미2", "취미3", "취미4");
+			}
+			
+			<dl>
+				<dt>취미</dt>
+				<dd><form:checkboxes path="hobby" items="${hobbies}"/></dd>
+			</dl>			
+		
+		중첩 : 커맨드객체 안의 커맨드 객체
+		
+			@Data
+			public class Address {
+				private String zipCode;
+				private String address;
+				private String addressSub;
 
-10. GET 방식과 POST 방식에 동일 이름 커맨드 객체 사용하기
+			}
+
+			@Data
+			public class RequestJoin {
+				private String email;
+				private String password;
+				private String confirmPassword;
+				private String userName;
+				private List<String> hobby;
+				private boolean agree;
+
+				private Address addr;
+			}
+			<dl>
+				<dt>주소</dt>
+				<dd>
+					<form:input path="addr.zipCode" placeholder="우편번호"/>
+					<form:input path="addr.address" placeholder="주소"/>
+					<form:input path="addr.addressSub" placeholder="나머지 주소"/>
+				</dd>
+			</dl>
+
+
+	8. Model을 통해 컨트롤러에서 뷰에 데이터 전달하기
+
+	9. ModelAndView를 통한 뷰 선택과 모델 전달
+
+	10. GET 방식과 POST 방식에 동일 이름 커맨드 객체 사용하기
 
 
 주요 폼 태그 설명
-1. <form> 태그를 위한 커스텀 태그: <form:form>
-2. <input> 관련 커스텀 태그 : <form:input>, <form:password>, <form:hidden>
-3. <select> 관련 커스텀 태그 : <form:select>, <form:options>, <form:option>
-4. 체크박스 관련 커스텀 태그 : <form:checkboxes>, <form:checkbox>
-5. 라디오버튼 관련 커스텀 태그: <form:radiobuttons>, <form:radiobutton>
-6. <textarea〉 태그를 위한 커스텀 태그 : <form:textarea>
+
+	1. <form> 태그를 위한 커스텀 태그: <form:form>
+	
+	2. <input> 관련 커스텀 태그 : <form:input>, <form:password>, <form:hidden>
+	
+	3. <select> 관련 커스텀 태그 : <form:select>, <form:options>, <form:option>
+			<dl>
+				<dt>취미</dt>
+				<dd><form:select path="hobby" items="${hobbies}" /></dd>
+
+			</dl>	
+			<dl>
+				<dt>취미</dt>
+				<dd>
+					<form:select path="hobby">
+						<option value="">선택하세요</option>
+						<form:options items="${hobbies}"/>
+					</form:select>
+				</dd>			
+			</dl>	
+	
+	4. 체크박스 관련 커스텀 태그 : <form:checkboxes>, <form:checkbox>
+
+        <dt>취미</dt>
+        <dd>
+            <form:radiobuttons path="hobby" items="${hobbies}"/>
+        </dd>
+
+        <dd>
+            <form:select path="hobby">
+                <option value="">선택하세요</option>
+                <form:options items="${hobbies2}" itemLabel="code" itemValue="value"/>
+            </form:select>
+        </dd>
+        <dd>
+            <form:select path="hobby">
+                <option value="">선택하세요</option>
+                <form:options items="${hobbies}"/>
+            </form:select>
+        </dd>
+            <dd><form:select path="hobby" items="${hobbies}" /></dd>
+            <dd><form:checkboxes path="hobby" items="${hobbies}"/></dd>
+
+	5. 라디오버튼 관련 커스텀 태그: <form:radiobuttons>, <form:radiobutton>
+	
+	6. <textarea〉 태그를 위한 커스텀 태그 : <form:textarea>
 
 
 CSS 및 HTML 태그와 관련된 공통 속성
-1. cssClass: HTML의 class 속성값
-2. cssErrorClass : 폼 검증 에러가 발생했을 때 사용할 HTML의 class 속성값
-3. cssStyle: HTML의 style 속성값
+
+	1. cssClass: HTML의 class 속성값
+	2. cssErrorClass : 폼 검증 에러가 발생했을 때 사용할 HTML의 class 속성값
+	3. cssStyle: HTML의 style 속성값
 
 HTML 태그가 사용하는 다음 속성도 사용 가능하다.
-1. id, title, dir
-2. disabled, tabindex
-3. onfocus, onblur, onchange onclick, ondblclick
-4. onkeydown, onkeypress, onkeyup
-5. onmousedown, onmousemove, onmouseup
-6. onmouseout, onmouseover
+
+	1. id, title, dir
+	2. disabled, tabindex
+	3. onfocus, onblur, onchange onclick, ondblclick
+	4. onkeydown, onkeypress, onkeyup
+	5. onmousedown, onmousemove, onmouseup
+	6. onmouseout, onmouseover
 
 
 각 커스텀 태그는 htmlEscape 속성을 사용해서 커맨드 객체의 값에 포함된 HTML 특수 문자를 엔티티 레퍼런스로 변환할지를 결정할 수 있다.
+
+
+스프링 MVC 
+
+	1. 메시지
+	
+		1) MessageSource
+			- Bean으로 등록
+			- Bean 이름 반드시 MessageSource
+			
+		2) ResourceBundleMessageSource
+		3) 다국어 지원 위한 메시지 파일
+
+			@Configuration
+			public class MessageConfig {
+				@Bean
+				public MessageSource messageSource() {
+					ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
+					ms.setBasenames("messages.commons");
+					ms.setDefaultEncoding("UTF-8");
+					ms.setUseCodeAsDefaultMessage(true); //메세지 코드가 없는 경우 코드로 메세지 대체
+					return ms;
+				}
+			}
+			
+			<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+			<spring:message code="LOGIN_MSG" arguments="사용자01,USER01"/>
+			<spring:message code="LOGIN_MSG">
+				<spring:argument value="사용자01" />
+				<spring:argument value="User01" />
+			</spring:message>
+			<h1><spring:message code="회원가입"/></h1>
+
+			<form:form method="post" action="${actionUrl}" autocomplete="off" modelAttribute="requestJoin" >
+				<dl>
+					<dt><spring:message code="이메일"/></dt>
+					<dd><form:input path="email" cssClass="input-txt" /></dd>
+				</dl>
+				<dl>
+					<dt><spring:message code="비밀번호"/></dt>
+					<dd><form:password path="password" /></dd>
+				</dl>
+			</form:form>
+
+			@GetMapping("/join")
+			public String join(@ModelAttribute RequestJoin form) {
+				Locale locale = request.getLocale(); //브라우저에 설정된 언어 : 요청헤더 Accept-Language
+				String message = messageSource.getMessage("EMAIL", null, locale);
+
+				log.info(message);
+				return "member/join";
+			}
+
+			@SpringJUnitWebConfig
+			@ContextConfiguration(classes = MvcConfig.class)
+			public class MessageSourceTest {
+
+				@Autowired
+				private MessageSource messageSource;
+
+				@Test
+				void test1() {
+					//String message = messageSource.getMessage("LOGIN_MSG", new Object[] {"사용자01", "usEr01"}, Locale.KOREAN);
+					String message = messageSource.getMessage("LOGIN_MSG", new Object[] {"사용자01", "usEr01"}, Locale.ENGLISH);
+					System.out.println(message);
+				}
+
+				@Test
+				void test2() {
+					String message = messageSource.getMessage("EMAIL", null, Locale.KOREAN);
+					System.out.println(message);
+				}
+			}
+
+
+	2. 커맨드 객체 검증
+	
+		1) Validator 인터페이스 
+			- supports(..) : 검증하는 커맨드 객체 한정 설정
+			- validate(..) : 커맨드 객체 검증..
+			
+		2) Errors
+			- 커맨드 객체 자체 오류에 대한 처리 --
+			reject("에러코드");
+			reject("에러코드", "기본 메세지")
+			
+			- 커맨드 객체의 특정 필드 오류에 대한 처리 --
+			rejectValue("필드명", "에러코드");
+			rejectValue("필드명", "에러코드", "기본메세지");
+			
+			
+			-
+			hasErrors() : 한개라도 reject 또는 rejectValue가 호출되면 true
+			
+			타임리프
+			#fields.errors("필드명") : -> errors 객체 담긴 메세지를 필드명으로 조회 -> 배열 
+			
+		3) ValidationUtils
+			- 필수 항목 검증에 편의 메서드
+			- rejectIfEmpty(...)
+			- rejectIfEmptyOrWhitespace(...) : 공백 포함 체크
+			
+
+
+	3. 에러 코드에 해당하는 메시지 코드를 찾는 규칙
+		- 에러코드 + "." + 커맨드객체이름 + "." + 필드명
+		- 에러코드 + "." + 필드명
+		- 에러코드 + "." + 필드타입
+		- 에러코드
+
+	4. 프로퍼티 타입이 List나 목록인 경우 다음 순서를 사용해서 메시지 코드를 생성한다.
+
+		에러코드 + "." + 커맨드객체이름 + "." + 필드명[인덱스].중첩필드명
+		에러코드 + "." + 커맨드객체이름 + "." + 필드명.중첩필드명
+		에러코드 + "." + 필드명[인덱스].중첩필드명
+		에러코드 + "." + 필드명.중첩필드명
+		에러코드 + "." + 중첩필드명
+		에러코드 + "." + 필드타입
+		에러코드
+
+	5. 글로벌 범위 Validator와 컨트롤러 범위 Validator
+	1) 글로벌 범위 Validator 설정과 @Valid 애노테이션
+	-  WebMvcConfigurer의 getValidalor() 
+	2) @InitBinder 애노테이션을 이용한 컨트롤러 범위 Validator
+	@InitBinder
+	protected void InitBinder(WebDataBinder binder) {
+		binder.setValidator(new RegisterRequestValidator());
+	}
+		
+	3) 컨트롤러 범위 Validator  > 글로벌 범위 Validator
+
+	6. Bean Validation
+	Bean Validation API
+	hibernate Validator 
+
+
+	1) 설정
+	2) Bean Validation의 주요 애노테이션 
+	@AssertTrue
+	@AssertFalse
+	@DecimalMax
+	@DecimalMin
+	@Max
+	@Min
+	@Digits
+	@Size
+	@Null
+	@NonNull
+	@Pattern
+
+	@NotEmpty
+	@NotBlank
+	@Positive
+	@PositiveOrZero
+	@Email
+	@Future
+	@FutureOrPresent
+	@Past
+	@PastOrPresent
