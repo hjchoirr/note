@@ -750,4 +750,193 @@ https://www.python.org/downloads/
         >>>
 
 
+7/15
 
+딕셔너리 자료형
+
+    1. 딕셔너리란?
+    
+    2. 딕셔너리는 어떻게 만들까?
+    
+    3. 딕셔너리 쌍 추가, 삭제하기
+    
+        - 없는 키값에 대입하면 추가
+        - del 변수['키']
+        
+        1) 딕셔너리 쌍 추가하기
+        2) 딕셔너리 요소 삭제하기
+
+    4. 딕셔너리를 사용하는 방법
+    
+        1) 딕셔너리에서 Key를 사용해 Value 얻기
+        
+          - 변수명['이름'] : 없으면 예외 발생
+          - 변수명.get("이름") : 값이 없어도 예외발생하지 않음
+          
+        2) 딕셔너리 만들 때 주의할 사항
+        
+          - 이미 키값 있으면 변경됨
+
+
+            >>> person = { "name": "이 이름", "age" : 40, "address" : "주소"}
+            >>> person["name"]
+            '이 이름'
+            >>> 
+                
+            person = { "name": "이 이름", "age" : 40, "address" : "주소"}
+
+            keys = person.keys()
+            print(keys)
+
+            for key in keys :
+                print(key)
+
+            values = person.values()
+
+            print(values)
+
+            for value in values :
+                print(value)
+            >>> 
+
+            dict_keys(['name', 'age', 'address'])
+
+            name
+            age
+            address
+
+            dict_values(['이 이름', 40, '주소'])
+
+            이 이름
+            40
+            주소
+                
+                
+            keys2 = list(keys)
+            print(keys2)
+
+            >>> ['name', 'age', 'address']
+
+            keys2 = tuple(keys)
+            print(keys2)
+            >>> ('name', 'age', 'address')
+
+
+
+
+            person = { "name": "이 이름", "age" : 40, "address" : "주소"}
+            >>> items = person.items()
+            >>> items;
+            dict_items([('name', '이 이름'), ('age', 40), ('address', '주소')])
+            >>> 
+            >>> for item in items :
+            ...     print(item)
+            ... 
+            ('name', '이 이름')
+            ('age', 40)
+            ('address', '주소')
+            >>> 
+
+            >>> for item in items:
+            ...     key, value = item
+            ...     print(key, value)
+            ... 
+            name 이 이름
+            age 40
+            address 주소
+            >>> 
+
+            >>> for key, value in items:
+            ...     print(key, value)
+            ... 
+            name 이 이름
+            age 40
+            address 주소
+                
+    
+
+    5. 딕셔너리 관련 함수
+    
+        1) Key 리스트 만들기 - keys
+        
+          : key 목록만 가져오기
+          - 현재 dict_keys(...) : 반복 가능 객체 -> for문을 통해서 반복 가능
+          
+          
+        2) Value 리스트 만들기 - values
+        
+           : 목록만 가져오기
+           
+        3) Key, Value 쌍 얻기 - items
+        4) Key, Value 쌍 모두 지우기 - clear
+        5) Key로 Value 얻기 - get
+        6) 해당 Key가 딕셔너리 안에 있는지 조사하기 - in
+
+
+            >>> person = { "name": "이 이름", "age" : 40, "address" : "주소"}
+            >>> "name" in person
+            True
+            >>> "name2" in person
+            False
+            >>> 
+
+집합 자료형
+    
+    1. 집합 자료형은 어떻게 만들까?
+        set([.., .., ])
+        
+        >>> s1 = set([1,2,3,3,4,5])
+        >>> s1
+        {1, 2, 3, 4, 5}
+
+        >>> s2 = set("python")
+        >>> s2
+        {'h', 'n', 'o', 't', 'p', 'y'}
+        >>> s2 = set("pythonppp")
+        >>> s2
+        {'h', 'n', 'o', 't', 'p', 'y'}
+
+                
+    
+    2. 집합 자료형의 특징
+    
+        1) 중복을 허용하지 않는다.
+        2) 순서가 없다(Unordered).
+        3) set 자료형은 순서가 없기(unordered) 때문에 인덱싱을 통해 요소값을 얻을 수 없다.
+        4) set 자료형에 저장된 값을 인덱싱으로 접근하려면 다음과 같이 리스트나 튜플로 변환한 후에 해야 한다.
+
+    3. 교집합, 합집합, 차집합 구하기
+    
+        1) 교집합 구하기
+            & / intersection(..)
+            
+        2) 합집합 구하기
+            | / union(...)
+            
+        3) 차집합 구하기
+            - / difference(..)
+
+            >>> s1 = set([1,2,3,4,5])
+            >>> s2 = set([4,5,6,7,8])
+            >>> s1 & s2
+            {4, 5}
+            >>> s1.intersection(s2)
+            {4, 5}
+            >>> s1 | s2
+            {1, 2, 3, 4, 5, 6, 7, 8}
+            >>> s1.union(s2)
+            {1, 2, 3, 4, 5, 6, 7, 8}
+            >>> s1 - s2
+            {1, 2, 3}
+            >>> s1.difference(s2)
+            {1, 2, 3}
+            >>> 
+
+
+
+    4. 집합 자료형 관련 함수
+    
+        1) 값 1개 추가하기 - add
+        2) 값 여러 개 추가하기 - update
+        3) 특정 값 제거하기 - remove
+        

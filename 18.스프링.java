@@ -2617,6 +2617,8 @@ Model - request 범위
 			) {}		
 
 	7. 커맨드 객체 : 중첩 · 콜렉션 프로퍼티
+
+	4. 체크박스 관련 커스텀 태그 : <form:checkboxes>, <form:checkbox>
 	
 			@Data
 			public class RequestJoin {
@@ -2701,7 +2703,16 @@ Model - request 범위
 				</dd>			
 			</dl>	
 	
-	4. 체크박스 관련 커스텀 태그 : <form:checkboxes>, <form:checkbox>
+	
+	    @ModelAttribute("hobbies2")
+		public List<CodeValue> hobbies2() {
+			return List.of(
+					new CodeValue("취미1", "hobby1"),
+					new CodeValue("취미2", "hobby2"),
+					new CodeValue("취미3", "hobby3"),
+					new CodeValue("취미4", "hobby4")
+			);
+		}
 
         <dt>취미</dt>
         <dd>
@@ -2824,37 +2835,72 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 	2. 커맨드 객체 검증
 	
 		1) Validator 인터페이스 
+		
 			- supports(..) : 검증하는 커맨드 객체 한정 설정
-			- validate(..) : 커맨드 객체 검증..
+			
+			- validate(Object target, Errors errors) : 커맨드 객체 검증..
+			  Object target : 커맨드 객체 -> 형변환
+			  Errors errors : 검증 실패시 전달한 메세지 등록
 			
 		2) Errors
+		
 			- 커맨드 객체 자체 오류에 대한 처리 --
-			reject("에러코드");
-			reject("에러코드", "기본 메세지")
+			
+			  reject("에러코드");
+			  reject("에러코드", "기본 메세지")
 			
 			- 커맨드 객체의 특정 필드 오류에 대한 처리 --
-			rejectValue("필드명", "에러코드");
-			rejectValue("필드명", "에러코드", "기본메세지");
+			
+			  rejectValue("필드명", "에러코드");
+			  rejectValue("필드명", "에러코드", "기본메세지");
 			
 			
 			-
-			hasErrors() : 한개라도 reject 또는 rejectValue가 호출되면 true
+			  hasErrors() : 한개라도 reject 또는 rejectValue가 호출되면 true
+
+			(참고) spring utils
+			  - StringUtils.hasText(...)
 			
 			타임리프
-			#fields.errors("필드명") : -> errors 객체 담긴 메세지를 필드명으로 조회 -> 배열 
-			
+			 #fields.errors("필드명") : -> errors 객체 담긴 메세지를 필드명으로 조회 -> 배열 
+			 
+			 <form:errors path="필드명" />
+			  - 기본 에러출력 태그 span, 여러 에러메시지가 있는 경우 <br> 구부(delimiter)
+			  - element="태그명"
+			  - delimiter="구분자명"
+			  
+				<dd>
+					<form:input path="email" />
+					<form:errors path="email" element="div" delimiter=""/>
+				</dd>			  
+			 
 		3) ValidationUtils
+		
 			- 필수 항목 검증에 편의 메서드
-			- rejectIfEmpty(...)
+			- rejectIfEmpty(...)  : null 또는 ''
 			- rejectIfEmptyOrWhitespace(...) : 공백 포함 체크
 			
 
 
 	3. 에러 코드에 해당하는 메시지 코드를 찾는 규칙
+	
 		- 에러코드 + "." + 커맨드객체이름 + "." + 필드명
 		- 에러코드 + "." + 필드명
 		- 에러코드 + "." + 필드타입
 		- 에러코드
+
+			--------------------------------------
+			messages.validations.peoperties 파일
+			--------------------------------------
+			Required=필수 입력 항목 입니다.
+
+			Required.mail=이메일을 입력하세요.
+			Required.password=비밃번호를 입력하세요.
+			Required.confirmPassword=비밀번호 확인을 입력하세요
+			Required.userName=사용자명을 입력하세요
+
+			Required.requestJoin.agree=회원가입 약관에 동의하세요 //	requestJoin 커맨드 객체로 범위를 한정함
+			--------------------------------------
 
 	4. 프로퍼티 타입이 List나 목록인 경우 다음 순서를 사용해서 메시지 코드를 생성한다.
 
@@ -2866,42 +2912,228 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 		에러코드 + "." + 필드타입
 		에러코드
 
+	
+			@Data
+			public class RequestJoin {
+				@NotBlank(message = "이메일을 입력하세요")
+				@Email(message = "이메일 형식이 아닙니다")
+				private String email;
+
+				@NotBlank
+				@Size(min=8)
+				private String password;
+
+				@NotBlank
+				private String confirmPassword;
+
+				@NotBlank
+				private String userName;
+
+				@AssertTrue
+				private boolean agree;
+
+			}
+
+			@PostMapping("join")
+			public String joinPs(@Valid RequestJoin form, Errors errors) { // Valid 커맨드객체 바로 뒤에 에러객체 : 중요
+
+				joinValidator.validate(form, errors);
+			}
+
+			-----------------------------------
+			validations.properties
+			-----------------------------------
+			Email=이메일 형식이 아닙니다
+			Mismatch.confirmPassword=비밀번호가 일치하지 않습니다.
+			Duplicated.requestJoin.email=이미 가입된 회원입니다
+			NotBlank=필수 입력 항목 입니다
+			NotBlank.email=이메일을 입력하세요
+			NotBlank.password=비밀번호를 입력하세요
+			NotBlank.confirmPassword=비밀번호를 확인하세요
+			NotBlank.userName=회원명을 입력하세요
+			AssertTrue.requestJoin.agree=회원가입 약관에 동의합니다
+			Size.requestJoin.password=비밀번호는 8자리 이상 입력하세요
+			-----------------------------------
+
+
 	5. 글로벌 범위 Validator와 컨트롤러 범위 Validator
-	1) 글로벌 범위 Validator 설정과 @Valid 애노테이션
-	-  WebMvcConfigurer의 getValidalor() 
-	2) @InitBinder 애노테이션을 이용한 컨트롤러 범위 Validator
-	@InitBinder
-	protected void InitBinder(WebDataBinder binder) {
-		binder.setValidator(new RegisterRequestValidator());
-	}
+
+		1) 글로벌 범위 Validator 설정과 @Valid 애노테이션
 		
-	3) 컨트롤러 범위 Validator  > 글로벌 범위 Validator
+			-  WebMvcConfigurer의 getValidalor() 
+			  : 모든 컨트롤러의 공통적인 검증이 필요한 경우 - MvcConfig 에 추가
+			  
+			  
+				@Configuration
+				@EnableWebMvc
+				@ComponentScan("org.choongang")
+				@Import({DBConfig.class, MessageConfig.class})
+				@RequiredArgsConstructor
+				public class MvcConfig implements WebMvcConfigurer {
+					
+					private final JoinValidator joinValidator;
+
+					@Override
+					public Validator getValidator() {
+						return joinValidator;  //모든 컨트롤러에 적용될 수 있는 전역 validator 
+					}
+				}
+
+
+
+			
+		2) @InitBinder 애노테이션을 이용한 컨트롤러 범위 Validator
+		
+			@InitBinder
+			protected void InitBinder(WebDataBinder binder) {
+				binder.setValidator(new RegisterRequestValidator());
+			}
+			
+			- 특정 컨트롤러에서 사용할 공통적인 Validator
+			
+				@Controller
+				@RequestMapping("/member")
+				@RequiredArgsConstructor
+				public class MemberController {
+					private final JoinValidator joinValidator;
+
+					@GetMapping("join")
+					public String join(@ModelAttribute RequestJoin form) {
+						return "member/join";
+					}
+
+					@PostMapping("join")
+					public String joinPs(@Valid RequestJoin form, Errors errors) { // Valid 커맨드객체 바로 뒤에 에러객체 : 중요
+
+						//joinValidator.validate(form, errors); //이거 없이... 가능함
+
+						if(errors.hasErrors()) { //reject, rejectValue 가 한번이라도 호출되면 true
+							return "member/join";
+						}
+						return "redirect:/member/login";
+					}
+
+					@InitBinder   // 특정 컨트롤러에서 사용할 공통적인 Validator 
+					public void initBinder(WebDataBinder binder) {
+						binder.setValidator(joinValidator);
+					}
+				}
+
+			
+		3) 컨트롤러 범위 Validator  > 글로벌 범위 Validator
 
 	6. Bean Validation
-	Bean Validation API
-	hibernate Validator 
+		Bean Validation API 
+		  - Jakarta Validation API 의존성 추가
+		  implementation 'jakarta.validation:jakarta.validation-api:3.1.0'  -> 3.0.2 로 바꾸기 : 아래거 의존성의 읭존성 관련..
+
+		hibernate Validator  
+		  - implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+
+		커맨드 객체 검증
+		1) Bean Validation API - 에너테익션으로 기본 검증 처리
+
+		1) 설정
+		2) Bean Validation의 주요 애노테이션 
+			@AssertTrue
+			@AssertFalse
+			@DecimalMax
+			@DecimalMin
+			@Max
+			@Min
+			@Digits
+			@Size
+			@Null
+			@NonNull
+			@Pattern
+
+			@NotEmpty
+			@NotBlank
+			@Positive
+			@PositiveOrZero
+			@Email
+			@Future
+			@FutureOrPresent
+			@Past
+			@PastOrPresent
 
 
-	1) 설정
-	2) Bean Validation의 주요 애노테이션 
-	@AssertTrue
-	@AssertFalse
-	@DecimalMax
-	@DecimalMin
-	@Max
-	@Min
-	@Digits
-	@Size
-	@Null
-	@NonNull
-	@Pattern
+	1. 컨트롤러 - 
+	2. 커맨드 객체 검증
+	 1) Bean Validator
+	 2)
+	3. 
 
-	@NotEmpty
-	@NotBlank
-	@Positive
-	@PositiveOrZero
-	@Email
-	@Future
-	@FutureOrPresent
-	@Past
-	@PastOrPresent
+
+스프링 MVC 
+	1. 세션
+		
+		 - @SessionAttribute("이름")
+		   : 세션값 조회 및 주입
+		   
+		 - @SessionAttributes("이름") 
+		   : Model로 해당이름으로 속성 추가하면 세션에도 동일한 이름으로 추가
+		   : 세션에 해당이름의 값이 있으면 Model에 자동 추가
+		   : Magic Form - 여러 페이지의 양식
+		
+		   - SessionStatus
+			  : setComplete() : @SessionAttributes에 지정된 이름의 세션값을 비울때
+			  
+			  
+
+		@GetMapping("/login")
+		public String login(@ModelAttribute RequestLogin form, @SessionAttribute(name="member", required=false) Member member) {
+
+			if(member != null) {
+				log.info(member.toString());
+			}
+
+			return "member/login";
+		}
+		@RequestMapping("logiout")
+		public  String logout(HttpSession session) {
+			session.invalidate();
+			return "redirect:/member/login";
+		}
+		
+		
+		
+		@Service
+		@RequiredArgsConstructor
+		public class LoginService {
+			private final MemberMapper mapper;
+			private final HttpSession session;
+
+			public void process(String email) {
+				Member member = mapper.get(email);
+
+				if(email == null) {
+					return;
+				}
+				session.setAttribute("member", member);
+			}
+		}
+		@RequestMapping("logiout")
+		public  String logout(HttpSession session) {
+			session.invalidate();
+			return "redirect:/member/login";
+		}
+
+
+	2.인터셉터
+		1) HandlerInterceptor 인터페이스 
+		- boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
+		- void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception;
+		- void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception;
+		2) WebMvcConfigurer 인터페이스 : addInterceptors(InterceptorRegistry registry)
+		3) Ant 경로 패턴
+		- * : 0개 또는 그 이상의 글자
+		- ** 0개 또는 그 이상의 폴더 경로
+		- ? : 1개 글자
+
+	3.쿠키
+	
+	  @CookieValue
+	
+	
+	
