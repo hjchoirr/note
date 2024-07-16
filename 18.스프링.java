@@ -3065,6 +3065,8 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 	3. 
 
 
+7/16 day05 project 계속
+
 스프링 MVC 
 	1. 세션
 		
@@ -3113,27 +3115,409 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 				session.setAttribute("member", member);
 			}
 		}
-		@RequestMapping("logiout")
+		@RequestMapping("logout")
 		public  String logout(HttpSession session) {
 			session.invalidate();
 			return "redirect:/member/login";
 		}
 
+		======================================================
+					
+			package org.choongang.servey.controllers;
+
+			import org.springframework.stereotype.Controller;
+			import org.springframework.web.bind.annotation.*;
+
+			@Controller
+			@RequestMapping("/servey")
+			@SessionAttributes("requestServey") // session 에 유지하기 ***
+			public class ServeyController {
+
+				@ModelAttribute // 공통 커맨드 객체  ***
+				public RequestServey requestServey() {
+					return new RequestServey();
+				}
+
+				@GetMapping("/step1")
+				public String step1() { // get일때는 @ModelAttribute 명시해야함 => 공통 커맨드 객체 있으므로 빼기
+					return "servey/step1";
+				}
+
+				@PostMapping("/step2")
+				public String step2(RequestServey form) {
+					return "servey/step2";
+				}
+
+				@PostMapping("/step3")
+				public String step3(RequestServey form) {
+					return "servey/step3";
+				}
+			}
+
+			@Data
+			public class RequestServey {
+				private String q1;
+				private String q2;
+				private String q3;
+				private String q4;
+
+			}
+			---step1.jsp-------------------------------------------------------
+			<%@ page contentType="text/html; charset=UTF-8" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+			<c:url var="actionUrl" value="/servey/step2" />
+			<h1>step1.jsp</h1>
+			<form:form method="post" autocomplete="off" action="${actionUrl}" modelAttribute="requestServey">
+				질문1: <form:input path="q1" /><br>
+				질문2: <form:input path="q2" /><br>
+				<button type="submit">다음 설문</button>
+			</form:form>
+			
+			---step2.jsp-------------------------------------------------------
+			<%@ page contentType="text/html; charset=UTF-8" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+			<c:url var="actionUrl" value="/servey/step3" />
+			<h1>step2.jsp</h1>
+			<form:form method="post" autocomplete="off" action="${actionUrl}" modelAttribute="requestServey">
+
+				질문3: <form:input path="q3" /><br>
+				질문4: <form:input path="q4" /><br>
+				<button type="submit">제출 하기</button>
+			</form:form>
+			
+			
+			----step3.jsp------------------------------------------------------
+			<%@ page contentType="text/html; charset=UTF-8" %>
+			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+			<h1>step3</h1>
+
+			질문1 : ${requestServey.q1}<br>
+			질문2 : ${requestServey.q2}<br>
+			질문3 : ${requestServey.q3}<br>
+			질문4 : ${requestServey.q4}<br>
+
 
 	2.인터셉터
-		1) HandlerInterceptor 인터페이스 
-		- boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
-		- void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception;
-		- void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception;
+	
+		1) HandlerInterceptor 인터페이스
+		
+		  - boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
+		    : 컨트롤러(핸들러) 객체를 실행하기 전에
+			: 반환값 true, false 에 따라 컨트롤러 빈의 메서드의 실행여부 통제
+		  
+		  - void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception;
+		    : 컨트롤러(핸들러)가 정상적으로 실행된 이후에 추가 기능을 구현할 때 
+		  - void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception;
+		    : 뷰가 클라이언트에 응답을 전송한 뒤에 실행 
+		  
 		2) WebMvcConfigurer 인터페이스 : addInterceptors(InterceptorRegistry registry)
+		
 		3) Ant 경로 패턴
-		- * : 0개 또는 그 이상의 글자
-		- ** 0개 또는 그 이상의 폴더 경로
-		- ? : 1개 글자
+		
+		  - * : 0개 또는 그 이상의 글자
+		  - ** 0개 또는 그 이상의 폴더 경로
+		  - ? : 1개 글자
+
+
+
+				
+			@Slf4j
+			@Component
+			public class MemberOnlyInterceptor implements HandlerInterceptor {
+				@Override
+				public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+					log.info("preHandle()");
+					HttpSession session = request.getSession();
+
+					if(session.getAttribute("member") != null) {
+						return true;  //로그인 상태
+					}
+					//미로그인 상태
+					response.sendRedirect(request.getContextPath() + "/member/login");
+					return false;
+				}
+
+				@Override
+				public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+					modelAndView.addObject("message", "postHandle");
+					log.info("postHandle()");
+				}
+
+				@Override
+				public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+					log.info("afterCompletion()");
+				}
+			}
+			
+			@Configuration
+			@RequiredArgsConstructor
+			public class InterceptorConfig implements WebMvcConfigurer {
+
+				private final MemberOnlyInterceptor memberOnlyInterceptor;
+
+				@Override
+				public void addInterceptors(InterceptorRegistry registry) {
+					registry.addInterceptor(memberOnlyInterceptor)
+							.addPathPatterns("/mypage/**");
+				}
+			}
+
+			@Configuration
+			@EnableWebMvc
+			@ComponentScan("org.choongang")
+			@Import({DBConfig.class, MessageConfig.class, InterceptorConfig.class}) 
+			public class MvcConfig implements WebMvcConfigurer {
+				...
+			}
+			
+			mypage/index.jsp
+			
+			<%@ page contentType="text/html; charset=UTF-8" %>
+			<h1>마이페이지</h1>
+			<h2>${message}</h2>
 
 	3.쿠키
 	
-	  @CookieValue
+	  @CookieValue : 개별 쿠키값 조회 ( required = false 중요 ***)
+	  
+		@GetMapping("/login")
+		public String login(@ModelAttribute RequestLogin form,
+							@CookieValue(name="savedEmail", required = false) String savedEmail
+							/*@SessionAttribute(name="member", required = false) Member member*/) {
+
+			if(savedEmail != null) {
+				form.setSaveEmail(true);
+				form.setEmail(savedEmail);
+			}
+
+			return "member/login";
+		}
+
+
+스프링 MVC : 날짜 값 변환, @PathVariable, 익셉션 처리
 	
+	1. 날짜 값 변환
+		@DateTimeFormat 
+		- LocalDate, LocalTime, LocalDateTime ..
+		- 형식이 일치 하지 않으면 예외 발생 
+			- 메세지 코드 typeMismatch
+			
+		@Data
+		public class MemberSearch {
+			@DateTimeFormat(pattern = "yyyyMMdd")
+			private LocalDate sDate;  //검색 시작일
+
+			@DateTimeFormat(pattern = "yyyyMMdd")
+			private LocalDate eDate;  //검색 종료일
+		}	
+			
+		@GetMapping("/list")
+		public String list(@ModelAttribute MemberSearch memberSearch) {
+			log.info(memberSearch.toString());
+			return "member/list";
+		}
+
+
+
+		<%@ page contentType="text/html; charset=UTF-8" %>
+		<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+		<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+		<h1>회원목록</h1>
+		<form:form method="get" autocomplete="off" modelAttribute="memberSearch">
+			가입일
+			<form:input path="sDate" /> ~
+			<forn:input path="eDate" />
+			<button type="submit">검색하기</button>
+		</form:form>
+
+
+		validations.properties
+		
+		typeMismatch.java.time.LocalDate=날짜 형식이 아닙니다 (예 - 20240716)
+
+		@GetMapping("/list")
+		public String list(@Valid @ModelAttribute MemberSearch memberSearch, Errors errors) {
+
+			log.info(memberSearch.toString());
+			return "member/list";
+		}
+
+	2. @PathVariable : 경로 변수 
 	
+		@ResponseBody
+		@GetMapping({"/info/{id}/{id2}", "/info/{id}"})
+		public void info(@PathVariable("id") String email, @PathVariable(name="id2", required = false) String email2) {
+			log.info("email : {} email2 : {} ", email, email2);
+		}
+
+		@ResponseBody
+		@GetMapping({"/info/{id}/{id2}", "/info/{id}", "/info/", "/info//", "/info///"})
+		public void info(@PathVariable(name="id", required = false) String email, @PathVariable(name="id2", required = false) String email2) {
+			log.info("email : {} email2 : {} ", email, email2);
+		}
+
+	3. 컨트롤러 익셉션 처리하기
 	
+		1) @ExceptionHandler
+		
+			- 발생 예외를 정의 
+			- 예외발생시 특정 페이지를 노출 
+			- 메서드에 자동 주입 
+			
+				- 발생한 예외 객체
+				- Model 
+				- HttpServletRequest
+				- HttpServletResponse 
+				- HttpSession 
+				
+				- 스프링 부트에서 추가된 EL식 속성
+				  status : HTTP 상태코드
+				  error : 에러코드
+				  path : 예외가 발생한 URI
+				  exception
+				  message
+				  timestamp
+				
+				
+				
+				@GetMapping("/list")
+				public String list(@Valid @ModelAttribute MemberSearch memberSearch, Errors errors) {
+
+					log.info(memberSearch.toString());
+
+					boolean result = false;
+					if(!result) {
+						throw new BadRequestException("예외발생!!");
+					}
+					return "member/list";
+				}
+
+				@ExceptionHandler({BadRequestException.class})
+				public String errorHandler() {
+					return "error/common";
+				}				
+
+		2) @ControllerAdvice
+		
+			: 컨트롤러의 공통적인 처리 
+			: 공통값 유지 - @ModelAttribute
+			: 공통 에러 페이지 처리 - @ExceptionHandler
+			
+			// MemberConmtroller.java
+			@Slf4j
+			@Controller
+			@RequestMapping("/member")
+			@RequiredArgsConstructor
+			public class MemberController {
+		
+				@ExceptionHandler(Exception.class)    // 우선순위 높다
+				public String errorHandler(Exception e, Model model, HttpServletRequest request, HttpServletResponse response) {
+
+					e.printStackTrace();
+					log.info("MemberController에서 유입");
+
+					return "error/common";
+				}
+			}			
+			// - global/advice/CommonControllerAdvice.java
+			@Slf4j
+			@ControllerAdvice("org.choongang")    // 우선순위 낮다
+			public class CommonControllerAdvice {   
+
+				@ExceptionHandler(Exception.class)
+				public String exception(Exception e, HttpServletRequest request) {
+					log.info("Advice 에서 유입");
+					return "error/common";
+				}
+			}	
+
+			==> status 코드 세팅
+		
+			@Slf4j
+			@ControllerAdvice("org.choongang")
+			public class CommonControllerAdvice {
+
+				@ExceptionHandler(Exception.class)
+				public ModelAndView exception(Exception e, HttpServletRequest request) {
+					log.info("Advice 에서 유입");
+
+					HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR; //500
+
+					if(e instanceof CommonException commonException) {
+						status = commonException.getStatus();
+					}
+					ModelAndView mv = new ModelAndView();
+					mv.setStatus(status);
+					mv.setViewName("error/common");
+
+					return mv;
+				}
+			}
+
+			public class CommonException extends RuntimeException{
+
+				private HttpStatus status;
+
+				public CommonException(String message) {
+					this(message, HttpStatus.INTERNAL_SERVER_ERROR); // 500
+				}
+
+				public CommonException(String message, HttpStatus status) {
+					super(message);
+					this.status = status;
+				}
+
+				public HttpStatus getStatus() {
+					return status;
+				}
+			}
+
+	스프링 파일 업로드(MultipartFile)
+	
+	1. multipart란?
+		<form> 속성 : enctype="multipart/form-data"
+		
+		- multipart 
+			- 일반 양식 데이터의 파트 
+			- 파일 데이터(바이너리 데이터) 파드 
+
+		기본 양식 content-type 
+		
+			application/x-www-form-urlencoded
+			
+	2. web.xml 설정 
+		<multipart-config>
+			<max-file-size>20971520</max-file-size> <!--  1MB * 20 -->
+			<max-request-size>41943040</max-request-size> <!-- 40MB -->
+		</multipart-config>
+		
+		<form:form method="post" autocomplete="off" encType="multipart/form-data">
+
+	3. MultipartFile 인터페이스
+
+	4. addResourceHandlers 설정
+		- 파일 업로드 경로 -> 서버 접근 URL로 연결 
+		
+	프로필
+	1. @Profile
+
+	2. spring.profiles.active
+		1) web.xml 
+		2) 배포 파일 실행시 
+	java -jar -Dspring.profiles.active=프로필이름 
+
+	프로퍼티 파일을 이용한 프로퍼티 설정
+
+	1. @Configuration
+		public static PropertySourcesPlaceholderConfigurer properties() {
+				PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+				configurer.setLocations(
+						new ClassPathResource("db.properties"),
+						new ClassPathResource("info.properties"));
+				return configurer;
+		}
+
+	2. @Value("${프로퍼티 키값}")

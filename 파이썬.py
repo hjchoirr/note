@@ -940,3 +940,119 @@ https://www.python.org/downloads/
         2) 값 여러 개 추가하기 - update
         3) 특정 값 제거하기 - remove
         
+
+Jupitor Notebook -> colab
+
+불자료형
+
+    s1.add(6)
+    print(s1)
+    s1.update([7,8,9])
+    print(s1)
+
+    s1.remove(8)
+    print(s1)
+
+
+    a = True
+    b = False
+    type(a)
+
+    >> bool
+
+ True
+ False
+ 
+  -> 조건문
+  
+  2. 자료형의 참과 거짓
+  
+     - 값으로 참, 거짓 구분
+     
+        "python"    참
+        ""	        거짓
+        [1,2,3]	    참
+        []	        거짓
+        (1,2,3)	    참
+        ()	        거짓
+        {'a':1}	    참
+        1	        참
+        0	        거짓
+        None	    거짓     
+
+
+
+        if []:
+            print("참!")
+        else:
+            print("거짓")
+            
+        >> 거짓
+
+        if [1,2,3]:
+            print("참!")
+        else:
+            print("거짓")
+            
+        >> 참!
+
+
+        nums = [1,2,3,4,5]
+        while nums:
+            print(nums.pop())
+
+        >>
+        5
+        4
+        3
+        2
+        1
+        
+        
+    3. 불연산 - 일반 자료형의 값을 논리값으로 변환
+    
+        a = bool("")
+        b = bool((1,2))
+        print(a, b)
+
+        >> False True
+
+        type("")
+        >> str
+        
+        
+    파이썬의 모든 자료형은 객체이다, 함수도 객체, 변수도 객체
+    
+        a = [1,2,3,4,5, 6, 7]
+        b = a     # 얕은 복사 : 주소 복사됨                 
+        print(id(a), id(b))   
+            
+        >> 134507917401792 134507917401792   
+            
+
+        a = [1,2,3,4,5, 6, 7]
+        b = a  # 얕은 복사 : 주소 복사됨 
+        a.pop()
+        print(a, b)  
+        
+        >>>
+        
+        [1, 2, 3, 4, 5, 6] [1, 2, 3, 4, 5, 6]  # 얕은 복사의 결과
+
+        c = a[:]      # 깊은 복사 : 값 복사되어 다른 주소에 저장됨 
+        a.pop()
+        print(a, c)
+
+        >>
+
+        [1, 2, 3, 4, 5] [1, 2, 3, 4, 5, 6]  # 깊은 복사의 결과
+
+        from copy import copy
+        
+        a = [1,2,3,4,5, 6, 7]
+        b = copy(a)    # 깊은 복사  
+        a.pop()
+        print(a, b) 
+        
+        >>
+        [1, 2, 3, 4, 5, 6] [1, 2, 3, 4, 5, 6, 7]  # 깊은 복사의 결과
