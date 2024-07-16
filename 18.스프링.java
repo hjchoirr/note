@@ -2604,7 +2604,7 @@ Model - request 범위
 				@Override
 				public void addViewControllers(ViewControllerRegistry registry) {
 					registry.addViewController("/").setViewName("main/index"); 
-					registry.addViewController("/mypage/**").setViewName("mypage/index");
+					registry.addViewController("/mypage/**").setViewName("mypage/index");  */
 				}
 			}		
 			
