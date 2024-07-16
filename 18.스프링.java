@@ -3261,7 +3261,7 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 				@Override
 				public void addInterceptors(InterceptorRegistry registry) {
 					registry.addInterceptor(memberOnlyInterceptor)
-							.addPathPatterns("/mypage/**");
+							.addPathPatterns("/mypage/**"); */
 				}
 			}
 
