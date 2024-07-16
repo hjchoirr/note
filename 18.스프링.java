@@ -3123,39 +3123,39 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 
 		======================================================
 					
-			package org.choongang.servey.controllers;
+			package org.choongang.survey.controllers;
 
 			import org.springframework.stereotype.Controller;
 			import org.springframework.web.bind.annotation.*;
 
 			@Controller
-			@RequestMapping("/servey")
-			@SessionAttributes("requestServey") // session 에 유지하기 ***
-			public class ServeyController {
+			@RequestMapping("/survey")
+			@SessionAttributes("requestSurvey") // session 에 유지하기 ***
+			public class SurveyController {
 
 				@ModelAttribute // 공통 커맨드 객체  ***
-				public RequestServey requestServey() {
-					return new RequestServey();
+				public RequestSurvey requestSurvey() {
+					return new RequestSurvey();
 				}
 
 				@GetMapping("/step1")
 				public String step1() { // get일때는 @ModelAttribute 명시해야함 => 공통 커맨드 객체 있으므로 빼기
-					return "servey/step1";
+					return "survey/step1";
 				}
 
 				@PostMapping("/step2")
-				public String step2(RequestServey form) {
-					return "servey/step2";
+				public String step2(RequestSurvey form) {
+					return "survey/step2";
 				}
 
 				@PostMapping("/step3")
-				public String step3(RequestServey form) {
-					return "servey/step3";
+				public String step3(RequestSurvey form) {
+					return "survey/step3";
 				}
 			}
 
 			@Data
-			public class RequestServey {
+			public class RequestSurvey {
 				private String q1;
 				private String q2;
 				private String q3;
@@ -3166,9 +3166,9 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 			<%@ page contentType="text/html; charset=UTF-8" %>
 			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 			<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-			<c:url var="actionUrl" value="/servey/step2" />
+			<c:url var="actionUrl" value="/survey/step2" />
 			<h1>step1.jsp</h1>
-			<form:form method="post" autocomplete="off" action="${actionUrl}" modelAttribute="requestServey">
+			<form:form method="post" autocomplete="off" action="${actionUrl}" modelAttribute="requestSurvey">
 				질문1: <form:input path="q1" /><br>
 				질문2: <form:input path="q2" /><br>
 				<button type="submit">다음 설문</button>
@@ -3178,9 +3178,9 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 			<%@ page contentType="text/html; charset=UTF-8" %>
 			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 			<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-			<c:url var="actionUrl" value="/servey/step3" />
+			<c:url var="actionUrl" value="/survey/step3" />
 			<h1>step2.jsp</h1>
-			<form:form method="post" autocomplete="off" action="${actionUrl}" modelAttribute="requestServey">
+			<form:form method="post" autocomplete="off" action="${actionUrl}" modelAttribute="requestSurvey">
 
 				질문3: <form:input path="q3" /><br>
 				질문4: <form:input path="q4" /><br>
@@ -3193,10 +3193,10 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 			<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 			<h1>step3</h1>
 
-			질문1 : ${requestServey.q1}<br>
-			질문2 : ${requestServey.q2}<br>
-			질문3 : ${requestServey.q3}<br>
-			질문4 : ${requestServey.q4}<br>
+			질문1 : ${requestSurvey.q1}<br>
+			질문2 : ${requestSurvey.q2}<br>
+			질문3 : ${requestSurvey.q3}<br>
+			질문4 : ${requestSurvey.q4}<br>
 
 
 	2.인터셉터
