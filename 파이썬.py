@@ -1056,3 +1056,95 @@ Jupitor Notebook -> colab
         
         >>
         [1, 2, 3, 4, 5, 6] [1, 2, 3, 4, 5, 6, 7]  # 깊은 복사의 결과
+
+
+        비구조할당
+            (a, b) = ("python", "easy")
+            c, d = ("python", "easy")
+            e, f = "python", "easy"
+            print(a, b, c, d, e, f)
+
+            >> python easy python easy python easy
+
+            a = ("python")
+            print(a)
+            print(type(a))
+            b = ("python", )
+            print(b)
+            print(type(b))
+
+            >>
+            python
+            <class 'str'>
+            ('python',)
+            <class 'tuple'>
+
+
+            a = 10
+            b = 20
+            a, b = b, a
+            print(a, b)
+
+            >> 20, 10
+
+
+if문
+    1. if 문의 기본 구조
+    2. 들여쓰기 방법 알아보기
+    3. 조건문이란 무엇인가?
+        1) 비교 연산자
+        2) and, or, not
+        3) in, not in
+        4) 조건문에서 아무 일도 하지 않게 설정하고 싶다면?
+            pass
+
+
+    4. 다양한 조건을 판단하는 elif
+    5. if 문을 한 줄로 작성하기
+
+    6. 조건부 표현식
+    - message = "success" if score >= 60 else "failure"
+    
+
+        if 조건식:
+            조건이 참일때 실행되는 코드..
+        else:
+            조건이 거짓일때 실행되는 코드..
+            
+
+        medal = "GOLD"
+        if medal == "GOLD" or medal == "SILVER" or medal == "BRONZE":
+            print("메달 획득")
+        else:
+            print("메달 획득 실패")
+    
+
+        medal = "GOLD"
+        if medal in ["GOLD", "SILVER", "BRONZE"] :
+            print("획득")
+        else:
+            print("획득 실패")
+
+
+        age = 15
+        if age < 8:
+            print("유치원")
+        elif age < 14:
+            print("초등학교")
+        elif age < 17:
+            print("중학교")
+        elif age < 20:
+            print("고등학교")
+        else:
+            print("대학교")
+            
+        money = 10000
+        if money >= 10000:
+            pass # 처리하지 않고 넘어가기
+        else:
+            print("부족하당")
+
+        score = 80
+        message = "통과" if score >= 70 else "안통과"
+        print(message)
+            

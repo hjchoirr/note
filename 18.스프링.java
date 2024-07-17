@@ -3067,6 +3067,11 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 
 7/16 day05 project 계속
 
+	 - 인터셉터는 주소 기준 통제
+	 - 컨트롤러 어드바이스는 컨트롤러 기준의 통제
+	 - 세션어트리뷰트(-> 모델어트리뷰트) 는 결국 세션을 이용하므로 범위를 벋어날때 해제해야함
+
+
 스프링 MVC 
 	1. 세션
 		
@@ -3078,48 +3083,54 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 		   : 세션에 해당이름의 값이 있으면 Model에 자동 추가
 		   : Magic Form - 여러 페이지의 양식
 		
-		   - SessionStatus
-			  : setComplete() : @SessionAttributes에 지정된 이름의 세션값을 비울때
+		   - SessionStatus : 완료상태 플래그
+			    void setComplete() 
+			    boolean isComplete()
+				
+				HttpSession
+				   session.removeAttribute("이름")
+				   
+				   : @SessionAttributes에 지정된 이름의 세션값을 비울때
 			  
 			  
 
-		@GetMapping("/login")
-		public String login(@ModelAttribute RequestLogin form, @SessionAttribute(name="member", required=false) Member member) {
+			@GetMapping("/login")
+			public String login(@ModelAttribute RequestLogin form, @SessionAttribute(name="member", required=false) Member member) {
 
-			if(member != null) {
-				log.info(member.toString());
-			}
-
-			return "member/login";
-		}
-		@RequestMapping("logiout")
-		public  String logout(HttpSession session) {
-			session.invalidate();
-			return "redirect:/member/login";
-		}
-		
-		
-		
-		@Service
-		@RequiredArgsConstructor
-		public class LoginService {
-			private final MemberMapper mapper;
-			private final HttpSession session;
-
-			public void process(String email) {
-				Member member = mapper.get(email);
-
-				if(email == null) {
-					return;
+				if(member != null) {
+					log.info(member.toString());
 				}
-				session.setAttribute("member", member);
+
+				return "member/login";
 			}
-		}
-		@RequestMapping("logout")
-		public  String logout(HttpSession session) {
-			session.invalidate();
-			return "redirect:/member/login";
-		}
+			@RequestMapping("logiout")
+			public  String logout(HttpSession session) {
+				session.invalidate();
+				return "redirect:/member/login";
+			}
+			
+			
+			
+			@Service
+			@RequiredArgsConstructor
+			public class LoginService {
+				private final MemberMapper mapper;
+				private final HttpSession session;
+
+				public void process(String email) {
+					Member member = mapper.get(email);
+
+					if(email == null) {
+						return;
+					}
+					session.setAttribute("member", member);
+				}
+			}
+			@RequestMapping("logout")
+			public  String logout(HttpSession session) {
+				session.invalidate();
+				return "redirect:/member/login";
+			}
 
 		======================================================
 					
@@ -3198,10 +3209,33 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 			질문3 : ${requestSurvey.q3}<br>
 			질문4 : ${requestSurvey.q4}<br>
 
+		=> sessionAttribute 삭제
+		
+			@PostMapping("/step3")
+			public String step3(RequestSurvey form, SessionStatus status, HttpSession session) {
+				log.info("step3");
+				log.info("form 1 : " + form.toString());
+				form = (RequestSurvey) session.getAttribute("requestSurvey");
+				log.info("form 2 : " + form.toString());
 
-	2.인터셉터
+				session.removeAttribute("requestSurvey"); // 세션 비우기 - request
+
+				form = (RequestSurvey) session.getAttribute("requestSurvey");
+				if (form == null) {
+					log.info("form is null");
+				} else {
+					log.info("form : " + form.toString());
+				}
+
+				return "survey/step3";
+			}		
+				
 	
-		1) HandlerInterceptor 인터페이스
+
+
+	2.인터셉터 
+	
+		1) HandlerInterceptor 인터페이스 구현
 		
 		  - boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
 		    : 컨트롤러(핸들러) 객체를 실행하기 전에
@@ -3212,9 +3246,9 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 		  - void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception;
 		    : 뷰가 클라이언트에 응답을 전송한 뒤에 실행 
 		  
-		2) WebMvcConfigurer 인터페이스 : addInterceptors(InterceptorRegistry registry)
+		2) WebMvcConfigurer 인터페이스의  : addInterceptors(InterceptorRegistry registry) 메서드 오버라이딩
 		
-		3) Ant 경로 패턴
+		3) Ant 경로 패턴으로 인터셉터 범위를 지정
 		
 		  - * : 0개 또는 그 이상의 글자
 		  - ** 0개 또는 그 이상의 폴더 경로
@@ -3334,9 +3368,11 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 		</form:form>
 
 
-		validations.properties
-		
+		-----------------------------------------
+		validations.properties 파일에 추가부분 : 
+		-----------------------------------------
 		typeMismatch.java.time.LocalDate=날짜 형식이 아닙니다 (예 - 20240716)
+		-----------------------------------------
 
 		@GetMapping("/list")
 		public String list(@Valid @ModelAttribute MemberSearch memberSearch, Errors errors) {
@@ -3475,8 +3511,10 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 				}
 			}
 
-	스프링 파일 업로드(MultipartFile)
-	
+7/17 day05 project 계속
+
+스프링 파일 업로드(MultipartFile)
+
 	1. multipart란?
 		<form> 속성 : enctype="multipart/form-data"
 		
@@ -3497,27 +3535,423 @@ HTML 태그가 사용하는 다음 속성도 사용 가능하다.
 		<form:form method="post" autocomplete="off" encType="multipart/form-data">
 
 	3. MultipartFile 인터페이스
+	
+		@RequestPart
+		- 동일 이름의 여러 파일을 전송하는 경우? MultipartFile[] 와 같은 배열로 주입
 
 	4. addResourceHandlers 설정
 		- 파일 업로드 경로 -> 서버 접근 URL로 연결 
+
+		@Slf4j
+		@Controller
+		@RequestMapping("/file")
+		public class FileController {
+
+			@GetMapping("/upload")
+			public String upload() {
+				return "file/upload";
+			}
+
+			@ResponseBody
+			@PostMapping("/upload")
+			public void uploadPs(@RequestPart("file") MultipartFile file) {
+				String name = file.getOriginalFilename();
+				log.info("파일명 : {}" , name);
+
+				File uploadPath = new File("D:/uploads/" + name);
+				try {
+					file.transferTo(uploadPath);
+				}catch (IOException e) {}
+			}
+		}
+
+		<%@ page contentType="text/html; charset=UTF-8" %>
+		<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+		<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+		<form:form method="post" autocomplete="off" encType="multipart/form-data">
+			제목 : <input type="text" name="subject" ><br>
+			파일 : <input type="file" name="file"><br>
+			<button type="submit">전송하기</button>
+		</form:form>
+
+
+		웹을 통해 d:\uploads 폴더가 접근 가능하도록 설정
+
+		@Configuration
+		public class FileConfig implements WebMvcConfigurer {
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+				registry.addResourceHandler("/uploads/**")
+						.addResourceLocations("file:///D:/uploads/");
+			}
+		}
+
+		----------------------------------------------------------------------
+		예제
+		----------------------------------------------------------------------
+		1) resource/application.properties 파일
 		
-	프로필
+			file.upload.path=D:/uploads/ 
+
+
+		2) MvcConfig.java 에 추가
+		
+			@Bean
+			public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+				PropertySourcesPlaceholderConfigurer conf = new PropertySourcesPlaceholderConfigurer();
+				conf.setLocations(new ClassPathResource("application.properties"));
+				return conf;
+			}		  
+
+		3) @Value("${프로퍼티 값"}) - 주입되는 값은 전부 문자열
+			
+			@Configuration
+			public class FileConfig implements WebMvcConfigurer {
+
+				@Value("${file.upload.path}")  // application.properties 내용 : file.upload.path=D:/uploads/ 
+				private String uploadPath;
+
+				@Override
+				public void addResourceHandlers(ResourceHandlerRegistry registry) {
+					registry.addResourceHandler("/uploads/**")
+							.addResourceLocations("file:///" + uploadPath);
+				}
+			}	
+
+			@Slf4j
+			@Controller
+			@RequestMapping("/file")
+			public class FileController {
+				
+				@Value("${file.upload.path}") /***/
+				private String uploadDir;
+				
+				@GetMapping("/upload")
+				public String upload() {
+					return "file/upload";
+				}
+
+				@ResponseBody
+				@PostMapping("/upload")
+				public void uploadPs(@RequestPart("file") MultipartFile file) {
+					
+					String name = file.getOriginalFilename();
+					log.info("파일명 : {}" , name);
+
+					File uploadPath = new File(uploadDir + name);
+					try {
+						file.transferTo(uploadPath);
+					}catch (IOException e) {}
+				}
+			}
+			
+			
+
+
+프로필
 	1. @Profile
 
 	2. spring.profiles.active
+	
+	  - 지정된 환경변수 값 -> @Profile에 설정시 @Bean을 프로필에 따라서 달리 생성하는 기술
+	  
 		1) web.xml 
-		2) 배포 파일 실행시 
-	java -jar -Dspring.profiles.active=프로필이름 
+		
+		   <init-param>
+		     <param-name>spring.profiles.active</param-name>
+			 <param-value>dev</param-value>
+		   </init-param>
+		   
+		2) 톰캣 환경변수 
+		
+		3) 배포 파일 실행시 
+			java -jar -Dspring.profiles.active=프로필이름 
+			
+		4) 환경변수를 조회하는 방법
+		    System.getEnv("환경변수명")
 
-	프로퍼티 파일을 이용한 프로퍼티 설정
+	프로퍼티 파일을 이용한 프로퍼티 설정 y
+	 - resource/application.properties 파일
 
 	1. @Configuration
 		public static PropertySourcesPlaceholderConfigurer properties() {
-				PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
-				configurer.setLocations(
-						new ClassPathResource("db.properties"),
-						new ClassPathResource("info.properties"));
-				return configurer;
+			PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+			configurer.setLocations(
+					new ClassPathResource("db.properties"),
+					new ClassPathResource("info.properties"));
+			return configurer;
 		}
 
 	2. @Value("${프로퍼티 키값}")
+
+			=> MvcConfig.java properties 파일 분리하기
+			
+			@Bean
+			public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+
+				String fileName = "application";
+				String profile = System.getenv("spring.profiles.active");
+
+				fileName += StringUtils.hasText(profile) ? "-" + profile : "";
+				System.out.println("fileName = " + fileName);
+				/*
+				 * spring.profiles.active = dev -> application-dev.properties
+				 * spring.profiles.active = prod -> application-prod.properties
+				 */
+				PropertySourcesPlaceholderConfigurer conf = new PropertySourcesPlaceholderConfigurer();
+				conf.setLocations(new ClassPathResource(fileName + ".properties"));
+				return conf;
+			}
+
+JSON 응답과 요청 처리
+
+  - REST : Representational State Transfer : 표현적 상태 전이
+
+	1. JSON 개요 (JavaScript Object Notation)
+	
+	2. Jackson 의존 설정
+	
+		- jackson-databind 
+		- jackson-datatype-jsr310  ( jsr : java standard recommand,  310 : Date & Time API : java.time 패키지  )
+
+		 implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+		 implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'
+		 
+		- ObjectMapper : 내부적으로 동작함 (@RestController에서)
+		
+		  자바객체 -> JSON 문자열 - writeObjectAsString (자바객체)
+		  JSON 문자열 -> 자바객체 - readValue(..)
+		  
+	3. @RestController로 JSON 형식 응답
+	
+		반환값
+		  - 자바객체(getter 있는) : JSON 문자열로 자바객체 변환 후 출력
+		  
+		     응답헤더 :Content-Type = application/json
+			 
+		  - 반환값이 없는 경우 : 응답 body가 비어 있음
+		  
+		  - 문자열 : 문자열 그대로 출력이 된다.
+		  
+		     응답헤더 :Content-Type = text/plain
+		  
+	
+	4. @ResponseBody 애노테이션 
+	
+	    : @Controller 로 설정된 일반 컨트롤러 메서드를 Rest로 응답하게 만들어주는 에노테이션
+		: 자바객체, 문자열, 반환값 없음
+	
+	5. @Jsonlgnore를 이용한 제외 처리
+	
+		@Data
+		@Builder
+		public class Member {
+			private Long seq;
+			private String email;
+			@JsonIgnore   // password는 json으로 안보여줌
+			private String password;
+			private String userName;
+			@JsonFormat(pattern = "yyyyMMdd HH:mm:ss")
+			private LocalDateTime regDt;
+		}		
+	
+	6. 날짜 형식 변환 처리: @JsonFormat 사용
+	
+	   : 출력 날짜, 입력날짜 형식을 지정
+	   
+			1) 개별 entities 필드에 추가하는 방법 - 우선순위 높다
+			@Data
+			@Builder
+			//@Table("CH_MEMBER")
+			public class Member {
+				@Id
+				//@Column("ID")
+				private Long seq;
+				private String email;
+				@JsonIgnore
+				private String password;
+				private String userName;
+				@JsonFormat(pattern = "yyyyMMdd HH:mm:ss")
+				private LocalDateTime regDt;
+			}
+
+			2) MvcConfig.java에 추가하는 방법 - 전체적 적용 - 우선순위 낮다
+			@Override
+			public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+				ObjectMapper objectMapper = Jackson2ObjectMapperBuilder
+					.json()
+					.serializerByType(LocalDateTime.class, new LocalDateTimeSerializer(formatter))
+					.build();
+
+				converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper)); // 0, 1, 2 추가 가능함
+			}
+
+	json대신 XML로 응답하기 
+	
+	 의존성 추가
+	 - implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.17.2'
+		
+		MvcConfig.java 에 추가하면 몽땅 JSON 안되고 XML로 바뀜
+
+		@Override
+		public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			ObjectMapper objectMapper = Jackson2ObjectMapperBuilder
+				.json()//.xml()
+				.serializerByType(LocalDateTime.class, new LocalDateTimeSerializer(formatter))
+				.build();
+
+			converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper));
+		}
+
+	
+	7. @RequestBody JSON 요청 처리
+	
+		커맨드 객체 변환 기준 : Content-Type: application/x-www.form-urlencoded
+		커맨드 객체 앞에 @RequestBody 추가하면 Content-Type: application/json
+	
+		POSTMAN
+		ARC (Advanced Rest Client) : Rest Test
+		MockMvc
+	
+	8. ResponseEntity로 객체 리턴하고 응답 코드 지정하기
+	
+	    - 응답 헤더, 바디쪽을 상세하게 설정하는 경우
+	
+		1) ResponseEntity를 이용한 응답 데이터 처리
+		
+		2) ResponseEntity.status(상태코드).body(객체) : 응답 상태코드 + 출력 데이터
+		
+		3) ResponseEntity.status(상태코드).build(); 응답 상태코드 / 출력 데이터 없음
+
+		4) ReponseEntity.ok(member)
+		5) noContent() : 204
+		6) badRequest() : 400
+		7) notFound() : 404
+
+			@Slf4j
+			@RestController
+			@RequestMapping("/api/member")
+			@RequiredArgsConstructor
+			public class ApiMemberController {
+
+				private final MemberMapper mapper;
+				private final JoinService joinService;
+
+				@PostMapping
+				public ResponseEntity join(@RequestBody RequestJoin form) {
+					log.info(form.toString());
+
+					joinService.process(form);
+					return ResponseEntity.status(HttpStatus.CREATED).build();
+				}
+
+				@GetMapping("/info/{email}")
+				public Member info(@PathVariable("email") String email) {
+					Member member = mapper.get(email);
+
+					return member;
+				}
+				@GetMapping("list")
+				public ResponseEntity<List<Member>> list() {
+					List<Member> members = IntStream.range(1, 10)
+						.mapToObj(i -> Member.builder()
+						.email("user" + i + "@test.com")
+						.password("12345")
+						.userName("사용자" + i)
+						.regDt(LocalDateTime.now()).build()).toList();
+
+					HttpHeaders headers = new HttpHeaders();
+					headers.add("t1", "v1");
+					headers.add("t2", "v2");
+
+					return new ResponseEntity<>(members, headers, HttpStatus.OK);
+
+					//return ResponseEntity.status(HttpStatus.OK).body(members);
+				}
+
+				@GetMapping(path="/test", produces = "text/html;charset=UTF-8") // produces: response Header 의 contentType 값 넣기
+				public String test() {
+					//HttpHeaders headers = new HttpHeaders();
+					//headers.add("Content-Type", "text/html;charset=UTF-8");
+
+					//return new ResponseEntity<>("안녕하세요.", headers, HttpStatus.OK);
+					return "안녕하세요";
+				}
+				@GetMapping("/test2")
+				public void test2() {
+					log.info("test2...");
+				}
+			}
+
+
+			@SpringJUnitWebConfig
+			@ContextConfiguration(classes = MvcConfig.class)
+			public class ApiMemberControllerTest {
+
+				private MockMvc mockMvc;
+				@Autowired
+				private ApiMemberController controller;
+
+				@BeforeEach
+				void init() {
+					mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+				}
+
+				@Test
+				void test1() throws Exception {
+
+					/*
+					// Content-Type: application/x-www.form-urlencoded
+					// 이름=값&이름=값..
+					mockMvc.perform(post("/api/member")
+							.param("email", "user99@test.com")
+							.param("password", "12345678")
+							.param("confirmPassword", "12345678")
+							.param("userName", "사용자99"))
+							.andDo(print());
+					 */
+
+					// Content-Type: application/json
+					ObjectMapper om = new ObjectMapper();
+					om.registerModule(new JavaTimeModule());
+
+					RequestJoin form = new RequestJoin();
+					form.setEmail("user102@test.com");
+					form.setPassword("12345678");
+					form.setConfirmPassword("12345678");
+					form.setUserName("사용자102");
+					form.setAgree(true);
+
+					String json = om.writeValueAsString(form);
+					System.out.println(json);
+
+					mockMvc.perform(post("/api/member")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(json)  //요청바디
+						).andDo(print())
+						.andExpect(status().isCreated());
+
+				}
+				@Test
+				void test2() throws Exception {
+					mockMvc.perform(get("/api/member/list"))
+							.andDo(print());
+				}
+			}
+
+	9. @ExceptionHandler 적용 메서드에서 ResponseEntity로 응답하기
+	
+	10. @Valid 에러 결과를 JSON으로 응답하기
+
+
+UriComponentsBuilder
+
+	RestTemplate
+	
+	1. <T> ResponseEntity<T> getForEntity(...)
+	2. <T> T getForObject
+	3. <T> ResponseEntity<T> postForEntity
+	4. <T> T postForObject
+	5. <T> ResponseEntity<T> exchange(...)
