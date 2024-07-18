@@ -1148,3 +1148,150 @@ if문
         message = "통과" if score >= 70 else "안통과"
         print(message)
             
+            
+while문
+    1. while 문의 기본 구조
+    
+        while 조건식:
+            조건이 참일때 수행
+            
+    2. while 문 만들기
+    3. while 문 강제로 빠져나가기 - break
+    4. while 문의 맨 처음으로 돌아가기 - continue
+    5. 무한 루프            
+    
+    
+        sum = 0
+        n = 0
+        while n <= 100:
+            sum += n
+            n += 1
+        print(sum)
+        >> 5050
+
+        sum = 0
+        n = 0
+        while n <= 100:
+            n += 1
+            if n % 2 == 0:
+                continue
+            sum += n
+        print(sum)
+        >> 2601
+
+
+input() : 문자열 입력받을때 사용
+input("안내문구")
+
+
+    str = input()
+    print(str)
+
+    str = input("아무거나 입력하세요")
+    print(str)
+    
+str(..) : 다른 자료형의 값을 문자로
+int(..) : 다른 자료형의 값을 정수로
+float(..) : 다른 자료형의 값을 실수로
+
+        prompt = """두수의 연산 
+        q : 중지"""
+
+        while True:
+            print(prompt)
+            num1 = input("수1:")
+            if num1 == "q":
+                break
+            num2 = input("수2:")
+            if num2 == "q":
+                break
+
+            num1 = int(num1)
+            num2 = int(num2)
+            result = num1 + num2
+            print("%d + %d = %d" % (num1, num2, result))
+            
+            
+for문
+    1. for 문의 기본 구조
+    
+        for 변수 in 리스트, 튜플, 문자열: 
+            반복 수행 코드..
+            
+            
+    2. 예제를 통해 for 문 이해하기
+        1) 전형적인 for 문
+        2) 다양한 for 문의 사용
+
+    3. for 문의 응용
+    4. for 문과 continue 문
+
+        fruits = ["Apple", "Melon", "Mango", "Banana"]
+        for fruit in fruits:
+            print(fruit)
+            
+        >> 
+        Apple
+        Melon
+        Mango
+        Banana
+        
+        for ch in "ABCDEFG":
+            print(ch)
+            
+        >>
+        A
+        B
+        C
+        D
+        E
+        F
+        G
+        
+        nums = [(10, 20), (30, 40), (50, 60)]
+        for num in nums:
+            print(num)
+        print()
+        for n1, n2 in nums:
+            print("%d + %d = %d" % (n1, n2, n1 + n2))
+            
+        >>
+
+        (10, 20)
+        (30, 40)
+        (50, 60)
+
+        10 + 20 = 30
+        30 + 40 = 70
+        50 + 60 = 110
+
+
+    5. for 문과 함께 자주 사용하는 range 함수
+        1) range 함수의 예시 살펴보기
+        
+        2) for와 range를 이용한 구구단
+        
+        횟수가 있는 반복은 range() 한수와 함께 쓰기
+        
+            for i in range(10) :   # 10전 까지
+                print('%d번 반복' % (i + 1))  
+            >>
+            1번 반복
+            2번 반복
+            3번 반복
+            4번 반복
+            5번 반복
+            6번 반복
+            7번 반복
+            8번 반복
+            9번 반복
+            10번 반복
+
+    6. 리스트 컴프리헨션 사용하기
+        1) [표현식 for 항목 in 반복_가능_객체 if 조건문]
+
+        2) [표현식 for 항목1 in 반복_가능_객체1 if 조건문1
+          for 항목2 in 반복_가능_객체2 if 조건문2
+          ...
+          for 항목n in 반복_가능_객체n if 조건문n]            
+          
