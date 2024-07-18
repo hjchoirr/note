@@ -1,0 +1,35 @@
+매뉴얼
+
+
+자바 DOC
+
+Java SE 17 & JDK 17
+
+Jakarta EE Platform API
+	https://jakarta.ee/specifications/platform/10/apidocs/
+	
+Spring Framework 6.1.11 API	
+	https://docs.spring.io/spring-framework/docs/current/javadoc-api/
+	
+	
+Spring Data Core 3.3.2 API
+	https://docs.spring.io/spring-data/commons/docs/current/api/index.html
+	
+MVN Repository
+	https://mvnrepository.com/
+	
+MDN
+	https://developer.mozilla.org/ko/
+	
+미리캔버스 
+	https://www.miricanvas.com/ko
+
+React Icons
+	https://react-icons.github.io/react-icons/
+	
+	
+화면 공유
+	https://meet.jit.si/502class
+	
+용교쌤
+	https://github.com/yonggyo1125
