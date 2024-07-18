@@ -2269,6 +2269,32 @@ JSON 응답과 요청 처리
 
 	9. @ExceptionHandler 적용 메서드에서 ResponseEntity로 응답하기
 	
+		@RestControllerAdvice("org.choongang")
+		public class RestCommonControllerAdvice {
+			@ExceptionHandler(Exception.class)
+			public ResponseEntity<JSONData> errorHandler(Exception e) {
+
+				Object message = e.getMessage();
+
+				HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR; // 500
+				if (e instanceof CommonException commonException) {
+					status = commonException.getStatus();
+
+					Map<String, List<String>> errorMessages = commonException.getErrorMessages();
+					if (errorMessages != null) message = errorMessages;
+				}
+
+				JSONData data = new JSONData();
+				data.setSuccess(false);
+				data.setMessage(message);
+				data.setStatus(status);
+
+				e.printStackTrace();
+
+				return ResponseEntity.status(status).body(data);
+			}
+		}
+	
 	
 	
 	10. @Valid 에러 결과를 JSON으로 응답하기
