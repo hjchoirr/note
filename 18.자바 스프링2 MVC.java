@@ -2295,6 +2295,24 @@ JSON 응답과 요청 처리
 			}
 		}
 	
+		==> CommonException 수정
+
+		@Getter @Setter
+		public class CommonException extends RuntimeException{
+
+			private HttpStatus status;
+			private Map<String, List<String>> errorMessages;
+
+			public CommonException(String message) {
+				this(message, HttpStatus.INTERNAL_SERVER_ERROR); // 500
+			}
+
+			public CommonException(String message, HttpStatus status) {
+				super(message);
+				this.status = status;
+			}
+
+		}
 	
 	
 	10. @Valid 에러 결과를 JSON으로 응답하기
@@ -2437,3 +2455,5 @@ JSON 응답과 요청 처리
 				private String title;
 				private String body;
 			}
+
+RestCommonException, 커멘드객체 검증 등 다시 설명 7/19 9시
