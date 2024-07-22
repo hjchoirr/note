@@ -387,3 +387,229 @@ th:field="*{속성명}"
 		</div>
 		<button type="submit">가입하기</button>
 	</form>
+7/22 
+
+타임리프 내장객체
+(식객체 - #으로 시작 )
+ - 기본객체
+	#ctx
+		.response
+		.request
+		.session
+		.servletContext
+		
+	#locale
+	 - java.util.Locale
+	 
+	context
+	  - 요청 파라미터 조회
+	  
+	  param
+	  map 형태 속성 데이터
+	  session
+	  application..
+	  
+	  #session - jakarta.servlet.http.HttpSession
+	  #request - jakarta.servlet.httpServletRequest
+	  #response - jakarta.servlet.httpServletResponse
+	  
+ - 편의객체
+ 
+	 ${#strings.abbreviate(str,10)} // 긴 문자열 말줄임  ..
+	 ${#strings.concat(values...)}	
+	 ${#strings.randomAlphanumeric(count)}	
+
+	 ${#numbers.formatDecimal(num,3,2)}
+	 ${#numbers.arrayFormatDecimal(numArray,3,2)}
+	 ${#numbers.listFormatDecimal(numList,3,2)}
+	 ${#numbers.setFormatDecimal(numSet,3,2)}
+	 
+	 ${#numbers.sequence(from,to)}
+	 ${#numbers.sequence(from,to,step)}
+
+	 ${#messages.msg('msgKey')}
+	 ${#messages.msg('msgKey', param1)}
+	 ${#messages.msg('msgKey', param1, param2)}
+	 ${#messages.msg('msgKey', param1, param2, param3)}
+	 ${#messages.msgWithParams('msgKey', new Object[] {param1, param2, param3, param4})}
+	 ${#messages.arrayMsg(messageKeyArray)}
+	 ${#messages.listMsg(messageKeyList)}
+	 ${#messages.setMsg(messageKeySet)}
+
+	 #temporals : java.time 패키지 관련 형식화 및 편의 메서드가 정의된 식 객체
+
+	 - ${#dates.format(date, 'dd/MMM/yyyy HH:mm')}
+
+        <td th:text="*{regDt}"></td>
+        <td th:text="*{#temporals.format(regDt,'yyyy-MM-dd')}"></td>
+		
+	 - #strings.concat(..)
+
+		<td th:text="*{email}"></td>
+		<td th:text="*{#strings.concat(userName, '(', email, ')')}"></td>
+
+        <div th:each="num : ${#numbers.sequence(1,10,2)}">
+            <div th:text="${num}"></div>
+        </div>
+		
+
+		${@빈이름.메서드명)(..)}
+		*{@빈이름.메서드명)(..)}
+
+			<h1 th:text="${@utils.toUpper('aaa')}"></h1>
+
+			@Component
+			@RequiredArgsConstructor
+			public class Utils { // 빈의 이름 : utils -> 타임리프에서 사용가능
+
+				public String toUpper(String str) {
+					return str.toUpperCase();
+				}
+			}
+
+타임리프 페이지 레이아웃
+
+  th:replace : 템플릿 파일 지원
+
+
+	templates/outline/header.html
+
+		<!DOCTYPE html>
+		<html xmlns:th="http://www.thymeleaf.org">
+		<headder th:fragment="common">
+			<h1>헤더영역..</h1>
+		</headder>
+		</html>
+
+	templates/outline/footer.html
+
+		<!DOCTYPE html>
+		<html xmlns:th="http://www.thymeleaf.org">
+		<footer th:fragment="common">
+			<h1>푸터 영역..</h1>
+		</footer>
+		</html>
+
+	main/index.html
+
+		<!DOCTYPE html>
+		<html xmlns:th="http://www.thymeleaf.org">
+		<head>
+			<meta charset="UTF-8">    
+		</head>
+		<body>
+			<header th:replace="~{outlines/header::common}"></header>
+			<footer th:replace="~{outlines/footer::common}"></footer>
+		</body>
+		</html>
+
+th:replace 만으로는 안되고 layout 으로 
+
+	-> 내용 치환
+	
+mian/index.html
+
+	<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org"
+		  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		  layout:decorate="~{layouts/mainLayout}">
+
+		<main layout:fragment="content">
+			<h1>내용영역..</h1>
+		</main>
+	</html>
+
+layouts/mainLayout.html
+
+	<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org"
+		  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+		<script th:src="@{/js/common.js}"></script>
+	</head>
+	<body>
+		<header th:replace="~{outlines/header::common}"></header>
+
+		<main layout:fragment="content"></main>
+
+		<footer th:replace="~{outlines/footer::common}"></footer>
+	</body>
+	</html>
+
+outline/header.html
+
+	<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org">
+	<headder th:fragment="common">
+		<h1>헤더영역..</h1>
+	</headder>
+	</html>
+
+outline/footer.html
+
+	<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org">
+	<footer th:fragment="common">
+		<h1>푸터 영역..</h1>
+	</footer>
+	</html>
+
+==================================================
+좀더 추가하기
+==================================================
+
+main/index.html
+	<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org"
+		  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		  layout:decorate="~{layouts/mainLayout}">
+
+		//<!-- index.html 페이지는 컨트롤러가 없어서 css, js 파일 추가 받을 수 없으므로  여기 하나씩 추가하기-->
+		<th:block layout:fragment="addCss"> 
+			<link rel="stylesheet" type="text/css"
+				  th:href="@{/css/main/style.css}">
+		</th:block>
+		<th:block layout:fragment="addScript">
+			<script th:src="@{/js/main/common.js}"></script>
+		</th:block>
+
+		<main layout:fragment="content">
+			<h1>내용영역..</h1>
+		</main>
+	</html>
+
+layouts/mainLayout.html
+
+	<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org"
+		  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+	<head>
+		<meta charset="UTF-8">
+		<title th:if="${pageTitle != null}" th:text="${pageTiltle}"></title>
+		<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+		<th:block layout:fragment="addCss"></th:block>
+
+		<th:block th:if="${addCss != null}">   //<!-- 컨트롤러에서 추가받는 css와 js 추가하기 -->
+			<link rel="stylesheet" type="text/css" th:each="cssFile : ${addCss}"
+				  th:href="@{/css/{file}.ccs(file=${cssFile})}" >
+		</th:block>
+
+		<script th:src="@{/js/common.js}"></script>
+		<th:block layout:fragment="addScript"></th:block>
+
+		<th:block th:if="${addScript != null}">
+			<script th:each="jsFile : ${addScript}"
+					th:src="@{/js/{file}.js(ffile=${jsFile})}"></script>
+		</th:block>
+	</head>
+	<body>
+		<header th:replace="~{outlines/header::common}"></header>
+
+		<main layout:fragment="content"></main>
+
+		<footer th:replace="~{outlines/footer::common}"></footer>
+		<iframe name="ifrmProcess" class="dn"></iframe>
+	</body>
+	</html>

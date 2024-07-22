@@ -2314,7 +2314,52 @@ JSON 응답과 요청 처리
 
 		}
 	
-	
+
+		@Component
+		@RequiredArgsConstructor
+		public class Utils {
+
+			private final MessageSource messageSource;
+			private final HttpServletRequest request;
+
+			public Map<String, List<String>> getErrorMessages(Errors errors) {
+				// FieldErrors
+				Map<String, List<String>> messages = errors.getFieldErrors()
+						.stream()
+						.collect(Collectors.toMap(FieldError::getField, e -> getCodeMessages(e.getCodes())));
+
+				// GlobalErrors
+				List<String> gMessages = errors.getGlobalErrors()
+						.stream()
+						.flatMap(e -> getCodeMessages(e.getCodes()).stream()).toList();
+
+				if (!gMessages.isEmpty()) {
+					messages.put("global", gMessages);
+				}
+				return messages;
+			}
+
+
+			public List<String> getCodeMessages(String[] codes) {
+				ResourceBundleMessageSource ms = (ResourceBundleMessageSource) messageSource;
+				ms.setUseCodeAsDefaultMessage(false);
+
+				List<String> messages = Arrays.stream(codes)
+						.map(c -> {
+							try {
+								return ms.getMessage(c, null, request.getLocale());
+							} catch (Exception e) {
+								return "";
+							}
+						})
+						.filter(s -> !s.isBlank())
+						.toList();
+
+				ms.setUseCodeAsDefaultMessage(true);
+				return messages;
+			}
+		}
+
 	10. @Valid 에러 결과를 JSON으로 응답하기
 	
 		Errors
@@ -2347,7 +2392,7 @@ JSON 응답과 요청 처리
 		}	
 
 
-	RestTemplate ( JSON Rest Client 입장일때 ..)
+	RestTemplate ( JSON Rest Client 입장)
 		
 		1. <T> ResponseEntity<T> getForEntity(...)
 		2. <T> T getForObject
