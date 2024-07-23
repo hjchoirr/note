@@ -1287,31 +1287,31 @@ for문
             9번 반복
             10번 반복
 
-a = range(10)
-print(a)
->>
-range(0, 10)
-    
-for i in range(10):
-    print("%d회 반복" % i)
->>
-0회 반복
-1회 반복
-2회 반복
-3회 반복
-4회 반복
-5회 반복
-6회 반복
-7회 반복
-8회 반복
-9회 반복
+        a = range(10)
+        print(a)
+        >>
+        range(0, 10)
+            
+        for i in range(10):
+            print("%d회 반복" % i)
+        >>
+        0회 반복
+        1회 반복
+        2회 반복
+        3회 반복
+        4회 반복
+        5회 반복
+        6회 반복
+        7회 반복
+        8회 반복
+        9회 반복
 
-for i in range(2, 10) :
-    print()
-    for j in range(2, 10) :
-        print("%d X %d = %d" % (i, j, i * j))
+        for i in range(2, 10) :
+            print()
+            for j in range(2, 10) :
+                print("%d X %d = %d" % (i, j, i * j))
 
-구구단
+        구구단
 
 참고)
     print
@@ -1394,7 +1394,7 @@ for i in range(2, 10) :
         print(r1, r2, r3)
         >> -10 -10 -10
 
-        def minus2(a, b=10):
+        def minus2(a, b=10):   #  매개변수 b의 기본값 설정 -> 함수 오버로드 필요 없음, 기본값은 오른쪽 끝 매개뱐수 부터
             return a - b
 
         r4 = minus2(30)
@@ -1403,6 +1403,8 @@ for i in range(2, 10) :
     
         
     1. 함수란 무엇인가?
+    
+    
     2. 함수를 사용하는 이유는 무엇일까?
     3. 파이썬 함수의 구조
     4. 매개변수와 인수
@@ -1415,9 +1417,67 @@ for i in range(2, 10) :
     6. 매개변수를 지정하여 호출하기
     7. 입력값이 몇 개가 될지 모를 때는 어떻게 해야 할까?
         1) 여러 개의 입력값을 받는 함수 만들기
+        
+           *변수명 -> 관례적으로 *args
+
+            def calc(opr, *args):
+                result = 0
+                if opr == 'add':
+                    for num in args:
+                        result += num
+                elif opr == 'minus':
+                    for num in args:
+                        result -= num
+                elif opr == 'mul':
+                    result = 1
+                    for num in args:
+                        result *= num
+                return result
+
+            result1 = calc('add', 10, 20, 30, 40, 50)
+            result2 = calc('mul', 2,4,6,8)
+
+            print(result1, result2)
+            >> 150 384
+            
         2) 키워드 매개변수, kwargs
+            **변수명
+            - map 형태로 매개변수가 담겨 있다.
+            (참고) 관례적으로 **kwargs
+                
+            def keywords(**kwargs):
+                print(kwargs)
+
+            keywords(name="이이름", age=40)
+            >> {'name': '이이름', 'age': 40}
+                
+            def allkeywords(*args, **kwargs):
+                print(args)
+                print(kwargs)
+            allkeywords(10,20,30, name="이이름", age=40)
+
+            >>
+            (10, 20, 30)
+            {'name': '이이름', 'age': 40}
+
 
     8. 함수의 리턴값은 언제나 하나이다.
+    
+        def calc(a, b):
+            return a + b, a - b, a * b
+
+        calc(20, 10)
+        >> (30, 10, 200)    # 반환값은 1게임, 단 튜플일 뿐임
+        
+        def calc(a, b):
+            return a + b
+            return a - b
+            return a * b
+        calc(10, 20)
+            
+        >> 30
+        
+    
     9. return의 또 다른 쓰임새 
         - 실행 흐름 중지(함수 종료)
 
@@ -1428,3 +1488,5 @@ for i in range(2, 10) :
         2) global 명령어 사용하기
 
     13. lambda 예약어
+    
+    

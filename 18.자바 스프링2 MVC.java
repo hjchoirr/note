@@ -2393,12 +2393,15 @@ JSON 응답과 요청 처리
 
 
 	RestTemplate ( JSON Rest Client 입장)
+	- 클라이언트 사이드에서 동기적인 HTTP 요청을 하는 클래스
 		
-		1. <T> ResponseEntity<T> getForEntity(...)
+		1. <T> ResponseEntity<T> getForEntity(...) - getForObject 보다 상세한 결과 받음 
 		2. <T> T getForObject
-		3. <T> ResponseEntity<T> postForEntity
+		
+		3. <T> ResponseEntity<T> postForEntity  - postForObject 보다 상세한 결과 받음
 		4. <T> T postForObject
-		5. <T> ResponseEntity<T> exchange(...)
+		
+		5. <T> ResponseEntity<T> exchange(...) => PUT, DELETE, PATCH 등 method
 
 		TypeReference -> 데이터 여러개 
 		HttpEntity -> 헤더, 바디 등 함께 전송 시 필요함
