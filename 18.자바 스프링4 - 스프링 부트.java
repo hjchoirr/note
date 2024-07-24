@@ -361,30 +361,135 @@ Spring Data JPA
 			- @Table 
 			  - name : 테이블 명 
 					 : 엔티티 명 == 테이블명 
-				실제 테이블명 CH_MEMBER인데 클래스는 MEMBER 이면  @Table(name="CH_MEMBER")
+				실제 테이블명 CH_MEMBER인데 클래스는 MEMBER 이면  
 				
+				@Table(name="CH_MEMBER")
+
+				@Table(indexes =  @Index(name="idx_created_at_desc", columnList = "createdAt DESC"))
+
+				@Table(indexes = {
+						@Index(name="idx_created_at_desc", columnList = "createdAt DESC"),
+						@Index(name="uq_email_password", columnList = "email, password", unique=true)
+					})				
 					
 			- @Temporal
 				- Date, Calendar 클래스 관련 : 날짜, 시간, 날짜 + 시간 
 				
 				- java.time API  사용시 필요 X
 					LocalDate, LocalTime, LocalDateTime 
+					
 			- @CreatedDate, @LastModifiedDate 
+			
 				: 엔티티 변화 감지를 통해서 변경(DB와 상관 X)
 				: 변화 감지를 위한 이벤트 리스너
 				
 		2) 공통 속성화
 			@MappedSuperclass : 공통 속성화를 위한 상위 클래스 
+
+			-----------------------------------------------------
+			@Getter @Setter
+			@MappedSuperclass
+			public abstract class BaseEntity {
+
+				@CreatedDate //스프링 표준 에노테이션 
+				private LocalDateTime createdAt;
+
+				@LastModifiedDate //스프링 표준 에노테이션 
+				private LocalDateTime modifiedAt;
+			}			
+			-----------------------------------------------------
 			
+			@CreatedDate, @LastModifiedDate -> 엔티티의 상태변화에 따라서 값이 업데이트
+			
+			Auditing을 이용한 엔티티 공통 속성화
+
+			1. @MappedSuperclass
+			2. AuditorAware 인터페이스 
+			3. @EntityListeners
+			4. @EnableJpaAuditing
+
+			@Getter @Setter
+			@MappedSuperclass
+			@EntityListeners(AuditingEntityListener.class)
+			public abstract class BaseEntity {
+
+				@CreatedDate //스프링 표준 에노테이션
+				private LocalDateTime createdAt;
+
+				@LastModifiedDate //스프링 표준 에노테이션
+				private LocalDateTime modifiedAt;
+			}
+
+			@EnableJpaAuditing
+			@Configuration
+			public class MvcConfig implements WebMvcConfigurer {
+			}
+
+
+		
 			
 		3) @IdClass
 			: 기본키를 여러 컬럼을 조합해서 생성 
 			
 			: 게시글 조회수 - UV
 				브라우저 정보(User-Agent) + IP + 회원번호(0)  : UID  + 게시글 번호(ID)
-		
-		4) @GeneratedValue
 
+		  복합키 만들기 - 복합키 컬럼으로 클레스를 만들어서 Entitiy에서 사용
+		
+			방법1)
+	
+			@EqualsAndHashCode  // 동등성, 동일성 비교??
+			@AllArgsConstructor
+			@NoArgsConstructor
+			public class BoardViewId {
+				private long seq;
+				private int uid;
+			}
+					
+			@Data
+			@Entity
+			@IdClass(BoardViewId.class)
+			public class BoardView {
+				@Id
+				private long seq;
+
+				@Id
+				@Column(name="_uid")   // uid : 오라클 예약어라서 컬럼명으로 못씀
+				private int uid;
+			}
+
+			방법2)
+			
+			@EqualsAndHashCode
+			@AllArgsConstructor
+			@NoArgsConstructor
+			@Embeddable
+			public class BoardViewId {
+				private long seq;
+				@Column(name="_uid")
+				private int uid;
+			}
+			
+			@Data
+			@Entity
+			public class BoardView {
+				@EmbeddedId
+				private BoardViewId id;
+			}
+
+
+		4) @GeneratedValue : 자동증감 번호 컬럼
+			
+			public class Member {
+				@Id @GeneratedValue(strategy = GenerationType.AUTO)
+				private long seq;
+				...
+			}
+			
+			@GeneratedValue(strategy = GenerationType.AUTO)
+			@GeneratedValue(strategy = GenerationType.IDENTITY)
+			@GeneratedValue(strategy = GenerationType.SEQUENCE)  
+			
 			-----------------------------
 			@Table 예제
 			-----------------------------
@@ -443,8 +548,422 @@ Spring Data JPA
 				@Enumerated(EnumType.STRING)   // 중요  EnumType.STRING : 디폴트값 쓰면 안됨
 				private Authority authority;
 				
-				@CreationTimestamp   // 비표준 : hibernate 
+				@CreationTimestamp   // 비표준 : hibernate 꺼
 				private LocalDateTime createdAt;
-				@UpdateTimestamp     // 비표준 : hibernate 
+				
+				@UpdateTimestamp     // 비표준 : hibernate 꺼
 				private LocalDateTime modifiedAt;
 			}
+
+		-------------------------------------------------------------------------
+		@Enumerated(EnumType.STRING)   // 중요  EnumType.STRING : 디폴트값 쓰면 안됨(디폴트 숫자 매우 위험)
+		private Authority authority;
+		-------------------------------------------------------------------------
+		@Transient  // DB 테이블에는 없는 필드 (가공해서 사용할 임시 필드..)
+		private String introduction;
+		-------------------------------------------------------------------------
+		@Temporal(TemporalType.DATE) //날짜만
+		private Date date;		     // 엣날자바에서 사용하는 자료형
+		
+
+		@Column 
+		
+			-------------------------------------------------------------------------
+			@Column(name="name")
+			private String userName;		
+			-------------------------------------------------------------------------
+			
+			@Column(unique = true)
+			private String email;
+			-------------------------------------------------------------------------
+
+			public class Member extends BaseEntity {
+				@Id @GeneratedValue(strategy = GenerationType.AUTO)
+				private long seq;
+
+				@Column(length = 60, nullable = false, unique = true)
+				private String email;
+
+				@Column(length = 65, nullable = false)
+				private String password;
+
+				@Column(length = 40, nullable = false)
+				private String userName;
+				//@Lob
+				@Transient
+				private String introduction;
+				
+				@Column(length = 10)
+				@Enumerated(EnumType.STRING)
+				private Authority authority;
+
+			}
+			
+		@columnDefinition 쓰지 않는게 좋다 .. DB마다 달라서..
+
+	JPQL  -> Java Persistence Query Language
+		  -> 모든 DB 플랫폼에 호환
+		  -> 조회 결과가 영속 상태(변화 감지)
+		  
+		: 엔티티 기준의.. 
+
+	Repository 설계하기
+
+		- DAO 클래스 대체 
+
+		1. JpaRepository 인터페이스  : 상속 
+		
+			(CrudRepository의 하위 인터페이스)
+			
+			public interface MemberRepository extends JpaRepository<Member, Long> {
+			}
+			
+
+		2. JpaRepository에서 지원하는 메서드 
+		
+			- S save(S entity) : persist(...) : 영속성 상태로 추가 
+			
+			- S saveAndFlush(S entity) : persist() + flush()
+			
+			- List<S> saveAll(Collection<S> ...) 
+			
+			- List<S> saveAllAndFlush(....)
+
+			- void delete(T entity) : remove(...)
+			
+			- count()
+			
+			- Iterable findAll() 
+			
+			- S findOne(..)
+			  S findById(기본키)
+			  
+			  Optional<S> findById(기본키)  -> 낱개로 조회할때 널처리 위한 optional ****
+			  
+			  ... get... 
+			  
+			  참고) find로 시작하는 메서드 : 영속 상태 
+					get로 시작하는 메서드 : 비영속 상태 - 상태변화 감지 X -> deprecated -> 대신 detach 하면됨
+					  
+			- flush() : 상태 변화 감지 -> DB 에 반영
+			
+			
+			- JpaRepository 쓸때 test에서 @Transactional 안써도 됨
+
+
+				@SpringBootTest
+				@TestPropertySource(properties = "spring.profiles.active=test")
+				public class Ex05 {
+
+					@Autowired
+					private MemberRepository memberRepository;
+
+					@BeforeEach
+					void init() {
+
+						List<Member> members = IntStream.rangeClosed(1, 10)
+								.mapToObj(i -> Member.builder()
+								.email("user" + i + "@test.com")
+								.password("123456")
+								.userName("user" + i )
+								.authority(Authority.USER)
+								.build()).toList();
+						memberRepository.saveAllAndFlush(members);
+						/*
+						for (int i = 1; i <= 10; i++) {
+							Member member = Member.builder()
+									.email("user" + i + "@test.org")
+									.password("12345678")
+									.userName("사용자" + i)
+									.authority(Authority.USER)
+									.build();
+
+							memberRepository.save(member);
+						}
+
+						memberRepository.flush();
+						 */
+						//member.setUserName("(수정)사용자01");
+
+						//memberRepository.save(member);
+						//memberRepository.flush();
+
+					}
+
+					@Test
+					void test1() {
+						Member member = memberRepository.findById(1L).orElse(null);
+						System.out.println(member);
+
+						member.setUserName("(수정)사용자01");
+
+						memberRepository.save(member);
+
+						Member member2 = memberRepository.findById(1L).orElse(null);
+						System.out.println(member2);
+
+						Member member3 = memberRepository.findById(1L).orElse(null);
+						System.out.println(member3);
+
+						if(member3 != null ) {
+							memberRepository.delete(member3);
+							memberRepository.flush();
+						}
+						List<Member> members = memberRepository.findAll();
+						members.forEach(System.out::println);
+
+					}
+
+					@Test
+					void test2() {
+						List<Member> members = memberRepository.findAll();
+						members.forEach(System.out::println);
+					}
+				}
+
+				--------------------------------------------------------------------------------------
+				public interface MemberRepository extends JpaRepository<Member, Long> {
+					Member findByEmail(String email);
+
+					Page<Member> findByEmailContaining(String keyword, Pageable pageable);
+					List<Member> findByEmailContainingAndUserNameContainingOrderByCreatedAtDesc(String key1, String key2);
+				}
+
+
+
+				@SpringBootTest
+				@TestPropertySource(properties = "spring.profiles.active=test")
+				public class Ex06 {
+
+					@Autowired
+					private MemberRepository memberRepository;
+
+					@BeforeEach
+					void init() {
+
+						List<Member> members = IntStream.rangeClosed(1, 10)
+								.mapToObj(i -> Member.builder()
+										.email("user" + i + "@test.com")
+										.password("123456")
+										.userName("user" + i)
+										.authority(Authority.USER)
+										.build()).toList();
+
+						memberRepository.saveAllAndFlush(members);
+					}
+
+					@Test
+					void test1() {
+						Member member = memberRepository.findByEmail("user2@test.com");
+						System.out.println(member);
+
+					}
+
+					@Test
+					void test2() {
+						List<Member> members = memberRepository.findByEmailContainingAndUserNameContainingOrderByCreatedAtDesc("ser", "용");
+						members.forEach(System.out::println);
+					}
+				}
+	쿼리 메서드
+	
+		Pageable - 페이징 기초정보
+		
+		slice - 한 페이지의 데이터
+
+			------------------------------------------------------
+			public interface MemberRepository extends JpaRepository<Member, Long> {
+				Page<Member> findByEmailContaining(String keyword, Pageable pageable);
+			}
+
+			@SpringBootTest
+			@TestPropertySource(properties = "spring.profiles.active=test")
+			public class Ex06 {
+
+				@Autowired
+				private MemberRepository memberRepository;
+
+				@BeforeEach
+				void init() {
+
+					List<Member> members = IntStream.rangeClosed(1, 10)
+							.mapToObj(i -> Member.builder()
+									.email("user" + i + "@test.com")
+									.password("123456")
+									.userName("user" + i)
+									.authority(Authority.USER)
+									.build()).toList();
+
+					memberRepository.saveAllAndFlush(members);
+				}
+
+				@Test
+				void test3() {
+					Pageable pageable = PageRequest.of(1, 3); // page 번호 0 부터, 페이지 당 데이터 갯수:3
+
+					Page<Member> data = memberRepository.findByEmailContaining("ser", pageable);
+					long total = data.getTotalElements();
+					System.out.println("data.getTotalElements() : " + total);
+
+					List<Member> items = data.getContent(); //
+					items.forEach(System.out::println);
+				}
+			}
+			
+			------------------------------------------------------
+			
+		@Query 애노테이션
+
+		JPQL(Java Persistence Query Language)
+		- 엔티티 기준의  SQL, 조회 결과 
+		상태
+
+		Querydsl : 비표준
+
+			------------------------------------------------------
+			public interface MemberRepository extends JpaRepository<Member, Long> {
+
+				@Query("select m from Member m where m.email like :k1 and m.userName like :k2 order by m.createdAt desc") //entity의 이름 기준으로  Member, userName...
+				List<Member> getMembers(@Param("k1") String key1, @Param("k2")String key2);
+			}
+
+			@Test
+			void test4() {
+				List<Member> members = memberRepository.getMembers("%ser%", "%용자%");
+				members.forEach(System.out::println);
+			}
+			------------------------------------------------------
+
+
+		의존성 추가 querydsl 검색 - Querydsl JPA Support, Querydsl APT Support 
+		
+		implementation 'com.querydsl:querydsl-jpa:5.1.0'
+		implementation 'com.querydsl:querydsl-apt:5.1.0' 
+		   -> annotationProcessor 'com.querydsl:querydsl-apt:5.1.0'
+		   
+		=>
+		
+		implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+		annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+
+		-- build.gradle 에 추가 -----
+		
+		def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+
+		sourceSets {
+			main.java.srcDirs += [querydslDir]
+		}
+
+		tasks.withType(JavaCompile) {
+			options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+		}
+
+		clean.doLast {
+			file(querydslDir).deleteDir()
+		}
+		---------------------------------------------------
+
+		리포지토리 정의
+		
+		QueryDslPredicateExecutor 를 함께 상속 -> 
+
+
+			public interface MemberRepository extends JpaRepository<Member, Long>, QuerydslPredicateExecutor<Member> {
+
+			}
+
+		main/generated/.../entities/QMember 생김
+		
+		Q클래스  
+			eq : =
+			lt : <
+			loe : <=
+			gt : >
+			goe : >=
+		
+		BooleanBuilder : 여러 검색 조건을 만드는 경우
+		
+		  - and(Predicate...)
+		  - or(Predicate..)
+		  - not(Predicate..)
+		  
+
+			@SpringBootTest
+			@TestPropertySource(properties = "spring.profiles.active=test")
+			public class Ex07 {
+				@Autowired
+				private MemberRepository memberRepository;
+
+				@BeforeEach
+				void init() {
+
+					List<Member> members = IntStream.rangeClosed(1, 10)
+						.mapToObj(i -> Member.builder()
+						.email("user" + i + "@test.com")
+						.password("123456")
+						.userName("사용자" + i)
+						.authority(i % 2 == 0 ? Authority.USER : Authority.ADMIN)
+						.build()).toList();
+
+					memberRepository.saveAllAndFlush(members);
+				}
+
+				@Test
+				void test1() {
+					QMember member = QMember.member;
+					BooleanExpression c1 = member.userName.contains("용");
+					List<Member> members = (List<Member>)memberRepository.findAll(c1);
+					members.forEach(System.out::println);
+				}
+				@Test
+				void test2() {
+					String key = "용";
+					QMember member = QMember.member;
+
+					BooleanBuilder andBuilder = new BooleanBuilder();
+					BooleanBuilder orBuilder = new BooleanBuilder();
+
+					orBuilder.or(member.email.contains(key))
+							.or(member.userName.contains(key));
+
+					andBuilder.and(orBuilder);
+					List<Member> members = (List<Member>)memberRepository.findAll(orBuilder);
+					members.forEach(System.out::println);
+
+				}
+
+				@Test
+				void test3() {
+					QMember member = QMember.member;
+					BooleanExpression c1 = member.email.concat(member.userName).contains("용");
+					System.out.println("c1 : " + c1);
+					List<Member> members = (List<Member>)memberRepository.findAll(c1);
+					members.forEach(System.out::println);
+				}
+			}
+		
+	연관 관계 매핑
+		1. 일대일(1:1) : @OneToOne
+		2. 일대다(1:N) : @OneToMany
+		3. 다대일(N:1) : @ManyToOne
+		4. 다대다(N:M) : @ManyToMany
+		
+		게시글 : 회원 ( 다 : 1 )
+		
+
+
+	지연로딩 
+		1. FetchType.EAGER
+		2. FetchType.LAZY
+
+	영속성 전이
+		1. CASCADE 종류	
+			1) PERSIST
+			2) MERGE
+			3) REMOVE
+			4) REFRESH
+			5) DETACH
+			6) ALL
+
+		2. 고아 객체 제거하기
+		- @OneToMany 애노테이션에 orphanRemoval=true 옵션을 추가

@@ -441,7 +441,7 @@ https://www.python.org/downloads/
     3) 리스트의 슬라이싱
     4) 중첩된 리스트에서 슬라이싱하기
 
-        b = [1,2,3,4,5,6,7,8,9]
+b = [1,2,3,4,5,6,7,8,9]
         a = b[0:3]
         print(a)
 
@@ -1441,8 +1441,10 @@ for문
             >> 150 384
             
         2) 키워드 매개변수, kwargs
+        
             **변수명
             - map 형태로 매개변수가 담겨 있다.
+            
             (참고) 관례적으로 **kwargs
                 
             def keywords(**kwargs):
@@ -1481,12 +1483,67 @@ for문
     9. return의 또 다른 쓰임새 
         - 실행 흐름 중지(함수 종료)
 
-    10. 매개변수에 초깃값 미리 설정하기
+    10. 매개변수에 초기값 미리 설정하기
+    
     11. 함수 안에서 선언한 변수의 효력 범위
+    
     12. 함수 안에서 함수 밖의 변수를 변경하는 방법
+    
         1) return 사용하기
         2) global 명령어 사용하기
 
+            a = 10
+            def add():     ## 순수하지 않은 함수 -> 이렇게 잘 안씀
+                global a   ## 전역변수 a 
+                a += 1
+            add()
+            print(a)
+
     13. lambda 예약어
     
+        nums = [i for i in range(1, 11)]
+
+        def square(num) :
+            return num * num
+
+        nums2 = list(map(square, nums))
+        print(nums2)
+
+        #위와 동일
+
+        nums3 = list(map(lambda a: a * a, nums))
+        print(nums3)
+            
+        >>
+
+        [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
     
+    
+    14. 파이썬은 모든게 객체
+    
+        - 일등함수, 함수안에 함수
+    
+            def add(num1):
+                def add2(num2):
+                    return num1 + num2  
+                return add2
+
+            add10 = add(10)
+            ret = add10(20)
+            print(ret)    
+            
+            => 클로져
+            
+            
+            
+    
+사용자 입출력
+
+    1. 사용자 입력 활용하기
+        1) input 사용하기
+        2) 프롬프트를 띄워 사용자 입력받기
+
+    2. print 자세히 알기
+        1) 큰따옴표로 둘러싸인 문자열은 + 연산과 동일하다
+        2) 문자열 띄어쓰기는 쉼표로 한다
+        3) 한 줄에 결과값 출력하기
