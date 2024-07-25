@@ -28,7 +28,7 @@
 		
 		spring context mvn repository 검색
 		Spring Context » 6.1.10
-		implementation 'org.springframework:spring-context:6.1.10'
+implementation 'org.springframework:spring-context:6.1.10'
 
 		설정클래스 @Configuration
 

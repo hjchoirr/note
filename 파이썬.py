@@ -1534,16 +1534,250 @@ for문
             
             => 클로져
             
-            
-            
+데코레이터 패턴            
+        import time
+        def elapse(func):
+            def wrapper():
+                start = time.time()
+
+                result = func()  # 핵심기능
+
+                end = time.time()
+
+                print("걸린시간 : %f" % (end - start))
+                return result
+            return wrapper
+
+
+        def myFunc() :
+            print("실행!")
+
+        decoratedMyFunc = elapse(myFunc)
+        decoratedMyFunc()
+
+        >>
+
+        실행!
+        걸린시간 : 0.000499
+
+        아래위 동일
+
+        import time
+        def elapse(func):
+            def wrapper():
+                start = time.time()
+
+                result = func()  # 핵심기능
+
+                end = time.time()
+
+                print("걸린시간 : %f" % (end - start))
+                return result
+            return wrapper
+
+        @elapse
+        def myFunc() :
+            print("실행!")
+
+        myFunc()
+
+        >>
+        
+        실행!
+        걸린시간 : 0.001884
+
+
     
 사용자 입출력
 
     1. 사용자 입력 활용하기
+    
         1) input 사용하기
+           input()
+           
+            a = input("숫자입력:")
+            print(a)           
+            
+                a = input("숫자입력:")
+                print(a)
+                type(a)   # str
+                b = a + 123  # 다른 형 끼리 못더함 -> str(a) + 123
+                print(b)
+                >>
+                    에러
+    
+
+
+            변환함수 
+             - str(..)
+             - int(..)
+             - float(..)
+             - bool(..)
+             
+             - list(..)
+             - tuple(..)
+             - dict(..)
+             - set(...)
+
+
+                print("AA" "BB" "CC")    >>  AABBCC
+                print("AA" + "BB" + "CC")  >>  AABBCC
+                print("AA", "BB", "CC") >> AA BB CC
+
+
+                chars = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+                for char in chars:
+                    print(char, end ='')  # end 기본값 : \n
+                    
+                >> ABCDEFG
+            
+             
+           
         2) 프롬프트를 띄워 사용자 입력받기
+           
+        
 
     2. print 자세히 알기
         1) 큰따옴표로 둘러싸인 문자열은 + 연산과 동일하다
         2) 문자열 띄어쓰기는 쉼표로 한다
         3) 한 줄에 결과값 출력하기
+        
+        
+파일 읽고 쓰기
+    1. 파일 생성하기
+    
+        1) 파일 열기 모드  - r(읽기 모드), w(쓰기 모드), a(추가 모드) 
+            >>> f = open("D:/python/test1.txt", "w")
+            >>> for i in range(1, 11) :              
+            ...     f.write("%d행 입니다\n" % i)          
+        
+            >>> f = open("D:/python/test1.txt", "r")
+            >>> data = f.read()
+            >>> f.close()
+            >>> print(data)
+
+            >>> f = open("D:/python/test1.txt", "r")
+            >>> while True:
+            ...     line = f.readline()
+            ...     if not line: break
+            ...     print(line)
+            ...
+            1행 입니다
+
+            2행 입니다
+
+            3행 입니다
+
+            4행 입니다
+
+            5행 입니다
+
+            6행 입니다
+
+            7행 입니다
+
+            8행 입니다
+
+            9행 입니다
+
+            10행 입니다
+
+        
+    2. 파일을 쓰기 모드로 열어 내용 쓰기
+
+    3. 파일을 읽는 여러 가지 방법
+    
+        1) readline 함수 이용하기 : 한줄씩 읽기
+        
+        2) readlines 함수 사용하기 
+        
+        3) 줄 바꿈(\n) 문자 제거하기
+        
+            공백 , 탭, 줄개행문자 
+            
+            문자열
+              strip() - 양쪽 공백 제거
+              lstrip() - 왼쪽 공백 제거됨
+              rstrip() - 오른쪽 공백 제거됨
+              
+                f = open("D:/python/test1.txt", "r")
+                while True:
+                    line = f.readline()
+                    if not line: break
+                    line = line.strip()
+                    print(line)
+                >>
+
+                1행 입니다
+                2행 입니다
+                3행 입니다
+                4행 입니다
+                5행 입니다
+                6행 입니다
+                7행 입니다
+                8행 입니다
+                9행 입니다
+                10행 입니다
+
+                f = open("D:/python/test1.txt", "r")
+                lines = f.readlines()
+                print(lines)
+
+                for line in lines :
+                    print(line, end='')
+                >>  
+                ['1행 입니다\n', '2행 입니다\n', '3행 입니다\n', '4행 입니다\n', '5행 입니다\n', '6행 입니다\n', '7행 입니다\n', '8행 입니다\n', '9행 입니다\n', '10행 입니다\n']
+                1행 입니다
+                2행 입니다
+                3행 입니다
+                4행 입니다
+                5행 입니다
+                6행 입니다
+                7행 입니다
+                8행 입니다
+                9행 입니다
+                10행 입니다    
+                
+                
+                f = open("D:/python/test1.txt", "r")
+                for line in f:
+                    print(line, end = '')                
+
+
+                f = open("D:/python/test1.txt", "a")
+                for i in range(11, 41) :
+                    f.write("%d행 입니당\n" % i)
+                f.close()
+
+                with open("D:/python/test2.txt", "w") as f:  ## 자동 close()
+                    f.write("오늘 파이썬 수업 총총")
+
+                    
+                    
+        4) read 함수 사용하기
+        
+        5) 파일 객체를 for 문과 함께 사용하기
+
+    4. 파일에 새로운 내용 추가하기
+    
+    5. with 문과 함께 사용하기        
+    
+
+프로그램의 입출력
+    1. sys 모듈 사용하기
+
+클래스
+    1. 계산기 프로그램을 만들며 클래스 알아보기
+    2. 클래스와 객체
+    3. 사칙 연산 클래스 만들기
+        1) 클래스 구조 만들기
+        2) 객체에 연산할 숫자 지정하기
+        3) 더하기 기능 만들기
+        4) 곱하기, 빼기, 나누기 기능 만들기
+
+    4. 생성자
+    5. 클래스의 상속
+    6. 메서드 오버라이딩
+    7. 클래스변수
+        1) 클래스 변수 사용하기
+        2) 클래스변수와 동일한 이름의 객체변수를 생성하면?

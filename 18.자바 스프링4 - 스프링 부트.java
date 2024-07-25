@@ -15,19 +15,17 @@
 		spring.application.name=day01
 		spring.devtools.livereload.enabled=true
 	
+			: springboot dev tools - 서버 자동 재시작, 라이브 리로드(템플릿 변경사항 -> 브라우저 새로고침)
 	
-	springboot dev tools - 서버 자동 재시작, 라이브 리로드(템플릿 변경사항 -> 브라우저 새로고침)
-	
-	file-> settings -> compiler -> build project automatically 체크
-	 -> advanced settings -> compiler -> allow auto make to start  ... 체크 
+	inteliJ세팅 	file-> settings 
+	- Build, Execution, Deployment -> compiler -> build project automatically 체크
+	- advanced settings -> compiler -> allow auto make to start  ... 체크 
 	 
 	application.properties
-	 -> spring.devtools.livereload.enabled=true
+	 -> spring.devtools.livereload.enabled=true  ## : 개발시에만 사용하기 
 	 
 	 chrome 확장기능 - liveReload 설치
 	 
-	 : 개발시에만 사용하기 
-	
 	
 	프로필 (중요)
 	
@@ -37,6 +35,7 @@
 	 설정 값에 따라서 application-환경변수명.properties로 동작
 	
 	실행시 환경변수 설정 방법
+	
 	-D 환경변수명=값
 	--환경변수명=값
 	
@@ -133,9 +132,7 @@
 	기본 패키지가 기본 스캔 범위임(Code Coverage)
 
 
-
 Spring Data JPA
-
 
 	C:\>docker exec -it oracle-xe /bin/bash
 	SQL> create user JPA_STUDY identified by oracle quota unlimited on users;
@@ -162,13 +159,11 @@ Spring Data JPA
 		  use_sql_comments: true
 		  #dialect: org.hibernate.dialect.OracleDialect # 예전 버전은 꼭 명시 해야..
 		hibernate:
-		  ddlAuto: create
+		  ddlAuto: create   # 실행시 테이블 drop 하고 create  자동으로 ...> 꼭 테스트환경에서만 사용하기
 
 	logging:
 	  level:
-		org:
-		  hibernate:
-			type: trace
+		org.hibernate.type: trace
 
 	------------------------------
 	resource/application-test.yml
@@ -198,6 +193,7 @@ Spring Data JPA
 
 
 Spring Data JPA 
+	// 스프링과 조합 가능 : Redis or Mongodb or spring Data JDBC or JPA 
 
 	1. JPA 동작 방식
 		0) ORM : 객체 <- 번역(ORM) -> DB
@@ -266,10 +262,6 @@ Spring Data JPA
 					  hibernate:
 						type: info
 				----------------------------------------------------
-			
-				@SpringBootTest
-				@Transactional
-				@TestPropertySource(properties = "spring.profiles.active=test")
 
 				@Entity
 				@Data
@@ -282,12 +274,15 @@ Spring Data JPA
 					private LocalDateTime createAt;
 					private LocalDateTime modifiedAt;
 				}
+				
+				@SpringBootTest
+				@Transactional
+				@TestPropertySource(properties = "spring.profiles.active=test")
 				public class Ex02 {
-					@PersistenceContext
+				
+					@PersistenceContext // 이걸로 @Autowired 역할까지 
 					private EntityManager em;
-					@Autowired
-					private SpringDataWebAutoConfiguration springDataWebAutoConfiguration;
-
+					
 					@BeforeEach
 					void init() {
 						for(long i = 1L; i <= 10L; i++) {
@@ -398,7 +393,8 @@ Spring Data JPA
 				private LocalDateTime modifiedAt;
 			}			
 			-----------------------------------------------------
-			
+
+
 			@CreatedDate, @LastModifiedDate -> 엔티티의 상태변화에 따라서 값이 업데이트
 			
 			Auditing을 이용한 엔티티 공통 속성화
@@ -486,9 +482,9 @@ Spring Data JPA
 				...
 			}
 			
-			@GeneratedValue(strategy = GenerationType.AUTO)
-			@GeneratedValue(strategy = GenerationType.IDENTITY)
-			@GeneratedValue(strategy = GenerationType.SEQUENCE)  
+			@GeneratedValue(strategy = GenerationType.AUTO)   
+			@GeneratedValue(strategy = GenerationType.IDENTITY) // 예 : mysql
+			@GeneratedValue(strategy = GenerationType.SEQUENCE)  // 예:오라클 
 			
 			-----------------------------
 			@Table 예제
@@ -819,6 +815,8 @@ Spring Data JPA
 		상태
 
 		Querydsl : 비표준
+		
+			http://querydsl.com/static/querydsl/5.0.0/reference/html_single/		
 
 			------------------------------------------------------
 			public interface MemberRepository extends JpaRepository<Member, Long> {
@@ -943,18 +941,457 @@ Spring Data JPA
 			}
 		
 	연관 관계 매핑
+	
 		1. 일대일(1:1) : @OneToOne
+		
 		2. 일대다(1:N) : @OneToMany
+		
+			Member - BoardData
+			- 연관관계의 주인 설정 - 관계의 주인의 외래키쪽
+			- mappedBy 
+			
+			- lombok 의 toString() 과 함께 사용되면 순환참조 발생 가능성
+			  :  toString() 할때 getter 매서드를 사용하기 때문에
+			  BoardData -> toString() -> getMember() -> toString() ->List<BoardData> -> toString()
+		
+			=> 해결방법 ?
+			
+				: toString을 멤버 변수를 직접 출력하는 것으로 직접 정의
+				
+				: @ToString.Exclude -> ToString에 배제
+				: @ToString.Include -> ToString에 포함
+
+		BOARD_DATA : MEMBER 
+		 - 연관관계의 주인은 BOARD_DATA table
+		 
+		@JoinColumn : 조인되는 컬럼의 이름을 변경할 때
+
+
 		3. 다대일(N:1) : @ManyToOne
+		
+		
 		4. 다대다(N:M) : @ManyToMany
+		  - 중간 테이블 하나 생성
+		  - BoardData - HashTag
+		  
+			게시글1 태그1 태그4
+			게시글2 태그1 태그2
+			게시글3 태그3 태그4
+
+			태그1 - 게시글1, 게시글2 
+		  
 		
-		게시글 : 회원 ( 다 : 1 )
-		
+			@Data
+			@Builder
+			@Entity
+			@NoArgsConstructor @AllArgsConstructor
+			public class BoardData extends BaseEntity {
+				@Id @GeneratedValue
+				private Long seq;
+
+				@ManyToOne // -> member_seq : 엔티티명_기본키 (memberSeq)
+				@JoinColumn(name="mSeq") // m_seq 로 이름 바꾸기
+				private Member member;
+
+				@Column(nullable = false)
+				private String subject;
+
+				@Lob
+				private String content;
+
+			}
+
+			@Builder
+			@Entity
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public class Member extends BaseEntity {
+				@Id @GeneratedValue(strategy = GenerationType.AUTO)
+				private long seq;
+
+				@Column(length = 60, nullable = false, unique = true)
+				private String email;
+
+				@Column(length = 65, nullable = false)
+				private String password;
+
+				@Column(length = 40, nullable = false)
+				private String userName;
+				//@Lob
+				@Transient
+				private String introduction;
+
+				@Column(length = 10)
+				@Enumerated(EnumType.STRING)
+				private Authority authority;
+
+
+				@ToString.Exclude // toString 추가를 제외 시킴
+				@OneToMany(mappedBy = "member") // BoardData 엔티티의 @ManyToOne 속성 지정해야함
+				private List<BoardData> items;
+
+				@OneToOne
+				@JoinColumn(name="profileSeq")
+				private MemberProfile profile;
+
+			}
+
+			@Data
+			@Builder
+			@Entity
+			@NoArgsConstructor @AllArgsConstructor
+			public class MemberProfile {
+				@Id @GeneratedValue
+				private long seq;
+
+				private String profileImage;
+				private String status;
+
+				@OneToOne(mappedBy = "profile")
+				@ToString.Exclude
+				private Member member;
+
+			}		
+
+
+			@SpringBootTest
+			@ActiveProfiles("test")
+			@Transactional //관계매핑 등 연관테이터 가져올때는 원 엔티티가 영속성 상태를 유지할 수 있도록 Transactional
+			public class Ex09 {
+				@Autowired
+				private MemberRepository memberRepository;
+				@Autowired
+				private BoardDataRepository boardDataRepository;
+
+				@PersistenceContext  // @Autowired 포함된 기능
+				private EntityManager em;
+
+				@BeforeEach
+				void init() {
+					Member member = Member.builder()
+						.email("user01@test.com")
+						.password("12345")
+						.userName("사용자01")
+						.authority(Authority.USER)
+						.build();
+					memberRepository.saveAndFlush(member);
+
+					List<BoardData> items = IntStream.rangeClosed(1, 10)
+						.mapToObj(i-> BoardData.builder()
+							.subject("제목" + i)
+							.content("내용" + i)
+							.member(member)
+							.build()).toList();
+
+					boardDataRepository.saveAllAndFlush(items);
+					em.clear() ; // 1차 캐시 방지 하기 : 테스트 확실히 하기 위해
+				}
+				@Test
+				void test1() {
+					BoardData boardData = boardDataRepository.findById(1L).orElse(null);
+
+					Member member = boardData.getMember();
+					System.out.println(member);
+				}
+
+				@Test
+				void test2() {
+					Member member = memberRepository.findById(1L).orElse(null);
+					List<BoardData> items = member.getItems();
+					items.forEach(System.out::println);
+				}
+
+			}
+
+			@SpringBootTest
+			@ActiveProfiles("test")
+			@Transactional
+			public class Ex10 {
+				@Autowired
+				private MemberRepository memberRepository;
+				@Autowired
+				private MemberProfileRepository profileRepository;
+
+				@PersistenceContext
+				private EntityManager em;
+
+				@BeforeEach
+				void init() {
+					MemberProfile profile = MemberProfile.builder()
+							.profileImage("이미지")
+							.status("상태")
+							.build();
+					profileRepository.saveAndFlush(profile);
+
+					Member member = Member.builder()
+							.email("user01@test.com")
+							.password("12345")
+							.userName("사용자01")
+							.authority(Authority.USER)
+							.profile(profile)
+							.build();
+					memberRepository.saveAndFlush(member);
+
+					em.clear();
+
+				}
+
+				@Test
+				void test1() {
+					Member member = memberRepository.findById(1L).orElse(null);
+					MemberProfile profile = member.getProfile();
+					System.out.println(profile);
+				}
+				@Test
+				void test2() {
+					MemberProfile profile = profileRepository.findById(1L).orElse(null);
+					Member member = profile.getMember();
+
+					System.out.println(member);
+				}
+			}
+
+			-------@ManyToMany----------------------------------------
+			@Data
+			@Builder
+			@Entity
+			@NoArgsConstructor @AllArgsConstructor
+			public class BoardData extends BaseEntity {
+				@Id @GeneratedValue
+				private Long seq;
+
+				@ManyToOne // -> member_seq : 엔티티명_기본키 (memberSeq)
+				@JoinColumn(name="mSeq") // m_seq 로 이름 바꾸기
+				private Member member;
+
+				@Column(nullable = false)
+				private String subject;
+
+				@Lob
+				private String content;
+
+				@ManyToMany
+				private List<HashTag> tags;
+			}
+
+			@Data
+			@Entity
+			@Builder
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public class HashTag {
+				@Id
+				private String tag;
+
+				@ManyToMany(mappedBy = "tags")
+				@ToString.Exclude
+				private List<BoardData> items;
+			}
+
+			@SpringBootTest
+			@ActiveProfiles("test")
+			@Transactional
+			public class Ex11 {
+
+				@Autowired
+				private BoardDataRepository boardDataRepository;
+
+				@Autowired
+				private HashTagRepository hashTagRepository;
+
+				@PersistenceContext
+				private EntityManager em;
+
+				@BeforeEach
+				void init() {
+					List<HashTag> tags = IntStream.rangeClosed(1, 5)
+							.mapToObj(i -> HashTag.builder()
+							.tag("태그" + i)
+							.build()).toList();
+
+					hashTagRepository.saveAllAndFlush(tags);
+
+					List<BoardData> items = IntStream.rangeClosed(1, 5)
+						.mapToObj(i -> BoardData.builder()
+							.subject("제목" + i)
+							.content("내용" + i)
+							.tags(tags)
+							.build()).toList();
+					boardDataRepository.saveAllAndFlush(items);
+
+					em.clear();
+				}
+
+				@Test
+				void test1() {
+					BoardData item = boardDataRepository.findById(1L).orElse(null);
+
+					List<HashTag> tags = item.getTags();
+					tags.forEach(System.out::println);
+				}
+
+				@Test
+				void test2() {
+
+					HashTag tag = hashTagRepository.findById("태그2").orElse(null);
+					List<BoardData> items = tag.getItems();
+					items.forEach(System.out::println);
+
+				}
+			}
+			-------@ManyToMany----------------------------------------
+			
+			-> ManyToMany 는 중간 테이블 만들어짐 
+				Hibernate: 
+					create table hash_tag (
+						tag varchar(255) not null,
+						primary key (tag)
+					)			
+			----------------------------------------------------------
 
 
 	지연로딩 
-		1. FetchType.EAGER
-		2. FetchType.LAZY
+	
+		1. FetchType.EAGER : 즉시 로딩 - 처음부터 join
+		2. FetchType.LAZY : 지연로딩, 처음에는 현재 엔티니만 조회, 다른 매핑된 엔티티는 사용할때만 2차 실행
+
+		- 글로벌 전략으로 지연로딩, 필요시메만 즉시 로딩 전략 사용해라
+		
+		- ManyToOne : 기본값 즉시로딩 FetchType.EAGER : 처음부터 조인함
+		- OneToMany : 기본값 지연로딩 FetchType.LAZY : 필요할때만 조인함
+		
+	    - 지연로딩때는 @Transactional 과 함께 많이 사용함
+		
+		Fetch 조인 -> 필요한 엔티티만 즉시 로딩 전략을 이용
+		
+		1) JPQL 직접 정의 : @Query 에노테이션
+		2) @EntityGraph :  쿼리매서드에만 사용가능함
+		
+			 @EntityGraph(attributePaths = "member")
+			 
+			 
+			 
+				 public interface BoardDataRepository extends JpaRepository<BoardData, Long>, QuerydslPredicateExecutor<BoardData> {
+
+					@Query("select b from BoardData b left join fetch b.member")
+					List<BoardData> getAllList();
+
+					@EntityGraph(attributePaths = "member")
+					List<BoardData> findBySubjectContaining(String key);
+
+				}
+
+				@Builder
+				@Entity
+				@Data
+				@NoArgsConstructor
+				@AllArgsConstructor
+				public class Member extends BaseEntity {
+					@Id @GeneratedValue(strategy = GenerationType.AUTO)
+					private long seq;
+
+					@Column(length = 60, nullable = false, unique = true)
+					private String email;
+
+					@Column(length = 65, nullable = false)
+					private String password;
+
+					@Column(length = 40, nullable = false)
+					private String userName;
+					//@Lob
+					@Transient
+					private String introduction;
+
+					@Column(length = 10)
+					@Enumerated(EnumType.STRING)
+					private Authority authority;
+
+					@ToString.Exclude // toString 추가를 제외 시킴
+					@OneToMany(mappedBy = "member") // BoardData 엔티티의 @ManyToOne 속성 지정해야함
+					private List<BoardData> items;
+
+				}
+				@Data
+				@Builder
+				@Entity
+				@NoArgsConstructor @AllArgsConstructor
+				public class BoardData extends BaseEntity {
+					@Id @GeneratedValue
+					private Long seq;
+
+					@ManyToOne(fetch=FetchType.LAZY) // -> member_seq : 엔티티명_기본키 (memberSeq) 지연로딩
+					@JoinColumn(name="mSeq") // m_seq 로 이름 바꾸기
+					private Member member;
+
+					@Column(nullable = false)
+					private String subject;
+
+					@Lob
+					private String content;
+
+					@ManyToMany
+					private List<HashTag> tags;
+				}
+
+
+				@SpringBootTest
+				@ActiveProfiles("test")
+				@Transactional
+				public class Ex12 {
+
+					@Autowired
+					private MemberRepository memberRepository;
+					@Autowired
+					private BoardDataRepository boardDataRepository;
+
+					@Autowired
+					private JPAQueryFactory queryFactory;
+
+					@PersistenceContext  // @Autowired 포함된 기능
+					private EntityManager em;
+
+
+					@BeforeEach
+					void init() {
+						Member member = Member.builder()
+								.email("user01@test.com")
+								.password("12345")
+								.userName("사용자01")
+								.authority(Authority.USER)
+								.build();
+						memberRepository.saveAndFlush(member);
+
+						List<BoardData> items = IntStream.rangeClosed(1, 10)
+								.mapToObj(i -> BoardData.builder()
+										.subject("제목" + i)
+										.content("내용" + i)
+										.member(member)
+										.build()).toList();
+
+						boardDataRepository.saveAllAndFlush(items);
+						em.clear();
+
+					}
+
+
+					@Test
+					void test2() {
+						List<BoardData> items = boardDataRepository.getAllList();
+					}
+
+					@Test
+					void test3() {
+						List<BoardData> items = boardDataRepository.findBySubjectContaining("제목");
+					}
+				}
+			 
+		3) QueryDsl의 fetchJoin() 메서드 사용
+		
+			JPAQueryFactory - 생성자 매개변수: EntityManager
+			JPAQuery
+			
+		
 
 	영속성 전이
 		1. CASCADE 종류	
@@ -967,3 +1404,7 @@ Spring Data JPA
 
 		2. 고아 객체 제거하기
 		- @OneToMany 애노테이션에 orphanRemoval=true 옵션을 추가
+
+
+참고  스프링 객체들 싱글톤 :  프로그램 시작시 너무 느려질 수 있으므로 
+@Lazy -> 객체 사용 시점에 객체 생성하기

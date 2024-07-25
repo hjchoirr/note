@@ -2301,7 +2301,7 @@ JSON 응답과 요청 처리
 		public class CommonException extends RuntimeException{
 
 			private HttpStatus status;
-			private Map<String, List<String>> errorMessages;
+			private Map<String, List<String>> errorMessages; // 이거 추가
 
 			public CommonException(String message) {
 				this(message, HttpStatus.INTERNAL_SERVER_ERROR); // 500
@@ -2403,7 +2403,7 @@ JSON 응답과 요청 처리
 		
 		5. <T> ResponseEntity<T> exchange(...) => PUT, DELETE, PATCH 등 method
 
-		TypeReference -> 데이터 여러개 
+		TypeReference -> JSON 데이터 여러개 
 		HttpEntity -> 헤더, 바디 등 함께 전송 시 필요함
 		
 			@SpringJUnitWebConfig
