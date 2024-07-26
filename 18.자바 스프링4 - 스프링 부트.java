@@ -795,13 +795,14 @@ Spring Data JPA
 
 				@Test
 				void test3() {
-					Pageable pageable = PageRequest.of(1, 3); // page 번호 0 부터, 페이지 당 데이터 갯수:3
+					// 2페이지 가져오려고 세팅 : 페이지당 데이터 3개 
+					Pageable pageable = PageRequest.of(1, 3); //  page 번호 0 부터, 페이지 당 데이터 갯수:3
 
 					Page<Member> data = memberRepository.findByEmailContaining("ser", pageable);
 					long total = data.getTotalElements();
 					System.out.println("data.getTotalElements() : " + total);
 
-					List<Member> items = data.getContent(); //
+					List<Member> items = data.getContent(); // *** 현재 페이지의 데이터 
 					items.forEach(System.out::println);
 				}
 			}
@@ -835,31 +836,31 @@ Spring Data JPA
 
 		의존성 추가 querydsl 검색 - Querydsl JPA Support, Querydsl APT Support 
 		
-		implementation 'com.querydsl:querydsl-jpa:5.1.0'
-		implementation 'com.querydsl:querydsl-apt:5.1.0' 
-		   -> annotationProcessor 'com.querydsl:querydsl-apt:5.1.0'
-		   
-		=>
-		
-		implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
-		annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+			implementation 'com.querydsl:querydsl-jpa:5.1.0'
+			implementation 'com.querydsl:querydsl-apt:5.1.0' 
+			   -> annotationProcessor 'com.querydsl:querydsl-apt:5.1.0'
+			   
+			=>
+			
+			implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+			annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
 
-		-- build.gradle 에 추가 -----
-		
-		def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+			-- build.gradle 에 추가 -----
+			
+			def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
 
-		sourceSets {
-			main.java.srcDirs += [querydslDir]
-		}
+			sourceSets {
+				main.java.srcDirs += [querydslDir]
+			}
 
-		tasks.withType(JavaCompile) {
-			options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
-		}
+			tasks.withType(JavaCompile) {
+				options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+			}
 
-		clean.doLast {
-			file(querydslDir).deleteDir()
-		}
-		---------------------------------------------------
+			clean.doLast {
+				file(querydslDir).deleteDir()
+			}
+			---------------------------------------------------
 
 		리포지토리 정의
 		
@@ -940,7 +941,7 @@ Spring Data JPA
 				}
 			}
 		
-	연관 관계 매핑
+	연관 관계 매핑 - jakarta.persistence
 	
 		1. 일대일(1:1) : @OneToOne
 		
@@ -1242,7 +1243,7 @@ Spring Data JPA
 			}
 			-------@ManyToMany----------------------------------------
 			
-			-> ManyToMany 는 중간 테이블 만들어짐 
+			-> ManyToMany 는 중간 테이블 만들어짐 ( 로그 보면 ..)
 				Hibernate: 
 					create table hash_tag (
 						tag varchar(255) not null,
@@ -1391,20 +1392,356 @@ Spring Data JPA
 			JPAQueryFactory - 생성자 매개변수: EntityManager
 			JPAQuery
 			
+				@Configuration
+				public class DBConfig {
+					@PersistenceContext
+					private EntityManager em;
+
+					@Lazy
+					@Bean
+					public JPAQueryFactory jpaQueryFactory() {
+						return new JPAQueryFactory(em);
+					}
+				}		
+
+
+
+				@Test
+				void test5() {
+					QBoardData boardData = QBoardData.boardData;  // Tuple : querydsl 
+					JPAQuery<Tuple> query = queryFactory.select(boardData.subject, boardData.content).from(boardData);
+						// select : 영속 상태 아님 selectFrom : 영속상태 
+						
+					List<Tuple> items = query.fetch();
+					for (Tuple item : items) {
+						String subject = item.get(boardData.subject);
+						String content = item.get(boardData.content);
+						System.out.println("subject: " + subject + ", content: " + content);
+					}
+				}
+				
+
+				@Test
+				void test6() {
+					QBoardData boardData = QBoardData.boardData;
+					JPAQuery<Long> query = queryFactory.select(boardData.seq.sum()).from(boardData);
+					long sum = query.fetchOne(); // 결과 단 하나 row만 있을때
+					System.out.println("sum: " + sum);
+				}
+
+				@Test
+				void test7_() {
+					QBoardData boardData = QBoardData.boardData;
+					PathBuilder<BoardData> pathBuilder = new PathBuilder<>(BoardData.class, "boardData");
+
+					JPAQuery<BoardData> query = queryFactory.selectFrom(boardData) // 변화감지
+						.offset(3) // 조회 시작 레코드 위치 : 3번 행부터 조회시작 --> 페이징 대신..
+						.limit(3)  //3개 레코드로 한정
+						.orderBy(
+							new OrderSpecifier(Order.DESC, pathBuilder.get("createdAt")),
+							new OrderSpecifier(Order.ASC, pathBuilder.get("subject"))
+						);
+					List<BoardData> items = query.fetch();
+
+					//items.forEach(System.out::println);
+				}
+
+
+				(참고) 			
+				@BatchSize(size=10)
+
+					적용 전
+
+					SELECT .. from BoardData
+					SELECT .. from BoardData where seq = 1L;
+					SELECT .. from BoardData where seq = 2L;
+					SELECT .. from BoardData where seq = 3L;
+					...
+
+					적용 후
+					SELECT .. from BoardData
+					SELECT .. from BoardData where seq in (1L, 2L, 3L);
+
+					spring.jpa.properties.hibernate.default_batch_fetch_size: 100
+
+
+				(참고)  스프링 객체들 싱글톤 :  프로그램 시작시 너무 느려질 수 있으므로 
+				 @Lazy -> 객체 사용 시점에 객체 생성하기
+
+
+영속성 전이 - @OneToMany 에 부여
+
+  - 부모 엔티티의 영속성 변화 상태를 자식 엔티티에 전달
+
+	1. CASCADE 종류	
+		type
+		1) PERSIST
+		2) MERGE  : 부모 엔티티가 영속화 -> 자식 엔티티도 ..
+		3) REMOVE : 부모 엔티티가 삭제 되기 전 자식 엔티티들 부터 삭제 
+		4) REFRESH
+		5) DETACH
+		6) ALL
+
+
+			@Builder
+			@Entity
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public class Member extends BaseEntity {
+				@Id @GeneratedValue(strategy = GenerationType.AUTO)
+				private long seq;
+
+				@ToString.Exclude 
+				@OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE) 
+				private List<BoardData> items;
+			}
+
+			@Test
+			void test1() {
+				Member member = memberRepository.findById(1L).orElse(null);
+
+				memberRepository.delete(member);
+				memberRepository.flush();
+			}
+			----------------------------------------------
+			public class Member extends BaseEntity {
+				@Id @GeneratedValue(strategy = GenerationType.AUTO)
+				private long seq;
+
+				@ToString.Exclude 
+			@OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, CascadeType.PERSIST},orphanRemoval = true)) 
+				private List<BoardData> items;
+			}
+			
+			@Test
+			void test2() {
+				Member member = memberRepository.findById(1L).orElse(null);
+				List<BoardData> items = member.getItems();
+
+				items.remove(0);
+				items.remove(1);
+
+				memberRepository.flush();
+
+			}			
+
+	2. 고아 객체 제거하기
+	
+	- @OneToMany 애노테이션에 CascadeType.PERSIST, orphanRemoval=true 옵션을 추가
+
+			public class Member extends BaseEntity {
+				@Id @GeneratedValue(strategy = GenerationType.AUTO)
+				private long seq;
+
+				@ToString.Exclude 
+			@OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true)) 
+				private List<BoardData> items;
+			}
+			
+			@Test
+			void test2() {
+				Member member = memberRepository.findById(1L).orElse(null);
+				List<BoardData> items = member.getItems();
+
+				items.remove(0);
+				items.remove(1);
+
+				memberRepository.flush();
+
+			}			
+
+
+Auditing을 이용한 엔티티 공통 속성화
+
+	1. @MappedSuperclass
+	2. AuditorAware 인터페이스 
+	3. @EntityListeners
+	4. @EnableJpaAuditing
+
+JPQL
+
+	- 설정된 주기별로 실행될 함수를 설정
+	
+	@Scheduled
+	
+	1) fixedDelay : 작업 완료 후 고정시간 지연 
+	2) fixedRate : 고정시간 주기로 실행
+	3) initialDelay : 작업 시작 전 간격 지연
+	4) cron : 상세한 실행주기 
+	5) @EnableScheduling : 스케줄링 설정 활성화
+	
+		@EnableJpaAuditing
+		@EnableScheduling    // ******
+		@Configuration
+		public class MvcConfig implements WebMvcConfigurer {
+		}
 		
+		@Slf4j
+		@Service
+		public class MemberStatisticService {
 
-	영속성 전이
-		1. CASCADE 종류	
-			1) PERSIST
-			2) MERGE
-			3) REMOVE
-			4) REFRESH
-			5) DETACH
-			6) ALL
-
-		2. 고아 객체 제거하기
-		- @OneToMany 애노테이션에 orphanRemoval=true 옵션을 추가
+			@Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
+			public void makeData() {
+				log.info("실행 ---!!!");
+			}
+		}
+	
+SQL> create user BOARD_PROJECT identified by oracle quota unlimited on users;
+SQL> grant connect, resource to board_project;
 
 
-참고  스프링 객체들 싱글톤 :  프로그램 시작시 너무 느려질 수 있으므로 
-@Lazy -> 객체 사용 시점에 객체 생성하기
+
+
+
+			https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.2&packaging=jar&jvmVersion=17&groupId=org.choongang&artifactId=project&name=project&description=Spring%20Board%20Project&packageName=org.choongang&dependencies=devtools,lombok,web,thymeleaf,security,data-jpa,h2,oracle,validation
+
+			압축파일 해제 -> project
+
+			D:\P-4\project>git init
+			Initialized empty Git repository in D:/P-4/project/.git/
+
+			D:\P-4\project>git remote add origin https://github.com/hjchoirr/SPRING_BOARD.git
+
+			D:\P-4\project>
+
+			D:\P-4\project>git add .
+
+			D:\P-4\project>git commit -m "초기"
+
+			D:\P-4\project>git push ...
+
+
+				
+			inteliJ settings -> editor -> general -> auto import -> optimize import on fly 체크
+			빌드 -> compiler -> Build project automatically
+
+			gitignore  -> application-dev.*
+
+			...properties -> ...yml
+
+				testRuntimeOnly 'com.h2database:h2' // runtimeOnly -> testRuntimeOnly
+
+
+			query-dsl 추가
+
+			 - https://mvnrepository.com/ -> querydsl-> 
+			 
+				Querydsl JPA Support » 5.1.0 
+				Querydsl APT Support » 5.1.0
+			 
+
+				implementation 'com.querydsl:querydsl-jpa:5.1.0'
+				implementation 'com.querydsl:querydsl-apt:5.1.0'
+				
+				->
+				
+				implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'  //  :jakarta
+				annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta' // implementation 을 변경, :jakarta 
+
+			그냥 에디팅 추가 
+			annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+			annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+			
+			
+			타임리프 레이아웃 추가
+			implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.3.0'
+
+			모델 매퍼 modelMapper 추가
+			implementation 'org.modelmapper:modelmapper:3.2.1'
+
+
+스프링 시큐리티 
+
+	1. 의존성 설치
+		스프링 부트 initializr 에서 시큐리티 선택하면 이렇게 추가됨
+		
+		implementation 'org.springframework.boot:spring-boot-starter-security'
+		implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+		testImplementation 'org.springframework.security:spring-security-test'
+
+7/26 2시부터 BOARD_SPRING 설정 부터 강의 시작
+	
+@Configuration
+public class FileConfig implements WebMvcConfigurer {
+	
+    @Value("${file.upload.path}")
+    private String path;
+
+    @Value("${file.upload.url}")
+    private String url;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+    }
+}	
+
+file:
+  upload:
+    path: D:/uploads
+    url: /upload/
+
+
+
+
+
+	2. 스프링 시큐티리 설정 
+	3. 회원가입 구현 
+		1) UserDetails 인터페이스 : DTO
+			
+		2) UserDetailsService 인터페이스 : Service
+		
+	4. 시큐리티를 이용한 회원 인증(로그인) 구현 
+	5. 로그인 정보 가져오기
+	1) Principal 요청메서드에 주입  : getName() : 아이디  : 요청 메서드의 주입
+	2) SecurityContextHolder를 통해서 가져오기
+	3) @AuthenticationPrincipal  : UserDetails 구현 객체 주입, 요청 메서드의 주입시 밖에 사용 가능 
+
+	4) Authentication
+		Object getPrincipal(...) : UserDetails의 구현 객체 
+		boolean isAuthenticated() : 인증 여부
+		
+	/error 템플릿 경로 : 응답 코드.html
+
+	6. thymeleaf-extras-springsecurity6
+		1) xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+			
+		2) sec:authorize="hasAnyAuthority(...)", sec:authorize="hasAuthority(...)"
+		3) sec:authorize="isAuthenticated()" : 로그인 상태 
+		4) sec:authorize="isAnonymous()" : 미로그인 상태 
+		
+		5) csrf 토큰 설정하기 
+			- ${_csrf.token}
+			- ${_csrf.headerName}
+		
+	7. 페이지 권한 설정하기 
+		- AuthenticationEntryPoint 
+		
+	8.  Spring Data JPA Auditing + Spring Security
+	- 로그인 사용자가 자동 DB 추가 
+	1) AuditorAware 인터페이스
+
+
+
+
+POST 요청시 CSRF 토큰 검증 : 검증 실패시 403
+- 자바 스크립트 ajax 형태로 POST 데이터를 전송할시 CSRF 토큰 검증 
+
+
+9. @EnableMethodSecurity
+
+1) @PreAuthorize: 메서드가 실행되기 전에 인증을 거친다.
+2) @PostAuthorize: 메서드가 실행되고 나서 응답을 보내기 전에 인증을 거친다.
+
+3) 사용할수 있는 표현식 
+- hasRole([role]) : 현재 사용자의 권한이 파라미터의 권한과 동일한 경우 true
+- hasAnyRole([role1,role2]) : 현재 사용자의 권한디 파라미터의 권한 중 일치하는 것이 있는 경우 true
+- principal : 사용자를 증명하는 주요객체(User)를 직접 접근할 수 있다.
+- authentication : SecurityContext에 있는 authentication 객체에 접근 할 수 있다.
+- permitAll : 모든 접근 허용
+- denyAll : 모든 접근 비허용
+- isAnonymous() : 현재 사용자가 익명(비로그인)인 상태인 경우 true
+- isRememberMe() : 현재 사용자가 RememberMe 사용자라면 true
+- isAuthenticated() : 현재 사용자가 익명이 아니라면 (로그인 상태라면) true
+- isFullyAuthenticated() : 현재 사용자가 익명이거나 RememberMe 사용자가 아니라면 true
