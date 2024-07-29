@@ -1651,7 +1651,7 @@ SQL> grant connect, resource to board_project;
 			implementation 'org.modelmapper:modelmapper:3.2.1'
 
 
-스프링 시큐리티 
+	스프링 시큐리티 
 
 	1. 의존성 설치
 		스프링 부트 initializr 에서 시큐리티 선택하면 이렇게 추가됨
@@ -1661,30 +1661,84 @@ SQL> grant connect, resource to board_project;
 		testImplementation 'org.springframework.security:spring-security-test'
 
 7/26 2시부터 BOARD_SPRING 설정 부터 강의 시작
+
+	properties 중 일부의 설정을 자바 클래스로 관리할 수 있다
+
+	방법1)
 	
-@Configuration
-public class FileConfig implements WebMvcConfigurer {
+		@Configuration
+		public class FileConfig implements WebMvcConfigurer {
+			
+			@Value("${file.upload.path}")
+			private String path;
+
+			@Value("${file.upload.url}")
+			private String url;
+
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+			}
+		}	
+
+		(프로퍼티파일 application.yml 중)
+		file:
+		  upload:
+			path: D:/uploads
+			url: /upload/
+
+	방법2)
+
+		@Data
+		@ConfigurationProperties(prefix="file.upload")
+		public class FileProperties {
+			private String path;
+			private String url;
+		}
+
+		@Configuration
+		@RequiredArgsConstructor
+		@EnableConfigurationProperties(FileProperties.class)
+		public class FileConfig implements WebMvcConfigurer {
+
+			private final FileProperties fileProperties;
+
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+				registry.addResourceHandler(fileProperties.getUrl() + "**")
+					.addResourceLocations("file:" + fileProperties.getPath());
+			}
+		}
+
+7/29 AM9  타임리프 레이아웃, ,,
+
+	templates
 	
-    @Value("${file.upload.path}")
-    private String path;
-
-    @Value("${file.upload.url}")
-    private String url;
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-
-    }
-}	
-
-file:
-  upload:
-    path: D:/uploads
-    url: /upload/
-
-
-
-
+	- admin
+	- front - PC view 
+	- mobile view
+	
+	css/js
+	 - 모든 뷰(관리자,PC,mobile)에 공통 
+	 - 각 뷰마다의 공통
+	 
+	 
+	Pattern.compile(..)
+	Matcher
+	find() -> 포함여부
+	
+	간단한 정규표현식 체크, String 클래스 -> matrches(..)
+	 String.class 의 boolean matches(String regex)
+	 
+	 matches : 처음 위치부터 일치여부 체크 
+	 
+	 "[0-9]+"
+	 \d+ 
+	
+	.*[0-9].* 
+	
+	replaceAll(String regex, String replacement)
+	
 
 	2. 스프링 시큐티리 설정 
 	3. 회원가입 구현 
