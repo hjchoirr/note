@@ -1,0 +1,55 @@
+https://start.spring.io/
+#!type=gradle-project&language=java&platformVersion=3.3.2&
+packaging=jar&
+jvmVersion=17&
+groupId=org.choongang&
+artifactId=project&
+name=project&
+description=Spring%20Board%20Project&
+packageName=org.choongang&
+
+dependencies
+=devtools,lombok,web,thymeleaf,security,data-jpa,h2,oracle,validation
+
+
+
+
+
+https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.2&packaging=jar&jvmVersion=17&groupId=com.choongang&artifactId=before_p4&name=before_p4&description=Demo%20project%20for%20Spring%20Boot&packageName=com.choongang&dependencies=devtools,lombok,web,thymeleaf,data-jpa,h2,oracle,validation,security
+
+
+
+build.gradle
+
+application.yml
+
+
+http://localhost:3000/
+
+SecurityConfig.java 
+
+
+BaseEntity 
+=> 	@Getter @Setter
+	@MappedSuperclass
+	@EntityListeners(AuditingEntityListener.class)
+=> MvcConfig.java => @EnableJpaAuditing
+
+BookEntity, AuthorEntity, Repository
+
+RequestBook, RequestAuthor
+
+
+BookController
+
+templates/front/layouts/main.html
+templates/front/outlines/_header.html
+templates/front/outlines/_footer.html
+
+templates/front/book/regbook.html 
+
+
+resources/messages/commons.properties
+resources/messages/validations.properties
+
+MessageConfig
