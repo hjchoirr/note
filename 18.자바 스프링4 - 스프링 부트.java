@@ -1651,14 +1651,7 @@ SQL> grant connect, resource to board_project;
 			implementation 'org.modelmapper:modelmapper:3.2.1'
 
 
-	스프링 시큐리티 
 
-	1. 의존성 설치
-		스프링 부트 initializr 에서 시큐리티 선택하면 이렇게 추가됨
-		
-		implementation 'org.springframework.boot:spring-boot-starter-security'
-		implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-		testImplementation 'org.springframework.security:spring-security-test'
 
 7/26 2시부터 BOARD_SPRING 설정 부터 강의 시작
 
@@ -1739,7 +1732,19 @@ SQL> grant connect, resource to board_project;
 	
 	replaceAll(String regex, String replacement)
 	
+7/31 
 
+11시30
+
+	스프링 시큐리티 
+
+	1. 의존성 설치
+		스프링 부트 initializr 에서 시큐리티 선택하면 이렇게 추가됨
+		
+		implementation 'org.springframework.boot:spring-boot-starter-security'
+		implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+		testImplementation 'org.springframework.security:spring-security-test'
+		
 	2. 스프링 시큐티리 설정 
 	3. 회원가입 구현 
 		1) UserDetails 인터페이스 : DTO
@@ -1748,15 +1753,31 @@ SQL> grant connect, resource to board_project;
 		
 	4. 시큐리티를 이용한 회원 인증(로그인) 구현 
 	5. 로그인 정보 가져오기
-	1) Principal 요청메서드에 주입  : getName() : 아이디  : 요청 메서드의 주입
-	2) SecurityContextHolder를 통해서 가져오기
-	3) @AuthenticationPrincipal  : UserDetails 구현 객체 주입, 요청 메서드의 주입시 밖에 사용 가능 
-
-	4) Authentication
-		Object getPrincipal(...) : UserDetails의 구현 객체 
-		boolean isAuthenticated() : 인증 여부
 		
-	/error 템플릿 경로 : 응답 코드.html
+		1) Principal 요청메서드에 주입  : getName() : 아이디  : 요청 메서드의 주입
+		2) SecurityContextHolder를 통해서 가져오기
+		3) @AuthenticationPrincipal  : UserDetails 구현 객체 주입, 요청 메서드의 주입시 밖에 사용 가능 
+
+		4) Authentication
+			Object getPrincipal(...) : UserDetails의 구현 객체 
+			boolean isAuthenticated() : 인증 여부
+			
+		/error 템플릿 경로 : 응답 코드.html
+		
+		 ${timestamp} : 에러발생날짜, 시간
+		 ${status} :응답 상태코드
+		 ${error} :에러코드
+		 ${path} :에러발생URI
+		 ${message} :에러메시지
+		 기타 - exception, error, trace 
+		 
+		자바스크립트로 예외 표현
+		
+			1) 에러메시지 alert출력 
+			2) 에러메시지 alert출력 , 뒤로 가기
+			3) 에러메시지 alert출력 , 특정 Url로 이동 - location.replace(..) : 방문기록 안하게..
+			
+			2,3) -> target : self, parent, ..
 
 	6. thymeleaf-extras-springsecurity6
 		1) xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -1765,37 +1786,70 @@ SQL> grant connect, resource to board_project;
 		3) sec:authorize="isAuthenticated()" : 로그인 상태 
 		4) sec:authorize="isAnonymous()" : 미로그인 상태 
 		
-		5) csrf 토큰 설정하기 
+		5) csrf 토큰 설정하기 (Cross Site Request Forgery) 사이트간 데이터 위변조 방지
+		
+		 - 서버에서 토큰 발급
+		 - 양식 제출시 서버가 발급한 토큰을 전송
+		 - 서버에서 토큰 검증 -> 다르면 차단, 403 에러
+		 - 같은 서버(Same Origin)의 요청만 처리 
+		 
 			- ${_csrf.token}
 			- ${_csrf.headerName}
 		
+			
 	7. 페이지 권한 설정하기 
 		- AuthenticationEntryPoint 
 		
-	8.  Spring Data JPA Auditing + Spring Security
-	- 로그인 사용자가 자동 DB 추가 
-	1) AuditorAware 인터페이스
+	8.  Spring Data Auditing + Spring Security
+	  - 로그인 사용자가 자동 DB 추가 
+	
+		1) AuditorAware 인터페이스
 
 
 
 
 POST 요청시 CSRF 토큰 검증 : 검증 실패시 403
-- 자바 스크립트 ajax 형태로 POST 데이터를 전송할시 CSRF 토큰 검증 
+
+  - 자바 스크립트 ajax 형태로 POST 데이터를 전송할시 CSRF 토큰 검증 
 
 
-9. @EnableMethodSecurity
+	9. @EnableMethodSecurity
 
-1) @PreAuthorize: 메서드가 실행되기 전에 인증을 거친다.
-2) @PostAuthorize: 메서드가 실행되고 나서 응답을 보내기 전에 인증을 거친다.
+		1) @PreAuthorize: 메서드가 실행되기 전에 인증을 거친다.
+		2) @PostAuthorize: 메서드가 실행되고 나서 응답을 보내기 전에 인증을 거친다.
 
-3) 사용할수 있는 표현식 
-- hasRole([role]) : 현재 사용자의 권한이 파라미터의 권한과 동일한 경우 true
-- hasAnyRole([role1,role2]) : 현재 사용자의 권한디 파라미터의 권한 중 일치하는 것이 있는 경우 true
-- principal : 사용자를 증명하는 주요객체(User)를 직접 접근할 수 있다.
-- authentication : SecurityContext에 있는 authentication 객체에 접근 할 수 있다.
-- permitAll : 모든 접근 허용
-- denyAll : 모든 접근 비허용
-- isAnonymous() : 현재 사용자가 익명(비로그인)인 상태인 경우 true
-- isRememberMe() : 현재 사용자가 RememberMe 사용자라면 true
-- isAuthenticated() : 현재 사용자가 익명이 아니라면 (로그인 상태라면) true
-- isFullyAuthenticated() : 현재 사용자가 익명이거나 RememberMe 사용자가 아니라면 true
+		3) 사용할수 있는 표현식 
+		- hasRole([role]) : 현재 사용자의 권한이 파라미터의 권한과 동일한 경우 true
+		- hasAnyRole([role1,role2]) : 현재 사용자의 권한디 파라미터의 권한 중 일치하는 것이 있는 경우 true
+		- principal : 사용자를 증명하는 주요객체(User)를 직접 접근할 수 있다.
+		- authentication : SecurityContext에 있는 authentication 객체에 접근 할 수 있다.
+		- permitAll : 모든 접근 허용
+		- denyAll : 모든 접근 비허용
+		- isAnonymous() : 현재 사용자가 익명(비로그인)인 상태인 경우 true
+		- isRememberMe() : 현재 사용자가 RememberMe 사용자라면 true
+		- isAuthenticated() : 현재 사용자가 익명이 아니라면 (로그인 상태라면) true
+		- isFullyAuthenticated() : 현재 사용자가 익명이거나 RememberMe 사용자가 아니라면 true
+
+8/2 AM 9:20 project(P-4 : SPRING_BOARD(BOARD_PROJECT) 의 
+	
+  global/Utils.java, 
+  global/rests/JSONData.java
+  global/exception/RestExceptionProcessor 설명
+
+파일 공통 모듈
+
+	1. 파일정보저장
+	
+	  : gid - 그룹ID
+	  : location - 그룹 안에서 세부 위치 - 메인 이미지, 목록 이미지 등
+		
+		
+
+	2. 스프링 MultipartFile 인터페이스
+	  - getName() : form의 input type="file" 파라미터 이름 
+		: <form><input type='file' name='OOO'></form>
+	  	
+	
+	
+
+JWT(Json Web Token)

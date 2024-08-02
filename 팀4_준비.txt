@@ -1,0 +1,309 @@
+
+
+
+깃허브 레포지토리 생성목록
+
+- config Server : 설정 구성 서버
+
+- 유레카(Eureka) Server : 서비스 디스커버리 서버
+
+- Gateway 서버 : API 게이트웨이 서버
+
+
+ - 웹프로젝트(프론트) 레포지토리
+ - 웹프로젝트(관리자) 레포지토리
+
+
+모놀리식 아키텍처 <-> 마이크로서비스 아키텍처
+
+마이크로서비스 아키텍처 MSA
+
+- 컨피그서버
+- 서비스서버
+- 유레카서버
+- 게이트웨이서버
+
+
+스프링 클라우드 컨피그 서버
+
+ - 스프링부트 의존성 : config Server, Spring Boot Actuator 
+	https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.2&packaging=jar&jvmVersion=17&groupId=com.jmt502&artifactId=configserver&name=configserver&description=Config%20Server&packageName=com.jmt502&dependencies=cloud-config-server,actuator
+	
+ - 추가 의존성 Spring Cloud Starter Bootstrap 추가
+   implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.4'
+   -> implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+ 
+ 
+ bootstrap 
+   resources/bootstrap.properties / bootstrap.yml
+    다른 설정보다 가장 먼저 실행되는 설정
+	
+----------------------------------------------
+bootstrap.yml
+----------------------------------------------
+server:
+  port: 3100
+
+spring:
+  application:
+    name: config-server   ### //  이름 중요
+
+  profiles:
+    active: native
+
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/configs
+
+encrypt:
+  key: ${secretKey}
+----------------------------------------------
+  
+  
+  
+		  
+		  
+
+@EnableConfigServer
+@SpringBootApplication
+public class ConfigserverApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigserverApplication.class, args);
+	}
+
+}
+
+
+---------------------------------
+resources/configs/api-service.yml
+---------------------------------
+server:
+  port: 3001
+
+spring:
+  datasource:
+    driverClassName: '{cipher}2e598bc25dbeddf43975c8667e8c193b4bac039ff059e9050563d17461e675bb494b709d16cef48cf8027d9a4b43e46e'
+    url: '{cipher}a55d8978e320fbfbf30fd4342cff57f8ddbadfcd2bbbc44aff570b6dcbc4732e43b17c6477b5725959d20a16a05b9e63a2fe2b1f55760d5ab6cf5f57b6faf05e'
+    username: ${db.username}
+    password: ${db.password}
+
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+    hibernate:
+      ddlAuto: update
+
+  servlet:
+    multipart:
+      maxFileSize: 20MB
+      maxRequestSize: 60MB
+      fileSizeThreshold: 30MB
+
+logging:
+  level:
+    org.hibernate.type: info
+    org.hibernate.orm.jdbc.bind: trace
+	
+---------------------------------
+resources/configs/api-service-dev.yml
+---------------------------------
+file:
+  upload:
+    path: ${fileUpload.path}
+    url: /upload/
+
+
+  devtools:  # 타입리프쓸때
+    livereload:
+      enabled: true
+
+  web:   # 타입리프쓸때
+    resources:
+      staticLocations: file:src/main/resources/static/	
+	  
+---------------------------------
+resources/configs/api-service-test.yml
+---------------------------------
+
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
+---------------------------------
+
+
+
+
+resources/configs/api-service.yml
+resources/configs/api-service-dev.yml
+resources/configs/api-service-test.yml
+
+==> 확인하기 브라우저에서..
+
+http://localhost:3100/api-service/default
+http://localhost:3100/api-service/test
+http://localhost:3100/api-service/dev
+
+
+환경변수에 secretKey=cdscd\;k\;jcsdjcdcsdlkj
+
+
+
+
+dos 명령 : curl -X POST http://localhost:3100/encrypt -d "암호화할 데이터"
+
+
+C:\Users\admin>curl -X POST http://localhost:3100/encrypt -d "oracle.jdbc.driver.OracleDriver"
+2e598bc25dbeddf43975c8667e8c193b4bac039ff059e9050563d17461e675bb494b709d16cef48cf8027d9a4b43e46e
+C:\Users\admin>
+
+
+C:\Users\admin>curl -X POST http://localhost:3100/encrypt -d "jdbc:oracle:thin:@${db.host}:${db.port}:XE"
+a55d8978e320fbfbf30fd4342cff57f8ddbadfcd2bbbc44aff570b6dcbc4732e43b17c6477b5725959d20a16a05b9e63a2fe2b1f55760d5ab6cf5f57b6faf05e
+C:\Users\admin>
+
+
+
+
+API Server
+
+spring boot initializr
+
+https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.2&packaging=jar&jvmVersion=17&groupId=com.jmt502&artifactId=api&name=API%20Server&description=com.jmt502&packageName=com.jmt502.api&dependencies=cloud-config-client,actuator,cloud-eureka,devtools,lombok,web,security,data-jpa,h2,oracle,validation
+
+추가의존성
+ - implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.4'
+
+    -> 	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+
+ 	testRuntimeOnly 'com.h2database:h2'
+	implementation 'org.modelmapper:modelmapper:3.2.1'
+
+
+Spring Cloud Starter Netflix Eureka Client 
+	 implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.1.3'
+	 -> implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	
+	
+	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+	annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+
+	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+
+	def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+
+	sourceSets {
+		main.java.srcDirs += [ querydslDir ]
+	}
+
+	tasks.withType(JavaCompile) {
+		options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+	}
+
+	clean.doLast {
+		file(querydslDir).deleteDir()
+	}
+	
+	
+	Spring Cloud Starter Config - 스프링부트 에서 빼먹어서 추가
+	implementation 'org.springframework.cloud:spring-cloud-starter-config:4.1.3'
+	-> 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+
+
+서비스 디스커버리 - 유레카서버 (넷플릭스) - 분산되어 있는 서비스를 찾는다. 
+
+
+https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.2&packaging=jar&jvmVersion=17&groupId=com.jmt502&artifactId=eureka&name=eureka&description=Service%20Discovery%20Server&packageName=com.jmt502&dependencies=cloud-config-client,cloud-eureka-server,actuator
+
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.4'
+
+
+
+
+http://localhost:3101/  -> 유레카가 찾은 API 서비스 보임
+
+http://localhost:3101/eureka/apps/api-service
+
+
+
+http://localhost:3001/actuator/health
+
+
+
+
+
+
+
+
+인스턴스 게이트웨이 구축
+
+https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.2&packaging=jar&jvmVersion=17&groupId=com.jmt502&artifactId=gateway&name=gateway&description=API%20gateway&packageName=com.jmt502&dependencies=cloud-eureka,cloud-config-client,actuator,cloud-gateway-reactive
+
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.4'
+    -> 	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+
+
+http://localhost:3000/api-service/account/token == http://localhost:3000/api/v1/account/token
+
+http://localhost:3000/actuator/gateway/routes
+
+
+
+Admin 서버 설치
+
+https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.2&packaging=jar&jvmVersion=17&groupId=com.jmt502&artifactId=admin&name=admin&description=ADMIN&packageName=com.jmt502&dependencies=cloud-config-client,cloud-eureka,lombok,devtools,web,thymeleaf,security,data-jpa,h2,oracle,data-redis,validation
+
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+
+
+http://localhost:3100/admin-service/default
+http://localhost:3100/admin-service/dev
+http://localhost:3100/admin-service/test
+
+
+
+http://localhost:3002/main
+http://localhost:3101/eureka/apps/admin-service
+http://localhost:3000/admin-service/main
+
+
+
+
+
+
+
+
+
+
+
+
+		숙제 - 메일 보내기, 자동로그인(remember-me)
+
+		https://support.google.com/mail/?p=BadCredentials
+
+
+		====================
+		메일 앱  
+
+		jmt502 :
+
+		ggktayxxwghvtndc
+		ggkt ayxx wghv tndc
+
+		====================
