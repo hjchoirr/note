@@ -356,6 +356,24 @@ config-server 의 yml 들
 		username: sa
 		password:
 	-------------------------------------
+	
+(참고) DOS 명령 curl
+
+
+dos 명령 : curl -X POST http://localhost:3100/encrypt -d "암호화할 데이터"
+
+
+C:\Users\admin>curl -X POST http://localhost:3100/encrypt -d "oracle.jdbc.driver.OracleDriver"
+2e598bc25dbeddf43975c8667e8c193b4bac039ff059e9050563d17461e675bb494b709d16cef48cf8027d9a4b43e46e
+C:\Users\admin>
+
+
+C:\Users\admin>curl -X POST http://localhost:3100/encrypt -d "jdbc:oracle:thin:@${db.host}:${db.port}:XE"
+a55d8978e320fbfbf30fd4342cff57f8ddbadfcd2bbbc44aff570b6dcbc4732e43b17c6477b5725959d20a16a05b9e63a2fe2b1f55760d5ab6cf5f57b6faf05e
+C:\Users\admin>
+
+
+
 
 =====================================
 의존성 - build.gradle
@@ -603,7 +621,7 @@ config-server 의 yml 들
 
 
 
-JWT(Json Web Token)
+JWT(Json Web Token) 8/3 토요일 강의
 
 	- OAuth 인증과 달리 토큰에 기본 인증 정보가 담겨있고, 길이가 더 길다. 그래서 DB에 저장할 필요 없음
 	 
@@ -632,10 +650,336 @@ JWT(Json Web Token)
 	
 	
 	
+	jwtSecret 환경변수 
 	
-	dsccccdscdscdssssssssssssbbbbbbbbbbbbbbbb3333333333333
-	base64 encode
-	ZHNjY2NjZHNjZHNjZHNzc3Nzc3Nzc3Nzc2JiYmJiYmJiYmJiYmJiYmIzMzMzMzMzMzMzMzMz
+	conig 서버의 api-server.yml에 JWT 설정 추가하고 
+	
+	# JWT
+	jwt:
+	  secret: ${jwtSecret}
+	  validSeconds: ${jwtValidSeconds}	
+
+	api-server의 환경변수 추가
+	
+		configServerUrl=http://localhost:3100;db.host=localhost;db.password=oracle;db.port=1521;db.username=BOARD_PROJECT;eurekaHost=http://localhost:3101;jwtSecret=YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2MxMTExMTExMTExMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMTQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NA==;jwtValidSeconds=3600
+
+
+		configServerUrl=http://localhost:3100;db.host=localhost;db.password=oracle;db.port=1521;db.username=BOARD_PROJECT;eurekaHost=http://localhost:3101;jwtSecret=YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2MxMTExMTExMTExMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMTQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NA==;jwtValidSeconds=3600;spring.profiles.active=dev
+
+
+	스프링은 로그인 유지를 필터에서 한다
+	
+	- UsernamePasswordAuthenticationFilter
 	
 	
-	configServerUrl=http://localhost:3100;db.host=localhost;db.password=oracle;db.port=1521;db.username=BOARD_PROJECT;eurekaHost=http://localhost:3101;jwtSecret=ZHNjY2NjZHNjZHNjZHNzc3Nzc3Nzc3Nzc2JiYmJiYmJiYmJiYmJiYmIzMzMzMzMzMzMzMzMz;jwtValidSeconds=3600
+	
+	CORS(Cross Origin Resource Sharing) : 교차 출처 자원 공유 정책
+	
+	 - 기본정책은 Same Origin : 같은 출처(서버)에서만 자원 공유
+	 
+	응답헤더 Acess-Control-Allow-Origin 설정해야 
+	
+
+2조 서버 세팅
+
+	접속 도메인 
+	jeommechu.xyz
+
+
+	ADMIN 서버 
+	13.125.102.94:3002
+
+
+	ORACLE 서버
+	13.125.102.94:1521
+
+
+	API 서버
+	43.202.80.182:3001
+
+
+	젠킨스 서버
+	54.180.14.104:8080
+
+	
+
+	- 컨피그 서버(3100), 유레카 서버(3101), 게이트웨이(3000)
+	- 엔진엑스
+
+	13.124.204.160
+
+
+
+
+
+
+	기본 설정 구현
+	회원 관리 구현
+	리뷰 관리 구현
+	AI기반 메뉴 추천 기능 구현
+
+
+	http://jeommechu.xyz:3101/
+	http://jeommechu.xyz/api/v1/account ??
+
+
+	http://jeommechu.xyz:3101/
+
+
+	http://jeommechu.xyz:3101/eureka/apps/api-service
+
+
+
+	점메추 서버의 
+	유레카 설정 바꾸기 - config-server 의 api-service.yml , admin-servoce.yml, gateway-server.yml
+
+	# 유레카 설정
+	eureka:
+	  instance:
+		hostname: ${hostname}
+		#preferIpAddress: true
+		
+		
+
+	아마존 서버 세팅 강의 8/5 10시부터
+
+
+	aws
+	EC2 - Elastic Cloud Computing
+
+	13.124.204.160 
+
+	http://13.124.204.160/
+
+
+
+	sudo -s -> 
+
+	exit
+
+
+	apt / apt-get
+	 - install 설치
+	 - update 업데이트
+
+
+	자바 설치 apt-get openjdk-17...
+
+	아파치 - 동기식
+	nginx - 비동기식
+
+	reverse proxy 설정 -> 80, 443 -> 3000
+
+	systemctl start|stop|reload|restart|status
+
+
+
+	http://54.180.14.104:8080/github-webhook/   ***
+
+
+
+	http://jenkins.jeommechu.xyz:8080/
+
+	- 아이디 : admin
+	- 비밀번호 : _aA123456
+
+
+	http://jenkins.jeommechu.xyz:8080/github-webhook/
+
+
+	http://jeommechu.xyz/actuator/gateway/routes
+
+	http://jeommechu.xyz:3101/
+
+	http://jeommechu.xyz/admin-service/
+
+	http://jeommechu.xyz/admin/
+
+
+	gateway서버
+	api 서버
+	관리자서버
+	 환경변수 hostname=localhost
+	 
+	 
+	 
+======================================================================================================= 
+ 
+리액트
+
+
+cd d:\react\react_project
+npm i ( == yarn install )
+
+
+
+
+리액트의 기본포트 3000 -> 
+
+package.json -> 
+
+scripts": {
+    "start": "set PORT=4000 &&& react-scripts start",
+   
+
+yarn start
+
+
+page
+ 
+ 
+.env.development.local
+
+	REACT_APP_API_URL=http://localhost:3000/api/v1
+ 
+fetch-API 안되고 axios 사용
+D:\react\react_project>yarn add axios
+ 
+ 
+
+
+
+http://jeommechu.xyz:3101/eureka/apps/admin-service
+http://jeommechu.xyz:3101/eureka/apps/api-service
+
+
+
+D:\react\react_project>yarn add react-cookies
+
+서울관광재단 API 토큰 : 개인
+8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6
+
+1	메뉴정보 한국어	/api/menu/korean	메뉴정보 한국어 조회
+2	메뉴정보 영어	/api/menu/eng	메뉴정보 영어 조회
+3	메뉴정보 일본어	/api/menu/jpnse	메뉴정보 일본어 조회
+4	메뉴정보 중국어	/api/menu/chchr	메뉴정보 중국어 조회
+5	음식이미지정보	/api/food/img	음식이미지정보 조회
+6	메뉴설명정보 한국어	/api/menu-dscrn/korean	메뉴설명정보 한국어 조회
+7	메뉴설명정보 중국어	/api/menu-dscrn/chchr	메뉴설명정보 중국어 조회
+8	메뉴설명정보 영어	/api/menu-dscrn/eng	메뉴설명정보 영어 조회
+9	메뉴설명정보 일본어	/api/menu-dscrn/jpnse	메뉴설명정보 일본어 조회
+10	식당이미지정보	/api/rstr/img	식당이미지정보 조회
+11	식당기본정보	/api/rstr	식당기본정보 조회
+12	식당운영정보	/api/rstr/oprt	식당운영정보 조회
+13	식당품질정보	/api/rstr/qlt	식당품질정보 조회
+
+
+식당기본정보 조회
+Call Back URL https://seoul.openapi.redtable.global/api/rstr
+              https://seoul.openapi.redtable.global/api/rstr?serviceKey=인증키(URL Encode)
+              https://seoul.openapi.redtable.global/api/rstr?serviceKey=8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6
+serviceKey 인증키(URL Encode) 발급받은 인증키
+pageNo 페이지 번호
+
+RSTR_ID 		식당ID 
+RSTR_NM 		식당명 
+RSTR_RDNMADR 	도로명주소
+RSTR_LNNO_ADR 	지번주소
+RSTR_LA 		식당위도 18 0 37.572857
+RSTR_LO 		식당경도 18 0 126.98557
+RSTR_TELNO 		식당대표전화번호 30 0 02-725-00
+BSNS_STATM_BZCND_NM 영업신고증업태명
+BSNS_LCNC_NM 	영업인허가명 50 0 일반음식점 영업인허가명
+RSTR_INTRCN_CONT 	음식점소개내용 8000
+pageNo 			페이지번호 4 1 1 페이지 번호
+numOfRows 		표시건수 4 1 10 한 페이지 결과수
+totalCount 		전체건수 4 1 100 전체 데이터 건수
+resultCode 		결과코드 2 1 00 결과코드
+resultMsg 		결과메세지 50 1 NORMAL
+
+
+
+
+https://seoul.openapi.redtable.global/api/rstr?serviceKey=인증키(URL Encode)
+
+
+서버간 로그인 유지
+
+	Spring session
+	Spring data redis
+
+	직렬화 
+
+	redis - 윈도우에 설치못함 -> 도커로 ..-> 오라클 서버에 도커 있으니까.. 거기.. default port : 6379 
+	
+		이건 PC에 테스트로 설치해봄
+		D:\>docker pull redis	
+		D:\>docker images
+		D:\>docker run -d -p 6379:6379 --name redis redis
+		D:\>docker exec -it redis /bin/bash
+
+		root@2f224eb1a67e:/data# redis-cli
+		127.0.0.1:6379> set key1 value1
+		OK
+		127.0.0.1:6379> keys *
+		1) "key1"
+		127.0.0.1:6379> get key1
+		"value1"
+		127.0.0.1:6379>		
+		
+		----------------------------------------------
+		D:\react>docker pull redis
+		Using default tag: latest
+		latest: Pulling from library/redis
+		efc2b5ad9eec: Pull complete
+		82797145fff6: Pull complete
+		405e1ffae71e: Pull complete
+		0beb16fe974a: Pull complete
+		73eb92ddeed3: Pull complete
+		87e613039f4a: Pull complete
+		4f4fb700ef54: Pull complete
+		9579b898bbe4: Pull complete
+		Digest: sha256:79676a8f74e4aed85b6d6a2f4e4e3e55d8a229baa7168362e592bbfdc67b0c9b
+		Status: Downloaded newer image for redis:latest
+		docker.io/library/redis:latest
+
+		What's Next?
+		  1. Sign in to your Docker account → docker login
+		  2. View a summary of image vulnerabilities and recommendations → docker scout quickview redis
+
+		D:\react>docker images
+		REPOSITORY                  TAG       IMAGE ID       CREATED        SIZE
+		redis                       latest    509b2fc82da6   8 days ago     117MB
+		gvenzl/oracle-xe            18        df6621d4edd4   2 months ago   2.61GB
+		loliconneko/oracle-ee-11g   latest    b1ed15c38b8c   5 years ago    5GB
+
+		D:\react>docker run -d -p 6379:6379 --name redis redis
+		2f224eb1a67eecffffb6f9e3a59e14f3773b9e0fd5f0a293efc44189725f7d59
+
+		D:\react>docker exec -it redis /bin/bash
+		root@2f224eb1a67e:/data# redis-cli
+		127.0.0.1:6379> set key1 value1
+		OK
+		127.0.0.1:6379> keys
+		(error) ERR wrong number of arguments for 'keys' command
+		127.0.0.1:6379> keys *
+		1) "key1"
+		127.0.0.1:6379> get key1
+		"value1"
+		127.0.0.1:6379>	
+		----------------------------------------------
+
+
+	의존성 api, admin
+	Spring Boot Starter Data Redis
+	
+	Spring Boot Starter Data Redis » 3.3.2
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.3.2'
+	Spring Session Data Redis
+	implementation 'org.springframework.session:spring-session-data-redis:3.3.1'
+	
+	=>
+	
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.session:spring-session-data-redis'
+
+
+
+지도 
+
+카카오지도 javascript 앱키 : 063ffec469036373c5a718c90f2f3bdb
+
+앱이름 : hjchoi
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=발급받은 APP KEY를 사용하세요"></script>
+<script>

@@ -432,11 +432,11 @@ Spring Data JPA
 
 		  복합키 만들기 - 복합키 컬럼으로 클레스를 만들어서 Entitiy에서 사용
 		
-			방법1)
+			방법1) @IdClass
 	
-			@EqualsAndHashCode  // 동등성, 동일성 비교??
-			@AllArgsConstructor
-			@NoArgsConstructor
+			@EqualsAndHashCode  // 복합키일때 필요. 동등성, 동일성 비교 
+			@AllArgsConstructor  // 복합키일때 필요. JPA가 내부적으로 사용
+			@NoArgsConstructor   // 복합키일때 필요. JPA가 내부적으로 사용
 			public class BoardViewId {
 				private long seq;
 				private int uid;
@@ -454,7 +454,7 @@ Spring Data JPA
 				private int uid;
 			}
 
-			방법2)
+			방법2) @Embeddable
 			
 			@EqualsAndHashCode
 			@AllArgsConstructor
@@ -1555,9 +1555,61 @@ Spring Data JPA
 Auditing을 이용한 엔티티 공통 속성화
 
 	1. @MappedSuperclass
-	2. AuditorAware 인터페이스 
+	2. AuditorAware 인터페이스  - @EnableJpaAuditing (MvcConfig) 와 함께 사용됨
 	3. @EntityListeners
 	4. @EnableJpaAuditing
+	
+				
+		@Component
+		@RequiredArgsConstructor
+		public class AuditorAwareImpl implements AuditorAware<String> {
+
+			private final MemberUtil memberUtil;
+
+			@Override
+			public Optional<String> getCurrentAuditor() {
+
+				String email = memberUtil.isLogin() ? memberUtil.getMember().getEmail() : null;
+				return Optional.ofNullable(email);
+			}
+		}
+
+		@Configuration
+		@EnableJpaAuditing // **요 부분
+		public class MvcConfig implements WebMvcConfigurer {
+
+			public HiddenHttpMethodFilter httpMethodFilter() {
+				return new HiddenHttpMethodFilter();
+			}
+		}
+
+		@Getter @Setter
+		@MappedSuperclass
+		@EntityListeners(AuditingEntityListener.class)
+		public abstract class BaseMemberEntity extends BaseEntity {
+			@CreatedBy
+			@Column(length = 65, updatable = false)
+			private String createBy;
+
+			@LastModifiedBy
+			@Column(length = 65, insertable = false)
+			private String modifiedBy;
+		}
+
+		@Getter @Setter
+		@MappedSuperclass
+		@EntityListeners(AuditingEntityListener.class)
+		public abstract class BaseMemberEntity extends BaseEntity { // 최초등록자, 최종수정자 공통속성화 때문에 
+			@CreatedBy
+			@Column(length = 65, updatable = false)
+			private String createBy;
+
+			@LastModifiedBy
+			@Column(length = 65, insertable = false)
+			private String modifiedBy;
+
+		}
+
 
 JPQL
 
@@ -1780,6 +1832,7 @@ SQL> grant connect, resource to board_project;
 			2,3) -> target : self, parent, ..
 
 	6. thymeleaf-extras-springsecurity6
+	
 		1) xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 			
 		2) sec:authorize="hasAnyAuthority(...)", sec:authorize="hasAuthority(...)"
@@ -1852,4 +1905,3 @@ POST 요청시 CSRF 토큰 검증 : 검증 실패시 403
 	
 	
 
-JWT(Json Web Token)
