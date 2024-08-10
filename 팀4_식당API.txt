@@ -1,0 +1,129 @@
+private String pnsfteamcode;
+private String mgtno;
+private String apvpermymd;
+private String apvcancelymd;
+private String trdstategbn;
+private String trdstatenm;
+private String dtlstategbn;
+private String dtlstatenm;
+private String dcbymd;
+private String clgstdt;
+private String clgenddt;
+private String ropnymd;
+private String sitetel;
+private String sitearea;
+private String sitepostno;
+private String sitewhladdr;
+private String rdnwhladdr;
+private String rdnpostno;
+private String bplcnm;
+private String lastmodts;
+private String updategbn;
+private String updatedt;
+private String uptaenm;
+private String x;
+private String y;
+private String pharmtrdar;
+private String asgnymd;
+
+response=<200 OK OK,DrLocalData(listTotalCount=null, drResult=null, drRows=null),[Date:"Tue, 06 Aug 2024 08:36:26 GMT", Content-Encoding:"UTF-8", Content-Type:"application/json;charset=UTF-8", Transfer-Encoding:"chunked", Server:"Jetty(9.2.19.v20160908)"]>
+
+
+response=<200 OK OK,{"LOCALDATA_010106_SM":{"list_total_count":422,"RESULT":{"CODE":"INFO-000","MESSAGE":"정상 처리되었습니다"},"row":[{"OPNSFTEAMCODE":"3120000","MGTNO":"PHMD119653120033084000001","APVPERMYMD":"19651220","APVCANCELYMD":"","TRDSTATEGBN":"03","TRDSTATENM":"폐업","DTLSTATEGBN":"03","DTLSTATENM":"폐업","DCBYMD":"20100811","CLGSTDT":"","CLGENDDT":"","ROPNYMD":"","SITETEL":"02-391-2019","SITEAREA":"","SITEPOSTNO":"120090","SITEWHLADDR":"서울특별시 서대문구 홍제동 308-5","RDNWHLADDR":"","RDNPOSTNO":"","BPLCNM":"경기약국","LASTMODTS":"2010-08-19 14:55:59","UPDATEGBN":"I","UPDATEDT":"2018-08-31 23:59:59.0","UPTAENM":"","X":"","Y":"","PHARMTRDAR":"0","ASGNYMD":"19651220"},{"OPNSFTEAMCODE":"3120000","MGTNO":"PHMD119663120033084000001","APVPERMYMD":"19660423","APVCANCELYMD":"","TRDSTATEGBN":"03","TRDSTATENM":"폐업","DTLSTATEGBN":"03","DTLSTATENM":"폐업","DCBYMD":"20200106","CLGSTDT":"","CLGENDDT":"","ROPNYMD":"","SITETEL":"02-394-3960","SITEAREA":"","SITEPOSTNO":"120100","SITEWHLADDR":"서울특별시 서대문구 홍은동 11-458","RDNWHLADDR":"서울특별시 서대문구 홍은중앙로7길 2 (홍은동)","RDNPOSTNO":"03603","BPLCNM":"명지약국","LASTMODTS":"2020-01-06 09:30:25","UPDATEGBN":"U","UPDATEDT":"2020-01-08 02:40:00.0","UPTAENM":"","X":"193998.104669318    ","Y":"453150.85412164     ","PHARMTRDAR":"0","ASGNYMD":"19660423"},{"OPNSFTEAMCODE":"3120000","MGTNO":"PHMD119673120033084000001","APVPERMYMD":"19670216","APVCANCELYMD":"","TRDSTATEGBN":"03","TRDSTATENM":"폐업","DTLSTATEGBN":"03","DTLSTATENM":"폐업","DCBYMD":"20171110","CLGSTDT":"","CLGENDDT":"","ROPNYMD":"","SITETEL":"02-392-7130","SITEAREA":"","SITEPOSTNO":"120809","SITEWHLADDR":"서울특별시 서대문구 대현동 110번지 66호","RDNWHLADDR":"서울특별시 서대문구 신촌역로 19 (대현동)","RDNPOSTNO":"03777","BPLCNM":"안일약국","LASTMODTS":"2017-11-10 14:12:40","UPDATEGBN":"I","UPDATEDT":"2018-08-31 23:59:59.0","UPTAENM":"","X":"194854.166464981    ","Y":"450701.691333946    ","PHARMTRDAR":"0","ASGNYMD":"19670216"},{"OPNSFTEAMCODE":"3120000","MGTNO":"PHMD119673120033084000002","APVPERMYMD":"19670708","APVCANCELYMD":"","TRDSTATEGBN":"03","TRDSTATENM":"폐업","DTLSTATEGBN":"03","DTLSTATENM":"폐업","DCBYMD":"20140318","CLGSTDT":"","CLGENDDT":"","ROPNYMD":"","SITETEL":"02-391-3189","SITEAREA":"","SITEPOSTNO":"120090","SITEWHLADDR":"서울특별시 서대문구 홍제동 158-49","RDNWHLADDR":"서울특별시 서대문구 통일로 419-1 (홍제동)","RDNPOSTNO":"120091","BPLCNM":"조광약국","LASTMODTS":"2014-03-18 11:09:16","UPDATEGBN":"I","UPDATEDT":"2018-08-31 23:59:59.0","UPTAENM":"","X":"195162.849592257    ","Y":"453830.684694146    ","PHARMTRDAR":"0","ASGNYMD":"19670708"},{"OPNSFTEAMCODE":"3120000","MGTNO":"PHMD119673120033084000003","APVPERMYMD":"19670714","APVCANCELYMD":"","TRDSTATEGBN":"03","TRDSTATENM":"폐업","DTLSTATEGBN":"03","DTLSTATENM":"폐업","DCBYMD":"20181231","CLGSTDT":"","CLGENDDT":"","ROPNYMD":"","SITETEL":"02-336-4340","SITEAREA":"","SITEPOSTNO":"120110","SITEWHLADDR":"서울특별시 서대문구 연희동 537-42","RDNWHLADDR":"서울특별시 서대문구 홍제천로2길 32 (연희동)","RDNPOSTNO":"03705","BPLCNM":"용일약국","LASTMODTS":"2018-12-31 09:36:31","UPDATEGBN":"U","UPDATEDT":"2019-01-02 02:40:00.0","UPTAENM":"","X":"192910.282399327    ","Y":"451941.079989277    ","PHARMTRDAR":"0","ASGNYMD":"19670714"}]}},[Date:"Tue, 06 Aug 2024 08:41:54 GMT", Content-Encoding:"UTF-8", Content-Type:"application/json;charset=UTF-8", Transfer-Encoding:"chunked", Server:"Jetty(9.2.19.v20160908)"]>
+
+
+8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6
+
+
+https://seoul.openapi.redtable.global/api/rstr
+
+
+https://seoul.openapi.redtable.global/api/rstr/api/menu/korean  메뉴
+https://seoul.openapi.redtable.global/api/rstr/api/food/img  메뉴이미지
+https://seoul.openapi.redtable.global/api/rstr/api/menu-dscrn/korean 메뉴설명
+
+https://seoul.openapi.redtable.global/api/rstr/api/rstr  식당정보
+https://seoul.openapi.redtable.global/api/rstr/api/rstr/img  식당이미지
+https://seoul.openapi.redtable.global/api/rstr/api/rstr/oprt 식당운영정보
+https://seoul.openapi.redtable.global/api/rstr/api/rstr/qlt  식당품질
+
+
+식당
+https://seoul.openapi.redtable.global/api/rstr?serviceKey=8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6&pageNo=2
+https://seoul.openapi.redtable.global/api/rstr/img?serviceKey=8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6&pageNo=2
+https://seoul.openapi.redtable.global/api/rstr/oprt?serviceKey=8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6&pageNo=2
+https://seoul.openapi.redtable.global/api/rstr/qlt?serviceKey=8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6&pageNo=2
+
+메뉴
+https://seoul.openapi.redtable.global/api/menu/korean?serviceKey=8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6&pageNo=2
+https://seoul.openapi.redtable.global/api/food/img?serviceKey=8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6&pageNo=2
+https://seoul.openapi.redtable.global/api/menu-dscrn/korean?serviceKey=8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6&pageNo=2
+
+
+
+
+rstrId 				식당id 
+rstrNm 				식당명 
+rstrRdnmadr 	도로명주소
+rstrLnnoAdr 	지번주소
+rstrLa 				식당위도 18 0 37.572857
+rstrLo 				식당경도 18 0 126.98557
+rstrTelno 			식당대표전화번호 30 0 02-725-00
+bsnsStatmBzcndNm 	영업신고증업태명
+bsnsLcncNm 			영업인허가명 50 0 일반음식점 영업인허가명
+rstrIntrcnCont 		음식점소개내용 8000
+pageNo 				페이지번호 4 1 1 페이지 번호
+numOfRows 			표시건수 4 1 10 한 페이지 결과수
+totalCount 			전체건수 4 1 100 전체 데이터 건수
+resultCode 			결과코드 2 1 00 결과코드
+resultMsg 			결과메세지 50 1 normal
+
+
+
+RSTR_ID 		식당ID 
+RSTR_NM 		식당명 
+RSTR_RDNMADR 	도로명주소
+RSTR_LNNO_ADR 	지번주소
+RSTR_LA 		식당위도 18 0 37.572857
+RSTR_LO 		식당경도 18 0 126.98557
+RSTR_TELNO 		식당대표전화번호 30 0 02-725-00
+BSNS_STATM_BZCND_NM 영업신고증업태명
+BSNS_LCNC_NM 	영업인허가명 50 0 일반음식점 영업인허가명
+RSTR_INTRCN_CONT 	음식점소개내용 8000
+pageNo 			페이지번호 4 1 1 페이지 번호
+numOfRows 		표시건수 4 1 10 한 페이지 결과수
+totalCount 		전체건수 4 1 100 전체 데이터 건수
+resultCode 		결과코드 2 1 00 결과코드
+resultMsg 		결과메세지 50 1 NORMAL
+
+
+
+
+menuId			 3382,
+menuNm			 새송이 소고기볶음(中),
+menuPrice			 45000,
+spcltMenuYn			 n,
+spcltMenuNm			 null,
+spcltMenuOgnUrl			 null,
+areaNm			 		서울특별시 마포구,
+rstrId			 	15288,
+rstrNm			 	챠우 매화
+
+
+private String menuId;			
+private String menuNm;			
+private String menuPrice;		
+private String spcltMenuYn;		
+private String spcltMenuNm;		
+private String spcltMenuOgnUrl;
+private String areaNm;			
+private String rstrId;			
+private String rstrNm;			
+
+
+private Integer rstrId;		 		24920,
+private String rstrNm;			 "성당옆한스로스까스모밀(명동본점)",
+private String areaNm;			"서울특별시 중구",
+private String rstrImgUrl;		 "https://ukcooyocdlvo8099722.cdn.ntruss.com/public_data/2021-07/restaurant/885508_664598840.jpg"
+
+
