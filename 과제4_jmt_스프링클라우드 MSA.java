@@ -1104,9 +1104,6 @@ config-server 의 ai-service.yml 파일 추가
 
 https://platform.openai.com/api-keys
 
-API keys :
-  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
-
 
 
 gemini project-id : jmt502
