@@ -727,8 +727,6 @@ JWT(Json Web Token) 8/3 토요일 강의
 
 
 	http://jeommechu.xyz:3101/eureka/apps/api-service
-	
-	http://13.124.204.160:3100/admin-service/default
 
 
 
@@ -810,32 +808,32 @@ JWT(Json Web Token) 8/3 토요일 강의
 리액트
 
 
-		cd d:\react\react_project
-		npm i ( == yarn install )
+cd d:\react\react_project
+npm i ( == yarn install )
 
 
 
 
-		리액트의 기본포트 3000 -> 
+리액트의 기본포트 3000 -> 
 
-		package.json -> 
+package.json -> 
 
-		scripts": {
-			"start": "set PORT=4000 &&& react-scripts start",
-		   
+scripts": {
+    "start": "set PORT=4000 &&& react-scripts start",
+   
 
-		yarn start
+yarn start
 
 
-		page
-		 
-		리액트 환경변수 
-		.env.development.local
+page
+ 
+ 
+.env.development.local
 
-			REACT_APP_API_URL=http://localhost:3000/api/v1  : api 서버 URL + contextPath(?)
-		 
-		fetch-API 안되고 axios 사용
-		D:\react\react_project>yarn add axios
+	REACT_APP_API_URL=http://localhost:3000/api/v1
+ 
+fetch-API 안되고 axios 사용
+D:\react\react_project>yarn add axios
  
  
 
@@ -847,11 +845,6 @@ http://jeommechu.xyz:3101/eureka/apps/api-service
 
 
 D:\react\react_project>yarn add react-cookies
-
-
-
-https://seoul.openapi.redtable.global/
-
 
 서울관광재단 API 토큰 : 개인
 8Mu7gNxO98975QV25VMKBnsDC82WaomG1raYEiOXoi3kOTGsi89KCUJBxZI0HNz6
@@ -925,7 +918,7 @@ https://seoul.openapi.redtable.global/api/rstr?serviceKey=인증키(URL Encode)
 		127.0.0.1:6379>		
 		
 		----------------------------------------------
-		D:\>docker pull redis
+		D:\react>docker pull redis
 		Using default tag: latest
 		latest: Pulling from library/redis
 		efc2b5ad9eec: Pull complete
@@ -944,16 +937,16 @@ https://seoul.openapi.redtable.global/api/rstr?serviceKey=인증키(URL Encode)
 		  1. Sign in to your Docker account → docker login
 		  2. View a summary of image vulnerabilities and recommendations → docker scout quickview redis
 
-		D:\>docker images
+		D:\react>docker images
 		REPOSITORY                  TAG       IMAGE ID       CREATED        SIZE
 		redis                       latest    509b2fc82da6   8 days ago     117MB
 		gvenzl/oracle-xe            18        df6621d4edd4   2 months ago   2.61GB
 		loliconneko/oracle-ee-11g   latest    b1ed15c38b8c   5 years ago    5GB
 
-		D:\>docker run -d -p 6379:6379 --name redis redis
+		D:\react>docker run -d -p 6379:6379 --name redis redis
 		2f224eb1a67eecffffb6f9e3a59e14f3773b9e0fd5f0a293efc44189725f7d59
 
-		D:\>docker exec -it redis /bin/bash
+		D:\react>docker exec -it redis /bin/bash
 		root@2f224eb1a67e:/data# redis-cli
 		127.0.0.1:6379> set key1 value1
 		OK
@@ -984,129 +977,9 @@ https://seoul.openapi.redtable.global/api/rstr?serviceKey=인증키(URL Encode)
 
 지도 
 
-		카카오지도 javascript 앱키 : 063ffec469036373c5a718c90f2f3bdb
+카카오지도 javascript 앱키 : 063ffec469036373c5a718c90f2f3bdb
 
-		앱이름 : hj**
+앱이름 : hjchoi
 
-		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=발급받은 APP KEY를 사용하세요"></script>
-		<script>
-
-
-
-	<AI기반 메뉴 추천 식당 예약 서비스 - 점메추>
-
-	1. 회원 - 회원가입(관심지역 설정), 로그인, 이메일 전송(회원가입 인증, 비밀번호 초기화)
-	   마이페이지 - 회원정보 수정, 찜한 내역, 리뷰 작성
-	   (수민)
-
-	2. 메인 페이지 - 상단 메뉴, 관심지역, 검색, 배너, 음식 카테고리
-	   매장 목록 페이지
-	   (재은)
-
-	3. 매장 정보 - 지도 API, 메뉴, 리뷰 조회(사진 업로드), 찜하기
-		(민혁)
-		
-
-	4. 예약, 결제 페이지 - 예약내역
-		(정인)
-
-	5-1. 메뉴 추천(AI) 페이지
-	5-2. 관리자 - 회원 관리, 리뷰 관리
-		(회원)
-
-
-
-mobile page 만들기 
-
-    <meta name="viewport" content="width=device-width,user-scalable=yes,initial-scale=1.0,minimum-scale=0.5,maximum-scale=2.0">
-
-	크롬 F12 -> 네트워크 -> 요청헤더 -> User-Agent 
-	  : Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Mobile Safari/537.36
-		
-	  : Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1
-
-	".*(iPhone|iPod|iPad|BlackBerry|Android|Windows CE|LG|MOT|SAMSUNG|SonyEricsson).*";
-
-	?device=PC PC뷰로 수동이동
-	?device=MOBILE 모바일뷰로 수동이동
-	=> interceptor : 컨트롤러 처리 전에 동작하기 위해 preHandle 
-	
-	
-
-		@Component
-		public class CommonInterceptor implements HandlerInterceptor {
-			@Override
-			public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-				//모든 컨트롤러 전에 ..
-				checkDevice(request);
-
-				return HandlerInterceptor.super.preHandle(request, response, handler);
-			}
-
-			private void checkDevice(HttpServletRequest request) {
-				String device = request.getParameter("device");
-				if(StringUtils.hasText(device)) {
-					return;
-				}
-
-				device = device.toUpperCase().equals("MOBILE") ? "MOBILE" : "PC";
-				HttpSession session = request.getSession();
-				session.setAttribute("device", device);
-			}
-		}
-
-
-		@Configuration
-		@RequiredArgsConstructor
-		public class InterceptorConfig implements WebMvcConfigurer {
-
-			//사이트 공통 인터셉터
-			private final CommonInterceptor commonInterceptor;
-
-			@Override
-			public void addInterceptors(InterceptorRegistry registry) {
-				//공통 적용 - 모든 페이지에 적용할때 ** 설정은 생략 가능함
-				registry.addInterceptor(commonInterceptor);
-			}
-		}
-
-
-
-react kakao map
-
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=발급받은 APP KEY를 사용하세요&libraries=services"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=발급받은 APP KEY를 사용하세요"></script>
 <script>
-
-063ffec469036373c5a718c90f2f3bdb
-
-
-
-
-AI Server
-
-https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.2&packaging=jar&jvmVersion=17&groupId=com.jmt&artifactId=ai&name=ai&description=AI%20PROJECT&packageName=com.jmt&dependencies=devtools,lombok,web,cloud-config-client,cloud-eureka,spring-ai-openai,spring-ai-vertexai-gemini
-
-build.gradle에 추가
-	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-
-
-config-server 의 ai-service.yml 파일 추가
-
-	server:
-	  port: 3003
-
-
-
-
-
-
-https://platform.openai.com/api-keys
-
-API keys :
-  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
-
-
-
-gemini project-id : jmt502
