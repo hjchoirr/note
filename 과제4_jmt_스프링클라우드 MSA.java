@@ -984,9 +984,9 @@ https://seoul.openapi.redtable.global/api/rstr?serviceKey=인증키(URL Encode)
 
 지도 
 
-		카카오지도 javascript 앱키 : 063ffec469036373c5a718c90f2f3bdb
+		카카오지도 javascript 앱키 : 
 
-		앱이름 : hj**
+		앱이름 : hj***
 
 		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=발급받은 APP KEY를 사용하세요"></script>
 		<script>
@@ -1077,7 +1077,7 @@ react kakao map
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=발급받은 APP KEY를 사용하세요&libraries=services"></script>
 <script>
 
-063ffec469036373c5a718c90f2f3bdb
+
 
 
 
@@ -1105,8 +1105,6 @@ config-server 의 ai-service.yml 파일 추가
 https://platform.openai.com/api-keys
 
 API keys :
-  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
-
 
 
 gemini project-id : jmt502
