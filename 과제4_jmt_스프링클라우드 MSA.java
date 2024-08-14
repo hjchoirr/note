@@ -813,7 +813,7 @@ JWT(Json Web Token) 8/3 토요일 강의
 		cd d:\react\react_project
 		npm i ( == yarn install )
 
-
+		yarn upgrade
 
 
 		리액트의 기본포트 3000 -> 
@@ -903,7 +903,7 @@ https://seoul.openapi.redtable.global/api/rstr?serviceKey=인증키(URL Encode)
 서버간 로그인 유지
 
 	Spring session
-	Spring data redis
+	Spring data redis - 로그인 유지, 캐시 등에 사용함
 
 	직렬화 
 
@@ -1084,6 +1084,8 @@ react kakao map
 
 AI Server
 
+spring boot initializer
+
 https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.2&packaging=jar&jvmVersion=17&groupId=com.jmt&artifactId=ai&name=ai&description=AI%20PROJECT&packageName=com.jmt&dependencies=devtools,lombok,web,cloud-config-client,cloud-eureka,spring-ai-openai,spring-ai-vertexai-gemini
 
 build.gradle에 추가
@@ -1108,3 +1110,48 @@ API keys :
 
 
 gemini project-id : jmt502
+
+
+
+gateway-servier 에 환경변수 추가 (IPv4 사용하기)
+: java.net.preferIp4Stack=true
+
+
+API 서버
+
+	@Getter
+	@Setter
+	@MappedSuperclass
+	@EntityListeners(AuditingEntityListener.class)
+	public abstract class BaseEntity {
+
+		@CreatedDate
+		@Column(updatable = false)
+		@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+		private LocalDateTime createdAt;
+
+		@LastModifiedDate
+		@Column(insertable = false)
+		@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+		private LocalDateTime modifiedAt;
+
+		@Column(insertable = false)
+		@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+		private LocalDateTime deletedAt;
+	}
+
+
+
+
+yarn add react-modal 
+
+joinform.js
+
+
+
+<MessagesContainer>
+  {messages.map((message) => (
+    <Message />
+  )}
+  <div></div> // <-- 이 위치로 스크롤이 내려오게 할 것이다.
+</MessagesContainer>
