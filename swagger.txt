@@ -1,0 +1,77 @@
+Swagger API 
+
+Spring initial
+
+https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.3&packaging=jar&jvmVersion=17&groupId=org.choongang&artifactId=project&name=project&description=Demo%20project%20for%20Spring%20Boot&packageName=org.choongang&dependencies=devtools,lombok,web,validation
+
+
+
+mvn respository : SpringDoc OpenAPI Starter WebMVC UI 검색
+ - SpringDoc OpenAPI Starter WebMVC UI » 2.6.0
+ 
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+
+------------------------------
+application.yml
+------------------------------
+
+server:
+  port: 3000
+
+springdoc:
+  version: '1.0.0'
+  api-docs:
+    path: /api-docs
+  default-consumes-media-type: application/json  # 요청 헤더의 content-Type
+  default-produces-media-type: application/json  # 응답 헤더의 content-Type
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+    path: /apidocs.html
+    disable-swagger-default-url: true
+  paths-to-match:
+    - /api/**
+
+
+-----------------------------------------------------------------------------------------------------
+package org.choongang.global.configs;
+
+@OpenAPIDefinition(info=@Info(title = "API 명세", description = "설명..", contact = @Contact(name="hjchoi", email="hjchoi@naver.com"), version = "v1"))
+@Configuration
+public class SwaggerConfig {
+
+    @Bean
+    public GroupedOpenApi apiGroup() {
+        return GroupedOpenApi.builder().group("API 명세")
+            .pathsToMatch("/api/v1/**")
+            .build();
+    }
+}
+
+-----------------------------------------------------------------------------------------------------
+package org.choongang.member.controllers;
+
+@Tag(name="Member", description = "회원 API")
+@RestController
+@RequestMapping("/api/vi1/member")
+public class MemberController {
+    @Operation(summary =  "회원가입", description = "회원가입에 대한 자세한 설명")
+
+    @ApiResponse(responseCode = "201", description="회원가입 성공시 201")
+    @Parameters (
+        {
+            @Parameter(name="email", required = true, description = "이메일, 로그인 시 사용"),
+            @Parameter(name="password", required = true, description = "패스워드"),
+            @Parameter(name="mobile", required = true, description = "휴대 전화 번호")
+        }
+    )
+
+    @PostMapping
+    public ResponseEntity<Member> join(@RequestBody RequestJoin form) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(new Member());
+    }
+}
+
+-----------------------------------------------------------------------------------------------------
+http://localhost:3000/swagger-ui/index.html

@@ -1155,3 +1155,8 @@ joinform.js
   )}
   <div></div> // <-- 이 위치로 스크롤이 내려오게 할 것이다.
 </MessagesContainer>
+
+
+
+
+9/2 10시부터 AWS 2조 설정 동영상
