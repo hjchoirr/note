@@ -1,0 +1,105 @@
+리액트 복습
+
+컴포넌트 리로드 기준 
+
+	1) props : 부모 props가 변경되면 자식 컴포넌트가 리로드됨
+	2) state : 컴포넌트 안의 상태값이 변경되면 useState 총해 만든 겂) 리로드
+	3) 부모컴포넌트가 리로드 -> 자식컴포넌트(하위 컴포넌트)도 리로드
+		- 하위 컴포넌트가 변경 사항이 없으면 메모제이션 (캐싱) : React.memo(컴포넌트)
+	4) 강제(클래스형 컴포넌트에서 this.forceUpdate())
+	
+1. JSX 문법
+	- Fragment
+	- export default Counter : default 는 하나의 컴포넌트만 내보낼때 
+	
+	(..) 
+	- 자바스크립트 변수, 간단한 식 -> {...}
+			
+	- {/* 주석..*/}	
+	- 조건문(if) 반복문(for, while) 사용 불가
+	- 삼항조건문은 사용가능함( 간단한 조건문)
+
+
+		const Counter = () => {
+			const num = 10;
+			return (
+				<>
+				{/* 주석..*/}	
+				<h1>{num + 5}</h1>
+				<button type="button" //주석
+				>-1</button>
+				<button type="button">+1</button>
+				</>
+			);
+		};
+		export default Counter;
+	
+	참고) or 연산자(||) : 기본값 설정시
+	
+		let num;
+		num = num || 10;
+		10
+
+		let num = 1;
+		num = num || 10;
+		1	
+
+		좀 불안함 => 
+
+		let num = 0  // 0 으로 초기값 하려면 .. ( 0 도 undefined ) 
+		num = num ?? 10
+		0
+
+
+	참고) and 연산자(&&) : 조건문 대신 사용 
+
+		const msg = "안녕하세요";
+		undefined
+		msg && alert(msg);  // msg 에 값이 있으면 실행하기 : 조건문 대신 사용
+
+
+		const msg = '';   // undefined
+		msg && alert(msg);  // 실행 안됨
+
+
+
+		.prettierrc
+
+		{
+		"singleQuote": true,
+		"semi": true,
+		"useTabs": false,
+		"tabWidth": 2
+		}
+
+	
+
+VS Code 설정은 Code(윈도우의 경우 파일) -> 기본 설정 > 설정 메뉴 
+ - format on save 
+
+
+2. 컴포넌트
+  - 클래스형 컴포넌트
+  - 함수형 컴포넌트
+  
+  
+	: 클래스형 - 2018년 이후로는 안쓰임
+	class 컴포넌트명 extends Component {
+		render() {
+			return JSX문법
+		}
+	}
+
+	function 컴포넌트명() {
+		return (
+			JSX문법
+		);
+	}
+	
+	- 속성 : 컴포넌트에 전달하는 값
+	
+	
+
+function vs const 차이 강의 9/3 12:30 동영상
+
+ - prototype, this 다름

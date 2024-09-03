@@ -1,0 +1,69 @@
+Next.js
+
+1. 설치, 실행, 배포
+2. 빌드와 배포
+3. 뼈대만들기
+4. 라우팅
+    폴더/page.js - 폴더
+	1) 경로변수 - 폴더명 [ 경로변수명] 으로 만들면 경로변수가 된다
+	props 
+	: params  - 경로변수
+	: searchParams - 쿼리스트링값
+
+5. Single page Application 
+
+   - CSR ( client Side Rendering ) React Router
+     : 반응성 쫗고 
+	 : 인터넷 연결 없어도 기본 페이지 보인다
+	 : 검색 반영 안됨
+	 : Link, NavLink 사용
+   
+   - Next.js 의 기본방식 : SSR (Server  Side Rendering)
+     : 검색 반영 되지만 
+	 : 페이지 새로 고침을 하므로 반응성은 좋지 않다
+	 : a 태그를 이용하여 링크 이용
+	 
+	 : next.js 에서 CSR 사용하려면? Link 태그 사용
+	 
+6.환경변수
+	.env ..
+	NEXT_PUBLIC_ :접두어 NEXT_PUBLIC_ 있어야 함 ( 보안) 환경변수 접근 가능
+	( ex: process.env.NEXT_PUBLIC_API_URL )
+	
+	
+	참고) 리액트네이티브
+	REACT_APP_ : 접두어 REACT_APP_ 있어야 함 ( 보안) 환경변수 접근 가능
+	( ex: process.env.REACT_APP_API_URL )
+
+
+
+
+cd D:\hjchoi\16.리액트네이티브>
+
+ ( yarn create next-app@latest 프로젝트명 : 아님 )
+ 
+ D:\hjchoi\16.리액트네이티브>npm i -g next-app 
+ D:\hjchoi\16.리액트네이티브>yarn create next-app exam01
+ 
+ 옵션선택 
+	- typescript
+	- @types/node
+	- @types/react
+	- @types/react-dom
+	- postcss
+	- tailwindcss
+	- eslint
+	- eslint-config-next
+	
+	
+package.json 파일 참조
+
+yarn dev : 개발서버 실행
+yarn build : 배포파일 생성 
+yarn start : 실서버 실행 ( yarn build -> yarn start )
+
+ layout.js
+ page.js
+ 
+ 
+ 
