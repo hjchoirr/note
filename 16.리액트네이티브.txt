@@ -46,14 +46,13 @@ cd D:\hjchoi\16.리액트네이티브>
  D:\hjchoi\16.리액트네이티브>yarn create next-app exam01
  
  옵션선택 
-	- typescript
-	- @types/node
-	- @types/react
-	- @types/react-dom
-	- postcss
-	- tailwindcss
-	- eslint
-	- eslint-config-next
+ 
+	- typescript NO
+	- eslint Yes
+	- tailwind css No
+	- src/ directory Yes
+	- App Routeer Yes
+	- import alias ( @/* ) No
 	
 	
 package.json 파일 참조

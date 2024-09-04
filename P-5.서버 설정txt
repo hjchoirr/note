@@ -1,0 +1,44 @@
+
+config 서버
+
+	- P-4 의 config server 에 추가함
+	- bootstrap.yml
+	  spring.profiles.active : native, git
+	  spring.cloud.config.server.git.uri: https://github.com/hjchoirr/P5.git
+      spring.cloud.config.server.git.searchPaths: project_config/configs
+      spring.cloud.config.server.git.default-label: master
+
+
+gateway 서버
+
+	spring boot initial
+
+	https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.3.3&packaging=jar&jvmVersion=17&groupId=org.choongang&artifactId=gateway&name=gateway&description=Demo%20project%20for%20Spring%20Boot&packageName=org.choongang&dependencies=cloud-config-client,cloud-eureka,cloud-gateway-reactive,actuator
+
+
+	Spring Cloud Starter Bootstrap » 4.1.4
+
+		implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.4'
+		-> implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+
+	http://localhost:5000/actuator/gateway/routes
+
+
+>git init
+>git remote add origin https://github.com/hjchoirr/BoardProject.git 
+>git add .
+>git commit -m "초기 업로드"
+>git push origin master
+
+member에 swagger 설정 후
+
+http://localhost:5001/swagger-ui/index.html
+http://localhost:5000/member-service/swagger-ui/index.html
+
+
+로컬환경
+테스트 서버 구축 - 로컬 개발PC에 연동되는지 테스트
+AWS - 젠킨스연동
+
+

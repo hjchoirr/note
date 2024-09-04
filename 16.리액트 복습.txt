@@ -96,10 +96,202 @@ VS Code 설정은 Code(윈도우의 경우 파일) -> 기본 설정 > 설정 메
 		);
 	}
 	
+	const 컴포넌트명 = () => {
+		return (
+			JSX문법
+		);
+	}	
+	
 	- 속성 : 컴포넌트에 전달하는 값
-	
+	- 컴포넌트의 함수 매개변수에서 확인 가능(props)
+
+	* props => property 
 	
 
-function vs const 차이 강의 9/3 12:30 동영상
+function vs const 차이 강의 9/3 12:28 동영상
 
- - prototype, this 다름
+  - const 화살표함수 : 생성자 없고 prototype 없다. 이미 정의할때 부터 this 가 결정되어 있다.
+  - function : 생성자 있고 prototype 있다. 호출될때 this 가 결정됨
+  
+ 
+js 비구조 할당
+
+const person = {
+    name: "이이름",
+    age: 40,
+};
+
+
+const { name: a, age: b } = person;
+a
+'이이름'
+b
+40
+
+
+const { name, age } = person;  // 이것도 가능
+
+const fruits = ["apple", "orange", "mango"];
+const [a, b, c] = fruits ;
+
+==============================================
+import React from 'react'; // 윈도우는 안써도 되는데 맥이나 리눈스는 꼭 넣어야하므로 반드시 넣자
+/*
+const Greeting = (props) => {
+  console.log(props);
+  //console.log('props', props);
+  //console.log(Object.getOwnPropertyDescriptors(props));
+  //console.log('isExtensible', Object.isExtensible(props));
+  //console.log('isFrozen', Object.isFrozen(props));
+  //console.log('isExtensible', Object.isExtensible(props));
+  //props.name = '최이름';
+  return (
+    <div>
+      <h1>{props.name1}님, 안녕하세요?</h1>
+    </div>
+  );
+};
+*/
+const Greeting = ({name1, age}) => {
+  //age = age ?? 20; 
+  age = age || 20;
+  console.log(name1);
+  return (
+    <div>
+      <h1>{name1}님, {age } 안녕하세요?</h1>
+    </div>
+  );
+};
+
+
+/*
+const Greeting = (props) => {
+  const {name1, age} = props;
+  console.log(props);
+  return (
+    <div>
+      <h1>{name1}님{age}, 안녕하세요?</h1>
+    </div>
+  );
+};
+*/
+export default Greeting;
+==============================================
+import React from 'react';
+import Greeting from './components/Greeting';
+
+const Counter = () => {
+  const num = 10;
+  const visible = true;
+
+  const styles = {
+    backgroundColor: 'skyblue',
+    color: 'blue',
+  };
+
+  return (
+    <>
+      <Greeting name1="김이름" />
+      <h1 style={styles}>{num + 5}</h1>
+      <button type="button">-1</button>
+      <button type="button">+1</button>
+      {visible && <h3>보일까?</h3>}
+    </>
+  );
+
+};
+
+export default Counter;
+==============================================
+
+
+3. 이벤트 핸들링
+
+4. ref
+5. Hooks
+1) useState 
+   - state : 상태값
+		- 컴포넌트 내부에서 변경될 수 있는 값
+		- 컴포넌트의 리랜더링 기준, 값이 바뀌면 컴포넌트가 리랜더링 된다.
+		- 
+		- const[상태값, 상태변경함수] = useState(기본값);
+
+
+
+'use client'
+import React, { useState } from 'react';
+
+const Counter = () => {
+  const [num, setNum] = useState(0);
+  const onIncrease = () => {
+    setNum(num + 1);
+    num2++;
+    console.log("num2", num2);
+  }
+  const onDecrease = () => setNum(num -1); 
+/*
+  return (
+    <>
+      <h1>{num}</h1>
+      <button onClick={() => {setNum(num - 1)}} type="button">-1</button>
+      <button onClick={() => {setNum(num + 1)}} type="button">+1</button>
+    </>
+  );
+*/
+return (
+  <>
+    <h1>{num}</h1>
+    <button onClick={onDecrease} type="button">-1</button>
+    <button onClick={onIncrease} type="button">+1</button>
+  </>
+);
+
+};
+
+export default Counter;
+
+
+useRef
+ - 지역변수는 사용못하는 대신 사용
+ 
+
+이벤트핸들링
+
+event
+
+
+
+5. Hooks 
+
+	react-icons
+
+	exam001>yarn add react-icons
+
+	참고)
+	
+		컨테이너 컴포넌트 : 이벤트처리, 값의 가공처리
+		
+		프리젠테이셔널 컴포넌트 : 컨테이너 컴포넌트가 가공한 값을 출력
+		
+
+	1) useState
+		<FaCheckSquare />
+		<FaRegCheckSquare />
+
+
+		상태변경함수(값);
+		상태변경함수(함수형태);
+
+		예) setItems(newItems);
+			setItems(이전상태값 => 반환값);   //useCallback, useEffect 와 함께 많이 쓰임
+
+			const onToggle = (id) => {
+				setItems((prev) =>
+				  prev.map((item) =>
+					item.id === id ? { ...item, done: !item.done } : item,
+				  ),
+				);
+			  };
+			  
+		immer를 사용하여 더 간편하게 불변성 관리
+		yarn add immer
