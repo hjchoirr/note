@@ -57,7 +57,7 @@ cd D:\hjchoi\16.리액트네이티브>
 	
 package.json 파일 참조
 
-yarn dev : 개발서버 실행
+yarn dev : 개발서버 실행   ( == npm run dev )
 yarn build : 배포파일 생성 
 yarn start : 실서버 실행 ( yarn build -> yarn start )
 
@@ -65,4 +65,53 @@ yarn start : 실서버 실행 ( yarn build -> yarn start )
  page.js
  
  
+ https://ko.javascript.info/ : js 기초
  
+리액트네이티브 작업환경
+
+	맥) brew install watchman
+
+	안드로이드 스튜디오 다운로드
+	
+	윈도우 환경변수 ANDROID_HOME
+	C:\Users\admin\AppData\Local\Android\Sdk
+	
+새 리액트 프로젝트 만들기 (한글폴더 안됨)
+  npx react-native init 프로젝트명(알파벳)
+  
+  
+  -> node_modules 설치된 의존성(명령어)
+
+	D:\hjchoi\16.react_native>npx react-native init LearnReactNative
+	
+	vscode D:\hjchoi\16.react_native\LearnReactNative>yarn android
+	
+	dpi ( Dots per inch )
+	ex) 160dpi -> 1 inch에 160 픽셀로 구성된 화면
+	
+	1dp -> 1px (160dpi)
+	1dp -> 2px (320dpi) 
+	
+	
+
+
+
+1. 리액트 네이티브 첫 걸음
+1) 리액트 네이티브란?
+2) 작업환경 준비하기
+3) 새 리액트 프로젝트 만들기
+4) 프로젝트 살펴보기
+5) ESLint, Prettier 
+
+2. 컴포넌트
+1) 나만의 컴포넌트 만들기
+2) Props 
+3) defaultProps
+4) JSX 문법
+5) StyleSheet로 컴포넌트에 스타일 입히기
+6) Props 객체 구조 분해 할당
+7) useState Hook으로 상태 관리하기
+8) 카운터 만들기
+
+
+

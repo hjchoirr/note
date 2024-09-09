@@ -35,6 +35,10 @@ member에 swagger 설정 후
 
 http://localhost:5001/swagger-ui/index.html
 http://localhost:5000/member-service/swagger-ui/index.html
+http://13.124.204.160:3100/gateway-server/default
+http://13.124.204.160:3100/gateway-server/default
+http://13.124.204.160:3100/gateway-service/dev
+
 
 
 로컬환경

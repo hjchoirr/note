@@ -208,13 +208,6 @@ export default Counter;
 3. 이벤트 핸들링
 
 4. ref
-5. Hooks
-1) useState 
-   - state : 상태값
-		- 컴포넌트 내부에서 변경될 수 있는 값
-		- 컴포넌트의 리랜더링 기준, 값이 바뀌면 컴포넌트가 리랜더링 된다.
-		- 
-		- const[상태값, 상태변경함수] = useState(기본값);
 
 
 
@@ -261,7 +254,14 @@ event
 
 
 
-5. Hooks 
+5. Hooks
+	1) useState 
+	   - state : 상태값
+			- 컴포넌트 내부에서 변경될 수 있는 값
+			- 컴포넌트의 리랜더링 기준, 값이 바뀌면 컴포넌트가 리랜더링 된다.
+			- 
+			- const[상태값, 상태변경함수] = useState(기본값);
+
 
 	react-icons
 
@@ -271,17 +271,15 @@ event
 	
 		컨테이너 컴포넌트 : 이벤트처리, 값의 가공처리
 		
-		프리젠테이셔널 컴포넌트 : 컨테이너 컴포넌트가 가공한 값을 출력
+		프리젠테이셔널 컴포넌트 : 컨테이너 컴포넌트가 가공한 값을 출력 
 		
 
 	1) useState
-		<FaCheckSquare />
-		<FaRegCheckSquare />
-
 
 		상태변경함수(값);
 		상태변경함수(함수형태);
 
+		- const 
 		예) setItems(newItems);
 			setItems(이전상태값 => 반환값);   //useCallback, useEffect 와 함께 많이 쓰임
 
@@ -293,5 +291,125 @@ event
 				);
 			  };
 			  
-		immer를 사용하여 더 간편하게 불변성 관리
+		immer를 사용하여 더 간편하게 불변성 관리 
 		yarn add immer
+
+
+	map 화살표
+
+	const newItem2 = items.map((item) =>
+	  item.id == id ? { ...item, done: !item.done } : item
+	);
+
+	위와 동일 : 화살표, 중괄호, return 차이점..
+
+	const newItem2 = items.map((item) => {
+	  return item.id == id ? { ...item, done: !item.done } : item   ;
+	});
+
+
+	리액트는 id 쓰지말아야 함 : 싱글페이지 이므로
+
+	2) ref(DOM에 이름달기)
+		DOM요소 refUse
+
+	6) React.memo(컴포넌트)
+
+	5) useCallback
+		변화감지 기준의 값이 변경되지 않으면 함수가 다시 정의되지 않도록
+		함수는 무조건 useCallback으로 감싸기
+
+
+	7) useMemo - 특정 함수의 연산 값이 바뀌어야만 함수가 호출되도록 함
+
+	메모제이션 (캐싱) - useMemo, useCallback, useRef
+
+	8) useEffect
+		 - 컴포넌트 랜더링시 호출 : 최초에 필요한 작업
+		 - 변화 감지 기준값이 변경될때 호출
+
+	9) useReducer ( useRecall 새로 나옴)
+		- useState와 비슷한 기능
+		- 상태값 관리
+		- 상태 변화 함수를 컴포넌트 밖에 정의 
+		   : 컴포넌트가 렌더링 다시 되어도 다시 만들어지지 않는다.
+		   
+	
+	
+-----------------------------------
+'use client';
+import React, { useReducer } from 'react';
+
+function reducer(state, action) {
+  switch(action.type) {
+    case 'INCREASE': 
+      return { number: state.number + 1};
+    case 'DECREASE':
+      return { number: state.number - 1};
+    default:
+      return state;
+  }
+}
+const Counter = () => {
+  const [state, dispatch] = useReducer(reducer, {number: 0});
+  const { number } = state;
+
+  return (
+    <>
+      <h1>{number}</h1>
+      <button type="button" onClick={() => dispatch({type: 'DECREASE'})}>-1</button>
+      <button type="button" onClick={() => dispatch({type: 'INCREASE'})}>+1</button>
+    </>
+  );
+};
+-----------------------------------
+export default Counter;
+import Counter from './Counter';
+
+export const metadata = {
+    title: '타운터',
+};
+
+const CounterPage = () => {
+    return <Counter />;    
+};
+
+export default CounterPage;
+-----------------------------------
+
+
+
+컴포넌트 스타일링
+
+1) sass - yarn add sass
+2) scss 
+3) CSS Module - 리액트에서 기본제공
+  .module.css
+  
+4) classnames
+  yarn add classnames
+
+5) styled-components  **** 가장 많이 사용함 ****
+
+	yarn add styled-components
+
+	tagged 함수
+	``
+	
+	
+컴포넌트 성능최적화
+ - useCallback
+ - useMemo React.memmo(컴포넌트이름);
+ 
+ 
+지연로딩 
+1. 코드 스플리팅
+  Loadable component
+  - 설치 : yarn add @loadable/component
+  
+2. Context API 
+  : 전역 상태 관리
+  
+  
+  
+  
