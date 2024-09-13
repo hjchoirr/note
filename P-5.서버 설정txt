@@ -46,3 +46,146 @@ http://13.124.204.160:3100/gateway-service/dev
 AWS - 젠킨스연동
 
 
+
+RestTemplate에서 PATCH, PUT 등 메서드 지원 하게 설정
+
+의존성 추가
+implementation 'org.apache.httpcomponents.core5:httpcore5:5.3'
+
+globals/configs/BeanConfig.java
+
+	@Lazy
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+    }
+
+
+
+@WithMockUser
+MockSecurityContextFactory
+
+9/13 
+  10:40 동영상 MockMember
+  11:45 @PreAuthorize - controller 아니어도 .. 사용..부분
+
+
+package org.choongang.global.tests;
+
+import org.choongang.member.MemberInfo;
+import org.choongang.member.entities.Authorities;
+import org.choongang.member.entities.Member;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithSecurityContextFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+public class MockSecurityContextFactory implements WithSecurityContextFactory<MockMember> {
+
+    @Autowired
+    private PasswordEncoder encoder;
+    @Override
+    public SecurityContext createSecurityContext(MockMember mockMember) {
+        Member member = new Member();
+        member.setSeq(1L);
+        member.setEmail(mockMember.email());
+        member.setPassword(encoder.encode(mockMember.password()));
+        member.setUserName(mockMember.userName());
+        member.setMobile(mockMember.mobile());
+        member.setGid(mockMember.gid());
+
+        Authorities authorities = new Authorities();
+        authorities.setAuthority(mockMember.authority());
+
+        List<Authorities> items = List.of(authorities);
+        member.setAuthorities(items);
+
+        List<SimpleGrantedAuthority> _authorities = List.of(new SimpleGrantedAuthority(mockMember.authority().name()));
+
+        MemberInfo memberInfo = MemberInfo.builder()
+                .email(member.getEmail())
+                .password(member.getPassword())
+                .authorities((_authorities))
+                .member(member)
+                .build();
+
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(memberInfo, null, _authorities);
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(token);
+
+        return context;
+    }
+}
+
+---------------------------------------------------------------
+package org.choongang.global.tests;
+
+import org.choongang.member.constants.Authority;
+import org.springframework.security.test.context.support.WithSecurityContext;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.RUNTIME)
+@WithSecurityContext(factory = MockSecurityContextFactory.class)
+public @interface MockMember {
+    long seq() default 1L;
+    String gid() default "testgid";
+    String email() default "user01@test.com";
+    String password() default "user01@test.comT";
+    String userName() default "test사용자01";
+    String mobile() default "0100001111";
+    Authority authority() default Authority.USER;
+}
+
+
+package org.choongang.board;
+
+import org.choongang.global.tests.MockMember;
+import org.choongang.member.MemberUtil;
+import org.choongang.member.constants.Authority;
+import org.choongang.member.entities.Member;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+public class boardTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private MemberUtil memberUtil;
+
+    @Test
+    @MockMember
+    void test1() {
+        Member member = memberUtil.getMember();
+        System.out.println("mock member :" + member);
+    }
+
+    @Test
+    @MockMember(authority = Authority.ADMIN)
+    void test2() throws Exception {
+        mockMvc.perform(get("/admin/info/free")).andDo(print());
+    }
+}
+
+@PreAuthorize("hasAnyAuthority('ADMIN')")
+public 
+
