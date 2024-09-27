@@ -1,0 +1,57 @@
+리액트 스터디
+
+1)
+	const { name, nickname} = state;
+	const name = state.name; const nickname = state.nickname; 이랑 같음 object 안에 존재하는 값을 바로 변수 할당
+
+2)
+	const [state, dispatch] = useReducer(...) 
+	: Return Type이 두개인데 이걸 둘다 받아쓰기위해서 array로 받는거임
+	: state 라는 object가 첫번째 return. dispatch라는 게 두번째 return.
+	
+	
+3)
+	const [a, b] = [1, 2] 하면 a = 1 이고 b = 2
+	const {a, b} = {a:3, b:5, c:6,...} 면 object내에서 a,b 만가져와서 a = 3, b = 5
+
+
+4)
+	javascript의 모든 함수는 return값을 가짐
+	return문장이 없다면 undefined를 반환함
+
+	화살표 함수도 똑같은 함수표현만 다를 뿐임. ( closure문제는 지금 생각하실 필요가 없습니다.)
+
+	{} 로 묶으면 function(){} 과 같습니다.
+	() => () 이렇게 된다면 ()안의 값이 return값
+
+	{}로 바꾸고 return 값을 지정하지 않으면 에러가 발생
+
+	react component는 JSX.Element를 반환해야 합니다.
+	
+5)
+
+	Object.keys(obj) - 객체의 키값만 담은 배열을 반환
+	Object.values(obj) - 객체의 값만 담은 배열을 반환
+	Object.netries(obj) - [키,값]을 같이 담은 배열을 반환
+
+
+	/* 필수 항목 검증 S */
+      const requiredFields = {
+        email: t('이메일을_입력하세요.'),
+        password: t('비밀번호를_입력하세요.'),
+        confirmPassword: t('비밀번호를_확인하세요.'),
+        userName: t('회원명을_입력하세요.'),
+        userType: t('가입유형을_선택하세요.'),
+        zonecode: t('우편번호를_입력하세요.'),
+        address: t('주소를_입력하세요.'),
+      };
+
+
+      for (const [field, message] of Object.entries(requiredFields)) {
+        if (!form[field] || !form[field]?.trim()) {
+          _errors[field] = _errors[field] ?? [];
+          _errors[field].push(message);
+          hasErrors = true;
+        }
+      }
+

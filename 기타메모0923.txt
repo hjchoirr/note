@@ -1,0 +1,97 @@
+잡코리아, 사람인, 프로그래머스, 원티드
+ - 핵심역량 (주제)
+
+test-key-pair.pem : aws 의 키
+
+C:\Users\admin\Downloads>ssh-keygen -y -f test-key-pair.pem
+ =>  이 결과를 aws .ssh 폴더의 키 파일 내용에 넣기
+ 
+vi /home/ubuntu/.ssh/authorized_keys
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCtindV2+udWjU32xYKzARorzHrXGo58coOgCgOLKyIM0TJoDe6d7Ev/n3OVtc7q70qWF/dLcEvf6nVR6AbGG
+2pbfYhSgAebEqKiSCnyBDnChKtWok/L5Gzm2NwGVB1uPIIT9vHArnzzSBXAruaxOJZn1WGHzX1Vmq0TNBHlH0rOQs3T8yyFO1UFahsvzxldPXCBku7JRNeOqRR
+jDYlPgLi5gzf8yr46NxJOTe/NUS2MxZkIaCX/vFT7KXZ+3VbATD7UNBxG+4UWZV1rNP2t/GRrSz35oqN4lqwFhAz4mPI8HPt7CiX3HCfD8NEk+DDCtkX4LowTT
+M/O3/+dvszHG7Nfm1 team2_2
+
+
+
+젠킨스에 test-key-pair.perm 파일의 내용 붙여넣기
+
+
+	Dashboard >>
+	Jenkins 관리 >>
+	Credentials
+	System
+	Global credentials (unrestricted)
+	ubuntu (API 서버)
+	
+------------------------------------------	
+젠킨스 api 서버 configure
+------------------------------------------	
+
+general 
+ - GitHub project
+
+	https://github.com/GroupStudy502/P-4_WebProject_api/
+	
+ - Build Trigger 
+	GitHub hook trigger for GITScm polling
+
+Pipeline Script
+
+	pipeline {
+		agent any
+
+		stages {
+			stage('Git Clone') {
+				steps {
+					git branch: 'master', url: 'https://github.com/GroupStudy502/P-4_WebProject_api.git'
+				}
+			}
+			stage('Build') {
+				steps {
+					dir(".") {
+						sh "chmod 744 gradlew"
+						sh "./gradlew clean bootJar"
+					}
+				}
+			}
+			stage('Deploy') {
+				steps {
+					sshagent(credentials: ['aws_key_api']) {
+						sh '''
+							ssh -o StrictHostKeyChecking=no ubuntu@43.202.80.182 uptime
+							scp /var/jenkins_home/workspace/apiserver/build/libs/api-0.0.1-SNAPSHOT.jar ubuntu@43.202.80.182:/home/ubuntu/apiserver
+							
+							ssh -t ubuntu@43.202.80.182 ./deploy_apiserver.sh
+						'''
+					}
+				}
+			}
+		}
+	}
+
+- Use Groovy Sandbox
+
+(참고) 젠킨스서버 .bash_history
+
+	sudo -s
+	docker image
+	docker images
+	docker -images
+	docker -i images
+	docker images
+	docker images --help
+	docker images -a
+	sudo -s
+	cd
+	vi .bash_history
+	ls
+	ls -al
+	docker exec -it jenkins /bin/bash
+	sudo -s
+	docker images
+	sudo -s
+	clear
+	docker ps -a
+	sudo -s

@@ -189,3 +189,74 @@ public class boardTest {
 @PreAuthorize("hasAnyAuthority('ADMIN')")
 public 
 
+
+
+nextjs
+	- pages
+	- SSR : Servier Side Rendering
+		- export const getServerSideProps = async(ctx) => {
+			return{
+				props: {}
+			}
+		}
+	- SSG : 정적인 페이지 Server Side Generate
+	- ISR : 점진적인 SSG : revalidate : 초, 주기적으로 SSG를 갱신
+		- export const getStaticProps = async(ctx) => {
+			return{
+				props: {}
+			}
+		}
+	App Router
+		app : 라우터 경로
+	useRouter
+	
+	
+useLayoutEffect : 컴포넌트 마운트되기 전에 실행됨 ( useEffect : 컴포넌트 랜더링시 호출 )
+
+
+useRouter
+
+ - 페이지 이동
+ - 변경 replace("주소")  : history 없음
+ - 새로고침 : reload()
+	next/router -> SSR 모드에서
+	next/navigation -> CSR 모드애서
+	
+
+d:\> yarn dev -p 7000   ( 7000 포트로 리액트 실행 )
+
+
+
+https://www.npmjs.com/search?q=pm2
+
+yarn add pm2
+
+
+/* eslint-disable react-hooks/rules-of-hooks */
+D:\P-5\frontend-admin>yarn server
+D:\P-5\frontend-admin>npx pm2 list
+D:\P-5\frontend-admin>npx pm2 reload all
+D:\P-5\frontend-admin>npx pm2 stop all
+D:\P-5\frontend-admin>npx pm2 delete all
+
+
+yarn dev -p 7001
+
+
+yarn add @ckeditor/ckeditor5-react
+
+
+
+server world 사이트 *****
+
+
+9/26 오전 9시 20분 aws에 yarn build , nginx 설치 , nginx reverse proxy 설치
+
+
+http://thxforservice.xyz/
+http://nonnull.life/
+
+http://nonnull.life:6007/
+http://sangdam.xyz/
+
+

@@ -57,7 +57,7 @@ cd D:\hjchoi\16.리액트네이티브>
 	
 package.json 파일 참조
 
-yarn dev : 개발서버 실행   ( == npm run dev )
+yarn dev : 개발서버 실행   ( == npm run dev )  (참고) yarn dev -p 7000
 yarn build : 배포파일 생성 
 yarn start : 실서버 실행 ( yarn build -> yarn start )
 
@@ -66,6 +66,7 @@ yarn start : 실서버 실행 ( yarn build -> yarn start )
  
  
  https://ko.javascript.info/ : js 기초
+ https://ko.react.dev/  React
  
 리액트네이티브 작업환경
 
@@ -93,8 +94,8 @@ yarn start : 실서버 실행 ( yarn build -> yarn start )
 	1dp -> 2px (320dpi) 
 	
 	
-
-
+params, searchParams
+ params : 경로변수, searchParams : 쿼리스트링..
 
 1. 리액트 네이티브 첫 걸음
 1) 리액트 네이티브란?
