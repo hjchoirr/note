@@ -1,0 +1,199 @@
+
+9/30 오전10시 부터 강의
+
+리액트(next.js) 이력서 참고사이트 https://issuu.com/doeun/docs/_52d8fb9fa659f4
+
+도메인
+
+ - reac-fullpage
+ 
+ 
+1)
+
+D:\portfolio5>npx create-next-app@latest resume
+Need to install the following packages:
+create-next-app@14.2.13
+Ok to proceed? (y) y
+√ Would you like to use TypeScript? ... No* / Yes
+√ Would you like to use ESLint? ... No / Yes*
+√ Would you like to use Tailwind CSS? ... No* / Yes
+√ Would you like to use `src/` directory? ... No / Yes*
+√ Would you like to use App Router? (recommended) ... No / Yes*
+√ Would you like to customize the default import alias (@/*)? ... No* / Yes
+	Creating a new Next.js app in D:\portfolio5\resume.
+
+	Using npm.
+
+	Initializing project with template: app
+
+
+	Installing dependencies:
+	- react
+	- react-dom
+	- next
+
+	Installing devDependencies:
+	- eslint
+	- eslint-config-next
+
+	npm WARN deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+	npm WARN deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+	npm WARN deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+	npm WARN deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+	npm WARN deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+
+	added 312 packages, and audited 313 packages in 30s
+
+	129 packages are looking for funding
+	  run `npm fund` for details
+
+	found 0 vulnerabilities
+	Initialized a git repository.
+
+	Success! Created resume at D:\portfolio5\resume
+
+
+	D:\portfolio5>
+	
+2)	
+VSCode :  open folder--> resume
+
+3)
+
+.prettierrc
+
+	{
+		"singleQuote": true,
+		"semi": true,
+		"useTabs": false,
+		"tabWidth": 2,
+		"trailingComma": "all"
+	}
+
+4) README.md 편집
+
+5) 
+
+
+(참고) 윈도우즈 자격증명 - git 계정 연결되어 있음
+
+
+
+D:\portfolio5\resume>git init
+Reinitialized existing Git repository in D:/portfolio5/resume/.git/
+
+D:\portfolio5\resume>git remote add origin https://github.com/hjchoirr/resume.git
+
+D:\portfolio5\resume>git add .
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+
+D:\portfolio5\resume>git commit -m "초기업로드"
+[master 49668f9] 珥덇린?낅줈?
+ 2 files changed, 8 insertions(+), 36 deletions(-)
+ create mode 100644 .prettierrc
+fatal: unknown write failure on standard output
+
+D:\portfolio5\resume>git push origin master
+Enumerating objects: 23, done.
+Counting objects: 100% (23/23), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (20/20), done.
+Writing objects: 100% (23/23), 180.26 KiB | 12.02 MiB/s, done.
+Total 23 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), done.
+To https://github.com/hjchoirr/resume.git
+ * [new branch]      master -> master
+
+
+6) 
+
+yarn dev
+
+http://localhost:3000/
+
+
+
+7) 의존성 추가 설치 
+
+ - reac-fullpage
+ - sass
+ - styled-components
+ - react-icons
+ 
+D:\portfolio5\resume>yarn add sass styled-components react-icons react-fullpage
+
+
+(참고) 뷰 강의 자료 
+https://github.com/yonggyo1125/curriculum300H/tree/main/9.%EA%B8%B0%ED%83%80/vue.js
+
+
+
+page.js
+layout.js
+global.css
+
+
+https://www.npmjs.com/ -> react-fullpage search
+
+
+(참고) 프로그래머스 코딩테스트 기출문제 많음
+
+
+https://react-icons.github.io/react-icons/
+
+
+google font 검색 -> jua (배민 폰트) -> get embedded code -> web -> link -> copy code
+
+
+aws -> 172.... -> 사설IP
+10.
+192.168.
+
+9/30 4시 부터 aws 에 올리는거 강의
+
+
+ecosystem.config.js
+
+D:\resume\resume>yarn add pm2
+
+packages.json 에 server 추가
+
+
+- aws 에 실행 환경 설치 하기
+
+윈에서 node 다운로드 사이트에 가서  설치 LTS,  linux 용, nvm 옵션 선택하면 설치 스크립트 보여줌
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+   nvm install 20
+   
+git clone
+
+npm i -g yarn
+
+
+aws 포트 허용 - 8000
+
+
+yarn build
+
+yarn server
+
+http://hjchoi.resume502.xyz:8000/
+
+
+( 소스 업데이트 하고 나면 )
+git pull origin master
+yarn build
+
+npx pm2 list -> 앱아이디번호
+npx pm2 stop 앱아이디번호
+
+yarn server
+
+
+
+
+
+
+
+
+
